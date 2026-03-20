@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1.0" name="viewport"/>
+<title>お料理プラン | 岐阜キャッスルイン バンケットサービス</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>tailwind.config={theme:{extend:{colors:{"primary":"#1A2E44","accent-gold":"#C1A36A","background-light":"#FDFCF9"},fontFamily:{"sans":["Noto Sans JP"],"serif":["Noto Serif JP"]}}}}</script>
+<style>body{font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em}</style>
+</head><body class="bg-background-light text-[#24282B]">
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-primary/5"><div class="max-w-7xl mx-auto px-6 lg:px-12 flex h-20 items-center justify-between"><a href="index.html" class="flex flex-col border-l-4 border-primary pl-4" target="_top"><span class="text-lg font-black tracking-tighter text-primary">岐阜キャッスルイン</span><span class="text-[10px] font-bold tracking-[.3em] text-accent-gold mt-1">バンケットサービス</span></a><nav class="hidden lg:flex items-center gap-8 text-[14px] font-bold"><a href="index.html" class="hover:text-accent-gold" target="_top">ホーム</a><a href="venue.html" class="hover:text-accent-gold" target="_top">会場案内</a><a href="cuisine.html" class="text-accent-gold" target="_top">お料理</a><a href="pricing.html" class="hover:text-accent-gold" target="_top">料金表</a><a href="simulator.html" class="hover:text-accent-gold" target="_top">シミュレーター</a><a href="party.html" class="hover:text-accent-gold" target="_top">二次会</a><a href="access.html" class="hover:text-accent-gold" target="_top">アクセス</a></nav><a class="hidden sm:block text-lg font-serif text-primary" href="tel:058-212-3277">058-212-3277</a></div></header>
+
+<!-- ヒーロー -->
+<section class="relative h-[45vh] min-h-[320px] flex items-center justify-center" style="background:linear-gradient(rgba(0,0,0,.4),rgba(0,0,0,.6)),url('https://static.wixstatic.com/media/216462_1d56f5eaa69a46078c0ff692d06f1ded~mv2.jpg') center/cover">
+<div class="relative z-10 text-center px-4"><p class="text-accent-gold font-bold tracking-[.3em] mb-3 uppercase text-sm">Dining</p><h1 class="text-white text-5xl font-serif font-bold mb-3">お料理プラン</h1><p class="text-white/80 text-lg">用途に合わせた5つのスタイルをご用意。</p></div>
+</section>
+
+<!-- 動的コンテンツ: 料理プラン + フリードリンク -->
+<main class="max-w-5xl mx-auto px-6 py-20 space-y-24" id="cuisine-content">
+  <!-- JSで描画されます -->
+</main>
+
+<!-- CTA -->
+<section class="max-w-5xl mx-auto px-6 pb-20">
+<div class="text-center pt-12 border-t border-primary/10">
+<h3 class="text-2xl font-bold mb-4">料金をその場で確認</h3>
+<p class="text-gray-500 mb-8">会場・料理・備品を選ぶだけで概算が分かります。</p>
+<a href="simulator.html" class="inline-block bg-primary text-white font-bold px-10 py-4 rounded-xl shadow-lg hover:bg-primary/90" target="_top">料金シミュレーター</a>
+</div>
+</section>
+
+<footer class="bg-primary text-white/80 pt-16 pb-8 px-6 mt-16"><div class="max-w-7xl mx-auto"><div class="grid md:grid-cols-3 gap-12 mb-12"><div><h2 class="text-lg font-bold text-white">岐阜キャッスルイン</h2><p class="text-[10px] tracking-[.3em] text-accent-gold mb-4">BANQUET SERVICE</p><p class="text-sm">〒500-8176 岐阜県岐阜市県町2-8<br/>TEL 058-212-3277</p></div><div><ul class="space-y-3 text-sm"><li><a href="venue.html" class="hover:text-accent-gold" target="_top">会場案内</a></li><li><a href="simulator.html" class="hover:text-accent-gold" target="_top">料金シミュレーター</a></li></ul></div><div><ul class="space-y-3 text-sm"><li><a href="party.html" class="hover:text-accent-gold" target="_top">二次会</a></li><li><a href="access.html" class="hover:text-accent-gold" target="_top">アクセス</a></li></ul></div></div><div class="pt-6 border-t border-white/10 text-center text-[10px]">&copy; 2024 有限会社バンケットサービス</div></div></footer>
+
+<script src="js/banquet-data.js"></script>
+<script>
+// ===================================================
+// 料理ページ描画ロジック
+// ===================================================
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function getBadgeColorClass(color) {
+  switch (color) {
+    case 'primary': return 'bg-primary text-white';
+    case 'accent-gold': return 'bg-accent-gold text-white';
+    case 'gray-800': return 'bg-gray-800 text-white';
+    default: return 'bg-primary text-white';
+  }
+}
+
+function renderCuisine(data) {
+  var container = document.getElementById('cuisine-content');
+  var html = '';
+
+  data.plans.forEach(function(plan, index) {
+    var isEven = index % 2 === 0;
+    var badgeClass = getBadgeColorClass(plan.badgeColor);
+    var desc = escapeHtml(plan.description).replace(/\n/g, '<br/>');
+
+    html += '<section class="grid lg:grid-cols-2 gap-12 items-center">';
+
+    if (isEven) {
+      // 画像が左、テキストが右
+      html += '<img class="w-full aspect-[4/3] object-cover rounded-xl shadow-lg" src="' + escapeHtml(plan.image) + '" alt="' + escapeHtml(plan.label) + '"/>';
+      html += '<div>';
+      html += '<span class="' + badgeClass + ' text-xs font-bold px-3 py-1 rounded-full">' + escapeHtml(plan.badgeText) + '</span>';
+      html += '<h3 class="text-3xl font-serif font-bold mt-4 mb-2">' + escapeHtml(plan.label) + '</h3>';
+      html += '<p class="text-2xl font-serif text-accent-gold mb-4">&yen;' + Number(plan.price).toLocaleString() + '〜<span class="text-sm text-gray-400">（税込・サービス料込）</span></p>';
+      html += '<p class="text-gray-600 leading-relaxed">' + desc + '</p>';
+      html += '</div>';
+    } else {
+      // テキストが左（order-2 lg:order-1）、画像が右（order-1 lg:order-2）
+      html += '<div class="order-2 lg:order-1">';
+      html += '<span class="' + badgeClass + ' text-xs font-bold px-3 py-1 rounded-full">' + escapeHtml(plan.badgeText) + '</span>';
+      html += '<h3 class="text-3xl font-serif font-bold mt-4 mb-2">' + escapeHtml(plan.label) + '</h3>';
+      html += '<p class="text-2xl font-serif text-accent-gold mb-4">&yen;' + Number(plan.price).toLocaleString() + '〜<span class="text-sm text-gray-400">（税込・サービス料込）</span></p>';
+      html += '<p class="text-gray-600 leading-relaxed">' + desc + '</p>';
+      html += '</div>';
+      html += '<img class="w-full aspect-[4/3] object-cover rounded-xl shadow-lg order-1 lg:order-2" src="' + escapeHtml(plan.image) + '" alt="' + escapeHtml(plan.label) + '"/>';
+    }
+
+    html += '</section>';
+  });
+
+  // フリードリンクセクション
+  var fd = data.freeDrink;
+  if (fd && fd.price) {
+    html += '<section class="bg-primary rounded-2xl p-10 text-white grid md:grid-cols-2 gap-8 items-center">';
+    html += '<div><h3 class="text-3xl font-serif font-bold mb-3">フリードリンク</h3>';
+    html += '<p class="text-2xl font-serif text-accent-gold mb-4">&yen;' + Number(fd.price).toLocaleString() + '<span class="text-base text-white/60">（' + escapeHtml(fd.duration) + '・税込サービス料込）</span></p>';
+    html += '<p class="text-white/80 leading-relaxed">' + escapeHtml(fd.description) + '</p></div>';
+    html += '<img class="w-full aspect-[4/3] object-cover rounded-xl" src="' + escapeHtml(fd.image) + '" alt="フリードリンク"/>';
+    html += '</section>';
+  }
+
+  container.innerHTML = html;
+}
+
+// Stage 1: フォールバックデータで即座に描画
+renderCuisine(CUISINE_DATA);
+
+// Stage 2: APIから最新データを取得して再描画
+loadCuisineData(function(data) {
+  renderCuisine(data);
+}, 'cuisine-content');
+</script>
+</body></html>

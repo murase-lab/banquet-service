@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>料金シミュレーター | 岐阜キャッスルイン バンケットサービス</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: "#1A2E44",
+        "accent-gold": "#C1A36A",
+        "background-light": "#FDFCF9",
+      },
+      fontFamily: { display: ["Noto Sans JP", "sans-serif"] },
+    },
+  },
+}
+</script>
+<style>
+body { font-family: 'Noto Sans JP', sans-serif; }
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+@media print {
+  .no-print { display: none !important; }
+  body { background: white !important; }
+}
+</style>
+</head>
+<body class="bg-background-light text-slate-800 min-h-screen">
+
+<!--
+===========================================================
+  ★★★ 運用担当者向け ★★★
+
+  料金データはGoogle Sheetsで管理されています。
+  料金を変更する場合はスプレッドシートの該当シートを編集してください。
+  変更は即座にページに反映されます。
+===========================================================
+-->
+
+<!-- CONFIGデータはbanquet-data.jsから読み込まれます -->
+<script src="js/banquet-data.js"></script>
+
+<!-- ========== ヘッダー ========== -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-50 no-print">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="flex items-center gap-3" target="_top">
+        <div class="bg-primary p-2 rounded">
+          <span class="material-symbols-outlined text-white">business</span>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight">岐阜キャッスルイン</h1>
+          <p class="text-xs text-slate-500">バンケットサービス 料金シミュレーター</p>
+        </div>
+      </a>
+    </div>
+    <a href="index.html" class="text-sm text-primary font-bold hover:text-accent-gold transition-colors flex items-center gap-1" target="_top">
+      <span class="material-symbols-outlined text-sm">arrow_back</span> サイトに戻る
+    </a>
+  </div>
+</header>
+
+<!-- ========== メインコンテンツ ========== -->
+<main class="max-w-7xl mx-auto px-6 py-8 flex flex-col lg:flex-row gap-8 no-print">
+  <!-- 左カラム：選択フォーム -->
+  <div class="flex-1 space-y-10">
+
+    <!-- STEP 1: 会場選択 -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center gap-3">
+        <span class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">1</span>
+        <h2 class="text-lg font-bold">会場の選択と利用時間</h2>
+      </div>
+      <div class="p-6 space-y-6">
+        <div class="grid grid-cols-2 gap-4" id="venue-list"></div>
+        <div class="flex items-center gap-2 pt-3" id="venue-note" style="display:none;"></div>
+        <div class="flex items-center gap-6 pt-4 border-t border-slate-100">
+          <div class="flex-1">
+            <label class="block text-sm font-medium mb-2">利用時間（基本2時間 + 延長）</label>
+            <div class="flex items-center gap-3">
+              <span class="text-sm text-slate-500">基本 2時間 + 延長</span>
+              <input class="w-20 rounded-lg border-slate-300 bg-transparent" id="extra_hours" min="0" onchange="calculate()" type="number" value="0"/>
+              <span class="text-sm">時間</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2: レイアウト -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center gap-3">
+        <span class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">2</span>
+        <h2 class="text-lg font-bold">レイアウトの選択</h2>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-3 md:grid-cols-6 gap-4">
+          <label class="flex flex-col items-center gap-2 p-3 border rounded-xl cursor-pointer hover:bg-slate-50 border-slate-200 has-[:checked]:border-primary has-[:checked]:text-primary text-center">
+            <input checked class="sr-only" name="layout" onchange="calculate()" type="radio" value="スクール"/>
+            <span class="material-symbols-outlined text-2xl">grid_view</span>
+            <span class="text-xs font-medium">スクール</span>
+          </label>
+          <label class="flex flex-col items-center gap-2 p-3 border rounded-xl cursor-pointer hover:bg-slate-50 border-slate-200 has-[:checked]:border-primary has-[:checked]:text-primary text-center">
+            <input class="sr-only" name="layout" onchange="calculate()" type="radio" value="ロの字"/>
+            <span class="material-symbols-outlined text-2xl">check_box_outline_blank</span>
+            <span class="text-xs font-medium">ロの字</span>
+          </label>
+          <label class="flex flex-col items-center gap-2 p-3 border rounded-xl cursor-pointer hover:bg-slate-50 border-slate-200 has-[:checked]:border-primary has-[:checked]:text-primary text-center">
+            <input class="sr-only" name="layout" onchange="calculate()" type="radio" value="コの字"/>
+            <span class="material-symbols-outlined text-2xl">crop_square</span>
+            <span class="text-xs font-medium">コの字</span>
+          </label>
+          <label class="flex flex-col items-center gap-2 p-3 border rounded-xl cursor-pointer hover:bg-slate-50 border-slate-200 has-[:checked]:border-primary has-[:checked]:text-primary text-center">
+            <input class="sr-only" name="layout" onchange="calculate()" type="radio" value="円卓"/>
+            <span class="material-symbols-outlined text-2xl">radio_button_unchecked</span>
+            <span class="text-xs font-medium">円卓</span>
+          </label>
+          <label class="flex flex-col items-center gap-2 p-3 border rounded-xl cursor-pointer hover:bg-slate-50 border-slate-200 has-[:checked]:border-primary has-[:checked]:text-primary text-center">
+            <input class="sr-only" name="layout" onchange="calculate()" type="radio" value="立食"/>
+            <span class="material-symbols-outlined text-2xl">celebration</span>
+            <span class="text-xs font-medium">立食</span>
+          </label>
+          <label class="flex flex-col items-center gap-2 p-3 border rounded-xl cursor-pointer hover:bg-slate-50 border-slate-200 has-[:checked]:border-primary has-[:checked]:text-primary text-center">
+            <input class="sr-only" name="layout" onchange="calculate()" type="radio" value="シアター"/>
+            <span class="material-symbols-outlined text-2xl">weekend</span>
+            <span class="text-xs font-medium">シアター</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 3: 料理プラン -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center gap-3">
+        <span class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">3</span>
+        <h2 class="text-lg font-bold">お料理・お飲物プラン</h2>
+      </div>
+      <div class="p-6 space-y-8">
+        <div>
+          <label class="block text-sm font-medium mb-4">お料理プランを選択してください</label>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="food-plan-list"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-8 items-end pt-6 border-t border-slate-100">
+          <div>
+            <label class="block text-sm font-medium mb-2">ご利用人数</label>
+            <div class="flex items-center gap-3">
+              <input class="w-32 rounded-lg border-slate-300 bg-transparent" id="guest_count" min="1" onchange="calculate()" type="number" value="10"/>
+              <span class="text-sm">名様</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-4 bg-blue-50/50 p-4 rounded-xl border border-blue-100 transition-opacity" id="free_drink_box">
+            <input class="w-5 h-5 rounded text-primary focus:ring-primary" id="free_drink_option" onchange="calculate()" type="checkbox"/>
+            <label class="flex-1 cursor-pointer" for="free_drink_option">
+              <div class="font-bold text-sm" id="free_drink_label">フリードリンク（飲み放題）</div>
+              <div class="text-xs text-slate-500" id="free_drink_price_label"></div>
+              <div class="text-xs text-amber-600 mt-1" id="free_drink_note">※お料理プランの選択が必要です</div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 4: 備品 -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center gap-3">
+        <span class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">4</span>
+        <h2 class="text-lg font-bold">備品の選択</h2>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-2 gap-y-4 gap-x-8" id="equipment-list"></div>
+      </div>
+    </section>
+
+    <!-- STEP 5: 追加飲食物 -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center gap-3">
+        <span class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">5</span>
+        <h2 class="text-lg font-bold">追加飲食物の選択</h2>
+      </div>
+      <div class="p-6">
+        <div class="space-y-4" id="drink-list"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 右カラム：概算合計（sticky） -->
+  <aside class="w-full lg:w-96">
+    <div class="sticky top-24 space-y-4">
+      <div class="bg-white rounded-xl shadow-lg border border-slate-200 flex flex-col max-h-[calc(100vh-200px)] overflow-hidden">
+        <div class="p-6 border-b border-slate-200">
+          <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">概算合計金額</h3>
+          <div class="flex items-baseline gap-1">
+            <span class="text-3xl font-bold text-primary" id="total-amount">0</span>
+            <span class="font-bold text-lg">円</span>
+            <span class="text-xs text-slate-400 ml-2">(税込)</span>
+          </div>
+        </div>
+        <div class="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-4">
+          <h4 class="text-xs font-bold text-slate-400 uppercase">内訳</h4>
+          <ul class="space-y-3 text-sm" id="breakdown-list">
+            <li class="flex justify-between text-slate-400 italic">項目が選択されていません</li>
+          </ul>
+        </div>
+        <div class="p-6 bg-slate-50 border-t border-slate-200 space-y-3">
+          <button onclick="showPreview()" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg shadow-md transition-all flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-xl">description</span>
+            見積書(案)を表示・PDF保存
+          </button>
+          <button onclick="openInquiry()" class="w-full bg-accent-gold hover:bg-accent-gold/90 text-white font-bold py-3 rounded-lg shadow-md transition-all flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-xl">mail</span>
+            この内容で問い合わせる
+          </button>
+          <p class="text-[10px] text-center mt-2 text-slate-400">※表示金額はサービス料・消費税込の目安です。<br/>詳細はお問い合わせください。</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<!-- ========== 見積書プレビューモーダル ========== -->
+<div class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm no-print" id="preview-modal" style="display:none;">
+  <div class="bg-white w-[850px] max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl relative p-12 text-slate-900">
+    <button class="absolute top-6 right-6 p-2 rounded-full hover:bg-slate-100" onclick="hidePreview()">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+    <div id="quotation-content" class="space-y-8">
+      <div class="flex justify-between items-start border-b-2 border-primary pb-6">
+        <div>
+          <h2 class="text-3xl font-bold text-primary tracking-widest mb-2">御見積書（案）</h2>
+          <p class="text-sm text-slate-500">QUOTATION ESTIMATE</p>
+        </div>
+        <div class="text-right">
+          <span class="font-bold text-lg" id="modal-facility-name"></span>
+          <p class="text-xs" id="modal-facility-address"></p>
+          <p class="text-xs" id="modal-facility-tel"></p>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-8">
+        <div>
+          <div class="mb-4">
+            <p class="border-b border-slate-300 pb-1 w-full flex items-end">
+              <span class="text-lg font-bold border-b-2 border-slate-800 px-4 min-w-[200px] text-center">御中</span>
+            </p>
+            <p class="text-sm mt-2 text-slate-600">下記の通り、概算の見積書を申し上げます。</p>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-lg">
+            <p class="text-sm font-medium mb-1">御見積金額（税込）</p>
+            <p class="text-3xl font-bold text-primary">¥ <span id="modal-total-amount">0</span></p>
+          </div>
+        </div>
+        <div class="text-sm space-y-1 pt-2">
+          <div class="flex justify-between border-b border-slate-100 py-1">
+            <span class="text-slate-500 font-medium">作成日</span>
+            <span id="quotation-date"></span>
+          </div>
+          <div class="flex justify-between border-b border-slate-100 py-1">
+            <span class="text-slate-500 font-medium">有効期限</span>
+            <span id="quotation-expiry"></span>
+          </div>
+          <div class="flex justify-between border-b border-slate-100 py-1">
+            <span class="text-slate-500 font-medium">備考</span>
+            <span>本状は概算につき確定ではございません</span>
+          </div>
+        </div>
+      </div>
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-primary text-white">
+            <th class="py-2 px-4 text-left font-medium">内容・摘要</th>
+            <th class="py-2 px-4 text-right font-medium">単価</th>
+            <th class="py-2 px-4 text-center font-medium">数量</th>
+            <th class="py-2 px-4 text-right font-medium">金額(税込)</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200" id="modal-breakdown-body"></tbody>
+      </table>
+      <div class="flex justify-end pt-4">
+        <div class="w-64 space-y-2">
+          <div class="flex justify-between items-center text-sm font-bold border-b border-slate-900 pb-2 pt-2">
+            <span>合計金額</span>
+            <span class="text-xl">¥<span id="modal-grand-total">0</span></span>
+          </div>
+          <p class="text-[10px] text-slate-400 text-right">（消費税(10%)・サービス料 込）</p>
+        </div>
+      </div>
+      <div class="border-t border-slate-200 pt-8 mt-12 text-[11px] text-slate-500">
+        <p>【注意事項】</p>
+        <ul class="list-disc list-inside space-y-1 mt-2">
+          <li>本見積書は概算であり、実際の料金とは異なる場合がございます。</li>
+          <li>会場の空き状況は随時変動いたします。ご予約を確約するものではございません。</li>
+          <li>キャンセル規定につきましては、当施設規約をご確認ください。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-12 flex justify-center gap-4">
+      <button onclick="window.print()" class="bg-primary text-white px-8 py-3 rounded-lg font-bold flex items-center gap-2 hover:bg-primary/90 shadow-lg">
+        <span class="material-symbols-outlined">print</span> 印刷 / PDF保存
+      </button>
+      <button onclick="hidePreview()" class="bg-slate-100 text-slate-600 px-8 py-3 rounded-lg font-bold hover:bg-slate-200">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 問い合わせモーダル ========== -->
+<div class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm no-print" id="inquiry-modal" style="display:none;">
+  <div class="bg-white w-full max-w-[700px] max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl relative p-8 text-slate-900">
+    <button class="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100" onclick="hideInquiry()">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+    <h2 class="text-2xl font-bold mb-2">お問い合わせ・お見積り依頼</h2>
+    <p class="text-sm text-slate-500 mb-8">シミュレーター結果が自動入力されています。必要事項をご記入の上、送信してください。</p>
+
+    <form id="inquiry-form" class="space-y-6" onsubmit="return handleSubmit(event)">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="flex items-center gap-2 text-sm font-bold mb-2">
+            会社名 / 団体名 <span class="bg-accent-gold text-white text-[10px] px-1.5 py-0.5 rounded">必須</span>
+          </label>
+          <input required class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3" placeholder="株式会社 〇〇" type="text"/>
+        </div>
+        <div>
+          <label class="flex items-center gap-2 text-sm font-bold mb-2">ご担当者名 <span class="bg-accent-gold text-white text-[10px] px-1.5 py-0.5 rounded">必須</span></label>
+          <input required class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3" placeholder="岐阜 太郎" type="text"/>
+        </div>
+        <div>
+          <label class="flex items-center gap-2 text-sm font-bold mb-2">メールアドレス <span class="bg-accent-gold text-white text-[10px] px-1.5 py-0.5 rounded">必須</span></label>
+          <input required class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3" placeholder="example@company.co.jp" type="email"/>
+        </div>
+        <div>
+          <label class="flex items-center gap-2 text-sm font-bold mb-2">電話番号 <span class="bg-accent-gold text-white text-[10px] px-1.5 py-0.5 rounded">必須</span></label>
+          <input required class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3" placeholder="058-000-0000" type="tel"/>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="text-sm font-bold mb-2 block">ご希望日時</label>
+          <input class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3" type="date"/>
+        </div>
+        <div>
+          <label class="text-sm font-bold mb-2 block">ご利用目的</label>
+          <select class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3">
+            <option>会議・セミナー</option>
+            <option>懇親会・宴会</option>
+            <option>二次会・ウェディング</option>
+            <option>法要・お祝い</option>
+            <option>展示会</option>
+            <option>その他</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="text-sm font-bold mb-2 block">お問い合わせ内容（シミュレーター結果）</label>
+        <textarea id="inquiry-body" class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3 bg-primary/5" rows="10"></textarea>
+        <p class="text-xs text-slate-400 mt-1">※自動入力されています。自由に追記・変更いただけます。</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <input class="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary" id="privacy" type="checkbox" required/>
+        <label class="text-sm" for="privacy">プライバシーポリシーに同意する</label>
+      </div>
+      <div class="flex gap-4 pt-4">
+        <button type="button" onclick="hideInquiry()" class="flex-1 border-2 border-primary text-primary font-bold py-4 rounded-xl hover:bg-primary/5">戻る</button>
+        <button type="submit" class="flex-1 bg-primary text-white font-bold py-4 rounded-xl shadow-lg hover:bg-primary/90">送信する</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// ===================================================
+// アプリケーションロジック（通常編集不要）
+// ※ CONFIG は banquet-data.js から読み込まれます
+// ===================================================
+function init() {
+  // 会場リスト生成
+  var venueContainer = document.getElementById('venue-list');
+  Object.entries(CONFIG.venue).forEach(function(entry) {
+    var key = entry[0];
+    var v = entry[1];
+    var label = document.createElement('label');
+    label.className = "relative border-2 rounded-xl p-4 cursor-pointer transition-all hover:border-primary/50 border-slate-200 has-[:checked]:border-primary has-[:checked]:bg-blue-50/50";
+    label.innerHTML = '<input type="radio" name="venue" class="sr-only" value="' + key + '" onchange="calculate()">' +
+      '<div class="font-bold mb-1">' + v.label + '</div>' +
+      '<div class="text-sm text-slate-500">' + v.area + '</div>' +
+      '<div class="text-primary font-bold mt-2">' + v.base.toLocaleString() + '円〜</div>';
+    venueContainer.appendChild(label);
+  });
+
+  // 料理プラン生成
+  var foodContainer = document.getElementById('food-plan-list');
+  CONFIG.food_plans.forEach(function(item) {
+    var label = document.createElement('label');
+    label.className = "relative border border-slate-200 rounded-xl p-4 cursor-pointer transition-all hover:bg-slate-50 has-[:checked]:border-primary has-[:checked]:bg-blue-50/30";
+    var venueTag = item.venueIncluded ? '<span class="text-[10px] text-green-700 bg-green-50 px-1.5 py-0.5 rounded font-bold ml-2">会場費込</span>' : '';
+    label.innerHTML = '<input type="radio" name="food_plan" class="sr-only" value="' + item.id + '" onchange="calculate()">' +
+      '<div class="flex justify-between items-center">' +
+      '<div><span class="font-bold">' + item.label + '</span>' + venueTag +
+      '<span class="text-xs text-slate-400 block mt-1">' + item.note + '</span></div>' +
+      '<span class="text-primary font-bold">' + item.price.toLocaleString() + '円</span></div>';
+    foodContainer.appendChild(label);
+  });
+
+  // フリードリンク表示
+  document.getElementById('free_drink_label').textContent =
+    'フリードリンク（飲み放題 ' + CONFIG.free_drink.duration + '）';
+  document.getElementById('free_drink_price_label').textContent =
+    CONFIG.free_drink.price.toLocaleString() + '円 / 1名様につき';
+
+  // 備品リスト生成
+  var eqContainer = document.getElementById('equipment-list');
+  CONFIG.equipment.forEach(function(item) {
+    var div = document.createElement('div');
+    div.className = "flex items-center justify-between";
+    div.innerHTML = '<label class="flex items-center gap-2 cursor-pointer">' +
+      '<input type="checkbox" class="rounded text-primary focus:ring-primary h-4 w-4" data-id="' + item.id + '" onchange="calculate()">' +
+      '<span class="text-sm">' + item.label + '</span></label>' +
+      '<span class="text-xs text-slate-500">' + item.price.toLocaleString() + '円</span>';
+    eqContainer.appendChild(div);
+  });
+
+  // 飲物リスト生成
+  var drinkContainer = document.getElementById('drink-list');
+  CONFIG.drinks.forEach(function(item) {
+    var div = document.createElement('div');
+    div.className = "flex items-center justify-between py-2 border-b border-slate-100 last:border-0";
+    div.innerHTML = '<div><div class="text-sm font-medium">' + item.label + '</div>' +
+      '<div class="text-xs text-slate-500">' + item.price.toLocaleString() + '円 / 個</div></div>' +
+      '<div class="flex items-center gap-3">' +
+      '<input type="number" min="0" value="0" class="w-20 text-right rounded-lg border-slate-300 bg-transparent text-sm" data-id="' + item.id + '" onchange="calculate()">' +
+      '<span class="text-sm">個</span></div>';
+    drinkContainer.appendChild(div);
+  });
+
+  calculate();
+}
+
+function calculate() {
+  var total = 0;
+  var breakdown = [];
+  var guestCount = parseInt(document.getElementById('guest_count').value) || 0;
+
+  // 料理プランの選択状態を先に取得（会場費・フリードリンクの判定に使用）
+  var foodPlanEl = document.querySelector('input[name="food_plan"]:checked');
+  var foodPlanId = foodPlanEl ? foodPlanEl.value : null;
+  var selectedPlan = foodPlanId ? CONFIG.food_plans.find(function(p) { return p.id === foodPlanId; }) : null;
+  var isVenueFree = selectedPlan && selectedPlan.venueIncluded;
+  var hasFoodPlan = !!selectedPlan;
+
+  // 会場
+  var venueType = document.querySelector('input[name="venue"]:checked');
+  venueType = venueType ? venueType.value : null;
+  var extraHours = parseInt(document.getElementById('extra_hours').value) || 0;
+  var layout = document.querySelector('input[name="layout"]:checked');
+  layout = layout ? layout.value : "未指定";
+
+  if (venueType) {
+    var v = CONFIG.venue[venueType];
+    if (isVenueFree) {
+      // 会場費込みプラン → 0円表示
+      breakdown.push({ label: '会場費: ' + v.label + ' / ' + layout + '（料理プラン込み）', unit: 0, qty: 1, total: 0 });
+    } else {
+      var venuePrice = v.base + (v.extra * extraHours);
+      total += venuePrice;
+      breakdown.push({ label: '会場費: ' + v.label + ' (基本2h+延長' + extraHours + 'h) / ' + layout, unit: venuePrice, qty: 1, total: venuePrice });
+    }
+  }
+
+  // 会場費の案内メッセージを更新
+  var venueNote = document.getElementById('venue-note');
+  if (venueNote) {
+    if (isVenueFree) {
+      venueNote.style.display = 'flex';
+      venueNote.innerHTML = '<span class="material-symbols-outlined text-green-600 text-lg">check_circle</span><span class="text-green-700 text-sm font-bold">選択中の料理プランには会場費が含まれています</span>';
+    } else if (hasFoodPlan) {
+      venueNote.style.display = 'flex';
+      venueNote.innerHTML = '<span class="material-symbols-outlined text-amber-500 text-lg">info</span><span class="text-amber-700 text-sm">割子弁当・単品注文の場合は会場費がかかります</span>';
+    } else {
+      venueNote.style.display = 'flex';
+      venueNote.innerHTML = '<span class="material-symbols-outlined text-slate-400 text-lg">info</span><span class="text-slate-500 text-sm">会席・シッティング・ビュッフェ・弁当宴会をご注文の場合、会場費は無料です</span>';
+    }
+  }
+
+  // 料理
+  if (selectedPlan) {
+    var foodTotal = selectedPlan.price * guestCount;
+    total += foodTotal;
+    breakdown.push({ label: '料理: ' + selectedPlan.label, unit: selectedPlan.price, qty: guestCount, total: foodTotal });
+  }
+
+  // フリードリンク（料理プラン選択時のみ利用可能）
+  var freeDrinkCb = document.getElementById('free_drink_option');
+  var freeDrinkBox = document.getElementById('free_drink_box');
+  var freeDrinkNote = document.getElementById('free_drink_note');
+  if (!hasFoodPlan) {
+    freeDrinkCb.checked = false;
+    freeDrinkCb.disabled = true;
+    if (freeDrinkBox) freeDrinkBox.classList.add('opacity-50');
+    if (freeDrinkNote) freeDrinkNote.style.display = '';
+  } else {
+    freeDrinkCb.disabled = false;
+    if (freeDrinkBox) freeDrinkBox.classList.remove('opacity-50');
+    if (freeDrinkNote) freeDrinkNote.style.display = 'none';
+  }
+
+  if (freeDrinkCb.checked && hasFoodPlan) {
+    var drinkTotal = CONFIG.free_drink.price * guestCount;
+    total += drinkTotal;
+    breakdown.push({ label: '飲料: フリードリンク(' + CONFIG.free_drink.duration + ')', unit: CONFIG.free_drink.price, qty: guestCount, total: drinkTotal });
+  }
+
+  // 備品
+  document.querySelectorAll('#equipment-list input:checked').forEach(function(cb) {
+    var item = CONFIG.equipment.find(function(e) { return e.id === cb.dataset.id; });
+    if (item) {
+      total += item.price;
+      breakdown.push({ label: '備品: ' + item.label, unit: item.price, qty: 1, total: item.price });
+    }
+  });
+
+  // 個別飲物
+  document.querySelectorAll('#drink-list input[type="number"]').forEach(function(input) {
+    var qty = parseInt(input.value) || 0;
+    if (qty > 0) {
+      var item = CONFIG.drinks.find(function(d) { return d.id === input.dataset.id; });
+      var linePrice = item.price * qty;
+      total += linePrice;
+      breakdown.push({ label: '飲料: ' + item.label, unit: item.price, qty: qty, total: linePrice });
+    }
+  });
+
+  // UI更新
+  document.getElementById('total-amount').textContent = total.toLocaleString();
+  var breakdownList = document.getElementById('breakdown-list');
+  if (breakdown.length === 0) {
+    breakdownList.innerHTML = '<li class="flex justify-between text-slate-400 italic">項目が選択されていません</li>';
+  } else {
+    breakdownList.innerHTML = breakdown.map(function(item) {
+      return '<li class="flex justify-between gap-4">' +
+        '<span class="text-slate-600">' + item.label + '</span>' +
+        '<span class="font-medium shrink-0">' + item.total.toLocaleString() + '円</span></li>';
+    }).join('');
+  }
+
+  window.currentBreakdown = breakdown;
+  window.currentTotal = total;
+}
+
+function showPreview() {
+  var modal = document.getElementById('preview-modal');
+  var now = new Date();
+  var expiry = new Date(); expiry.setMonth(expiry.getMonth() + 1);
+
+  document.getElementById('modal-facility-name').textContent = CONFIG.facility.name;
+  document.getElementById('modal-facility-address').textContent = CONFIG.facility.address;
+  document.getElementById('modal-facility-tel').textContent = 'TEL: ' + CONFIG.facility.tel;
+  document.getElementById('quotation-date').textContent = now.toLocaleDateString('ja-JP', { year:'numeric', month:'long', day:'numeric' });
+  document.getElementById('quotation-expiry').textContent = expiry.toLocaleDateString('ja-JP', { year:'numeric', month:'long', day:'numeric' });
+  document.getElementById('modal-total-amount').textContent = window.currentTotal.toLocaleString();
+  document.getElementById('modal-grand-total').textContent = window.currentTotal.toLocaleString();
+
+  var tbody = document.getElementById('modal-breakdown-body');
+  if (!window.currentBreakdown || window.currentBreakdown.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" class="py-12 text-center text-slate-400">項目が選択されていません</td></tr>';
+  } else {
+    tbody.innerHTML = window.currentBreakdown.map(function(item) {
+      return '<tr>' +
+        '<td class="py-4 px-4 text-slate-700">' + item.label + '</td>' +
+        '<td class="py-4 px-4 text-right">¥' + item.unit.toLocaleString() + '</td>' +
+        '<td class="py-4 px-4 text-center">' + item.qty + '</td>' +
+        '<td class="py-4 px-4 text-right font-bold">¥' + item.total.toLocaleString() + '</td></tr>';
+    }).join('');
+  }
+
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function hidePreview() {
+  document.getElementById('preview-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function openInquiry() {
+  var text = '【シミュレーター引用結果】\n';
+  text += '──────────────────────\n';
+  if (window.currentBreakdown && window.currentBreakdown.length > 0) {
+    window.currentBreakdown.forEach(function(item) {
+      text += '■ ' + item.label + '  ×' + item.qty + '  = ¥' + item.total.toLocaleString() + '\n';
+    });
+    text += '──────────────────────\n';
+    text += '■ 概算合計: ¥' + window.currentTotal.toLocaleString() + '（税込）\n';
+  } else {
+    text += '（項目未選択）\n';
+  }
+  text += '──────────────────────\n\n';
+  text += '上記内容でのお見積りをお願いいたします。\n';
+
+  document.getElementById('inquiry-body').value = text;
+  document.getElementById('inquiry-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function hideInquiry() {
+  document.getElementById('inquiry-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function handleSubmit(e) {
+  e.preventDefault();
+  var body = document.getElementById('inquiry-body').value;
+  var mailtoLink = 'mailto:bs-service@vesta.ocn.ne.jp?subject=' + encodeURIComponent('【HP】料金シミュレーターからのお問い合わせ') + '&body=' + encodeURIComponent(body);
+  window.location.href = mailtoLink;
+  return false;
+}
+
+// ===================================================
+// 初期化: 2段階レンダリング
+// ===================================================
+window.onload = function() {
+  // Stage 1: フォールバックCONFIGで即座にUI構築
+  init();
+
+  // Stage 2: APIから最新CONFIGを取得
+  loadSimulatorConfig(function(newConfig) {
+    // CONFIGが変わった場合のみ再構築
+    var fallbackKeys = Object.keys(CONFIG_FALLBACK.venue).join(',');
+    var newKeys = Object.keys(newConfig.venue).join(',');
+    var fallbackPlans = CONFIG_FALLBACK.food_plans.map(function(p) { return p.id + ':' + p.price; }).join(',');
+    var newPlans = newConfig.food_plans.map(function(p) { return p.id + ':' + p.price; }).join(',');
+
+    if (fallbackKeys === newKeys && fallbackPlans === newPlans) return;
+
+    // ユーザーの選択状態を保存
+    var savedVenue = (document.querySelector('input[name="venue"]:checked') || {}).value;
+    var savedFood = (document.querySelector('input[name="food_plan"]:checked') || {}).value;
+    var savedGuests = document.getElementById('guest_count').value;
+    var savedHours = document.getElementById('extra_hours').value;
+    var savedLayout = (document.querySelector('input[name="layout"]:checked') || {}).value;
+    var savedDrink = document.getElementById('free_drink_option').checked;
+    var savedEquipment = [];
+    document.querySelectorAll('#equipment-list input:checked').forEach(function(cb) {
+      savedEquipment.push(cb.dataset.id);
+    });
+
+    // UIをクリアして再構築
+    document.getElementById('venue-list').innerHTML = '';
+    document.getElementById('food-plan-list').innerHTML = '';
+    document.getElementById('equipment-list').innerHTML = '';
+    document.getElementById('drink-list').innerHTML = '';
+    init();
+
+    // 選択状態を復元
+    if (savedVenue) {
+      var venueRadio = document.querySelector('input[name="venue"][value="' + savedVenue + '"]');
+      if (venueRadio) venueRadio.checked = true;
+    }
+    if (savedFood) {
+      var foodRadio = document.querySelector('input[name="food_plan"][value="' + savedFood + '"]');
+      if (foodRadio) foodRadio.checked = true;
+    }
+    if (savedLayout) {
+      var layoutRadio = document.querySelector('input[name="layout"][value="' + savedLayout + '"]');
+      if (layoutRadio) layoutRadio.checked = true;
+    }
+    document.getElementById('guest_count').value = savedGuests;
+    document.getElementById('extra_hours').value = savedHours;
+    document.getElementById('free_drink_option').checked = savedDrink;
+    savedEquipment.forEach(function(id) {
+      var cb = document.querySelector('#equipment-list input[data-id="' + id + '"]');
+      if (cb) cb.checked = true;
+    });
+
+    calculate();
+  });
+};
+</script>
+
+</body>
+</html>

@@ -1,0 +1,48 @@
+name: Update Fallback Data
+
+on:
+  # 毎日午前3時（日本時間）に実行
+  schedule:
+    - cron: '0 18 * * *'  # UTC 18:00 = JST 03:00
+  # 手動実行も可能
+  workflow_dispatch:
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch Cuisine Data
+        run: |
+          curl -sL "${{ secrets.BANQUET_API_URL }}?type=cuisine" -o /tmp/banquet-cuisine-response.json
+          echo "Cuisine API response:"
+          cat /tmp/banquet-cuisine-response.json | head -c 500
+
+      - name: Fetch Config Data
+        run: |
+          curl -sL "${{ secrets.BANQUET_API_URL }}?type=config" -o /tmp/banquet-config-response.json
+          echo "Config API response:"
+          cat /tmp/banquet-config-response.json | head -c 500
+
+      - name: Update Fallback Data
+        run: node scripts/update-fallback.js
+
+      - name: Check for changes
+        id: check_changes
+        run: git diff --quiet js/banquet-data.js || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and Push
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add js/banquet-data.js
+          git commit -m "chore: update fallback data from Google Sheets
+
+          Auto-updated by GitHub Actions daily sync."
+          git push
