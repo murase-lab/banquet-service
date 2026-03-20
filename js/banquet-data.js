@@ -12,68 +12,78 @@ var BANQUET_API_URL = 'https://script.google.com/macros/s/AKfycby7DhoPLNFoEmqs4A
 // ※ GitHub Actions で毎朝自動更新されます
 // ===================================================
 var CUISINE_DATA_FALLBACK = {
-  plans: [
+  "plans": [
     {
-      id: 'kaiseki',
-      label: '会席料理',
-      price: 5200,
-      note: 'コース料理・個別提供',
-      description: 'お一人おひとりにサービスする形式です。前菜〜デザートまでのコース料理です。',
-      image: 'https://static.wixstatic.com/media/216462_1d56f5eaa69a46078c0ff692d06f1ded~mv2.jpg',
-      badgeText: '個別提供',
-      badgeColor: 'primary',
-      sortOrder: 1
+      "id": "kaiseki",
+      "label": "会席料理",
+      "price": 5200,
+      "note": "コース料理・個別提供",
+      "description": "お一人おひとりにサービスする形式です。前菜〜デザートまでのコース料理です。",
+      "image": "https://static.wixstatic.com/media/216462_1d56f5eaa69a46078c0ff692d06f1ded~mv2.jpg",
+      "badgeText": "個別提供",
+      "badgeColor": "primary",
+      "sortOrder": 1,
+      "active": "true",
+      "venueIncluded": "true"
     },
     {
-      id: 'sitting',
-      label: 'シッティング（卓盛）',
-      price: 4700,
-      note: '大皿盛り・スタッフ取り分け',
-      description: '大皿盛り込み料理となります。卓人数に応じお客様のテーブルまでサービススタッフがお運びしお取り分けいたします。',
-      image: 'https://static.wixstatic.com/media/216462_802edf372ae94980af7a1d89713d2dad~mv2.jpg',
-      badgeText: 'スタッフ配膳',
-      badgeColor: 'accent-gold',
-      sortOrder: 2
+      "id": "sitting",
+      "label": "シッティング（卓盛）",
+      "price": 4700,
+      "note": "大皿盛り・スタッフ取り分け",
+      "description": "大皿盛り込み料理となります。卓人数に応じお客様のテーブルまでサービススタッフがお運びしお取り分けいたします。",
+      "image": "https://static.wixstatic.com/media/216462_802edf372ae94980af7a1d89713d2dad~mv2.jpg",
+      "badgeText": "スタッフ配膳",
+      "badgeColor": "accent-gold",
+      "sortOrder": 2,
+      "active": "true",
+      "venueIncluded": "true"
     },
     {
-      id: 'buffet',
-      label: 'ビュッフェ料理（立食・着席）',
-      price: 4700,
-      note: '20名様以上〜',
-      description: '基本ビュッフェ台までお料理を取りに行く形式です。お料理を取り分けるトング類は定期的に交換させていただきます。\n20名様以上〜',
-      image: 'https://static.wixstatic.com/media/216462_339c44d21c824785b07564bd9d40e826~mv2.jpg',
-      badgeText: 'セルフサービス',
-      badgeColor: 'gray-800',
-      sortOrder: 3
+      "id": "buffet",
+      "label": "ビュッフェ料理（立食・着席）",
+      "price": 4700,
+      "note": "20名様以上〜",
+      "description": "基本ビュッフェ台までお料理を取りに行く形式です。お料理を取り分けるトング類は定期的に交換させていただきます。\\n20名様以上〜",
+      "image": "https://static.wixstatic.com/media/216462_339c44d21c824785b07564bd9d40e826~mv2.jpg",
+      "badgeText": "セルフサービス",
+      "badgeColor": "gray-800",
+      "sortOrder": 3,
+      "active": "true",
+      "venueIncluded": "true"
     },
     {
-      id: 'bento_banquet',
-      label: '弁当宴会',
-      price: 4200,
-      note: '開宴前に全品提供',
-      description: '開宴前デザート以外は全て最初にお出しいたします。',
-      image: 'https://static.wixstatic.com/media/216462_04577a9c62b844af862d6ebed699da22~mv2.jpg',
-      badgeText: '宴会向け',
-      badgeColor: 'primary',
-      sortOrder: 4
+      "id": "bento_banquet",
+      "label": "弁当宴会",
+      "price": 4200,
+      "note": "開宴前に全品提供",
+      "description": "開宴前デザート以外は全て最初にお出しいたします。",
+      "image": "https://static.wixstatic.com/media/216462_04577a9c62b844af862d6ebed699da22~mv2.jpg",
+      "badgeText": "宴会向け",
+      "badgeColor": "primary",
+      "sortOrder": 4,
+      "active": "true",
+      "venueIncluded": "true"
     },
     {
-      id: 'warigo',
-      label: '割子弁当',
-      price: 2500,
-      note: '会議後の昼食・持ち帰り可',
-      description: '主に会議終了後のご昼食としてお弁当をご利用いただいております。また、お持ち帰り用弁当としてもご用意できます。（料金相談要）',
-      image: 'https://static.wixstatic.com/media/216462_055bfd662d9f46b6aa241de8306523b3~mv2.jpeg',
-      badgeText: '会議向け',
-      badgeColor: 'accent-gold',
-      sortOrder: 5
+      "id": "warigo",
+      "label": "割子弁当",
+      "price": 2500,
+      "note": "会議後の昼食・持ち帰り可",
+      "description": "主に会議終了後のご昼食としてお弁当をご利用いただいております。また、お持ち帰り用弁当としてもご用意できます。（料金相談要）",
+      "image": "https://static.wixstatic.com/media/216462_055bfd662d9f46b6aa241de8306523b3~mv2.jpeg",
+      "badgeText": "会議向け",
+      "badgeColor": "accent-gold",
+      "sortOrder": 5,
+      "active": "true",
+      "venueIncluded": ""
     }
   ],
-  freeDrink: {
-    price: 2800,
-    duration: '110分',
-    description: 'ビール・ノンアルコールビール・日本酒・焼酎（麦・芋）・ウィスキー・梅酒・ウーロン茶・オレンジジュース',
-    image: 'https://static.wixstatic.com/media/216462_d671a0bc86b94646bae1218726e585e1~mv2.jpg'
+  "freeDrink": {
+    "price": 2800,
+    "duration": "110分",
+    "description": "ビール・ノンアルコールビール・日本酒・焼酎（麦・芋）・ウィスキー・梅酒・ウーロン茶・オレンジジュース",
+    "image": "https://static.wixstatic.com/media/216462_d671a0bc86b94646bae1218726e585e1~mv2.jpg"
   }
 };
 
@@ -82,52 +92,193 @@ var CUISINE_DATA_FALLBACK = {
 // ※ GitHub Actions で毎朝自動更新されます
 // ===================================================
 var CONFIG_FALLBACK = {
-  venue: {
-    suehiro_east:  { base: 33000,  extra: 16500, label: "末広（東）",   area: "102㎡（30坪）" },
-    suehiro_mid:   { base: 33000,  extra: 16500, label: "末広（中）",   area: "108㎡（32坪）" },
-    suehiro_west:  { base: 33000,  extra: 16500, label: "末広（西）",   area: "113㎡（34坪）" },
-    suehiro_all:   { base: 99000,  extra: 49500, label: "末広（全室）", area: "323㎡（96坪）" }
+  "venue": {
+    "suehiro_east": {
+      "base": 33000,
+      "extra": 16500,
+      "label": "末広（東）",
+      "area": "102㎡（30坪）"
+    },
+    "suehiro_mid": {
+      "base": 33000,
+      "extra": 16500,
+      "label": "末広（中）",
+      "area": "108㎡（32坪）"
+    },
+    "suehiro_west": {
+      "base": 33000,
+      "extra": 16500,
+      "label": "末広（西）",
+      "area": "113㎡（34坪）"
+    },
+    "suehiro_all": {
+      "base": 99000,
+      "extra": 49500,
+      "label": "末広（全室）",
+      "area": "323㎡（96坪）"
+    }
   },
-  food_plans: [
-    { id: "kaiseki",       label: "会席料理",           price: 5200, note: "コース料理・個別提供", venueIncluded: true },
-    { id: "sitting",       label: "シッティング（卓盛）", price: 4700, note: "大皿盛り・スタッフ取り分け", venueIncluded: true },
-    { id: "buffet",        label: "ビュッフェ（立食・着席）", price: 4700, note: "20名様以上〜", venueIncluded: true },
-    { id: "bento_banquet", label: "弁当宴会",           price: 4200, note: "開宴前に全品提供", venueIncluded: true },
-    { id: "warigo",        label: "割子弁当",           price: 2500, note: "会議後の昼食・持ち帰り可", venueIncluded: false }
+  "food_plans": [
+    {
+      "id": "kaiseki",
+      "label": "会席料理",
+      "price": 5200,
+      "note": "コース料理・個別提供",
+      "venueIncluded": true
+    },
+    {
+      "id": "sitting",
+      "label": "シッティング（卓盛）",
+      "price": 4700,
+      "note": "大皿盛り・スタッフ取り分け",
+      "venueIncluded": true
+    },
+    {
+      "id": "buffet",
+      "label": "ビュッフェ料理（立食・着席）",
+      "price": 4700,
+      "note": "20名様以上〜",
+      "venueIncluded": true
+    },
+    {
+      "id": "bento_banquet",
+      "label": "弁当宴会",
+      "price": 4200,
+      "note": "開宴前に全品提供",
+      "venueIncluded": true
+    },
+    {
+      "id": "warigo",
+      "label": "割子弁当",
+      "price": 2500,
+      "note": "会議後の昼食・持ち帰り可",
+      "venueIncluded": false
+    }
   ],
-  free_drink: { price: 2800, duration: "110分" },
-  equipment: [
-    { id: "mic_w",      label: "ワイヤレスマイク",   price: 2200 },
-    { id: "mic_c",      label: "有線マイク",         price: 2200 },
-    { id: "scr_l",      label: "スクリーン（大）",   price: 16500 },
-    { id: "scr_m",      label: "スクリーン（中）",   price: 11000 },
-    { id: "scr_s",      label: "スクリーン（小）",   price: 5500 },
-    { id: "proj",       label: "プロジェクター",     price: 16500 },
-    { id: "whiteboard", label: "ホワイトボード",     price: 1100 },
-    { id: "dvd",        label: "DVDデッキ",          price: 3300 },
-    { id: "tv",         label: "モニターTV(32inch)", price: 3300 },
-    { id: "podium",     label: "演台",               price: 5500 },
-    { id: "mc_podium",  label: "司会台",             price: 3300 },
-    { id: "lan",        label: "有線LAN",            price: 1100 },
-    { id: "sign_hang",  label: "吊り看板",           price: 26000 }
+  "free_drink": {
+    "price": 2800,
+    "duration": "110分"
+  },
+  "equipment": [
+    {
+      "id": "mic_w",
+      "label": "ワイヤレスマイク",
+      "price": 2200
+    },
+    {
+      "id": "mic_c",
+      "label": "有線マイク",
+      "price": 2200
+    },
+    {
+      "id": "scr_l",
+      "label": "スクリーン（大）",
+      "price": 16500
+    },
+    {
+      "id": "scr_m",
+      "label": "スクリーン（中）",
+      "price": 11000
+    },
+    {
+      "id": "scr_s",
+      "label": "スクリーン（小）",
+      "price": 5500
+    },
+    {
+      "id": "proj",
+      "label": "プロジェクター",
+      "price": 16500
+    },
+    {
+      "id": "whiteboard",
+      "label": "ホワイトボード",
+      "price": 1100
+    },
+    {
+      "id": "dvd",
+      "label": "DVDデッキ",
+      "price": 3300
+    },
+    {
+      "id": "tv",
+      "label": "モニターTV(32inch)",
+      "price": 3300
+    },
+    {
+      "id": "podium",
+      "label": "演台",
+      "price": 5500
+    },
+    {
+      "id": "mc_podium",
+      "label": "司会台",
+      "price": 3300
+    },
+    {
+      "id": "lan",
+      "label": "有線LAN",
+      "price": 1100
+    },
+    {
+      "id": "sign_hang",
+      "label": "吊り看板",
+      "price": 26000
+    }
   ],
-  drinks: [
-    { id: "beer",          label: "ビール(中瓶)",          price: 900 },
-    { id: "sake",          label: "清酒(1合)",             price: 880 },
-    { id: "shochu_glass",  label: "焼酎グラス",            price: 770 },
-    { id: "whisky_s",      label: "ウィスキー(シングル)",   price: 880 },
-    { id: "soft_orange",   label: "オレンジジュース",       price: 500 },
-    { id: "soft_oolong",   label: "ウーロン茶",            price: 550 },
-    { id: "coffee",        label: "コーヒー",              price: 550 },
-    { id: "pet_water",     label: "ペットボトル水",         price: 360 },
-    { id: "pet_tea",       label: "ペットボトルお茶",       price: 360 }
+  "drinks": [
+    {
+      "id": "beer",
+      "label": "ビール(中瓶)",
+      "price": 900
+    },
+    {
+      "id": "sake",
+      "label": "清酒(1合)",
+      "price": 880
+    },
+    {
+      "id": "shochu_glass",
+      "label": "焼酎グラス",
+      "price": 770
+    },
+    {
+      "id": "whisky_s",
+      "label": "ウィスキー(シングル)",
+      "price": 880
+    },
+    {
+      "id": "soft_orange",
+      "label": "オレンジジュース",
+      "price": 500
+    },
+    {
+      "id": "soft_oolong",
+      "label": "ウーロン茶",
+      "price": 550
+    },
+    {
+      "id": "coffee",
+      "label": "コーヒー",
+      "price": 550
+    },
+    {
+      "id": "pet_water",
+      "label": "ペットボトル水",
+      "price": 360
+    },
+    {
+      "id": "pet_tea",
+      "label": "ペットボトルお茶",
+      "price": 360
+    }
   ],
-  facility: {
-    name: "岐阜キャッスルイン バンケットサービス",
-    company: "有限会社バンケットサービス",
-    address: "〒500-8176 岐阜県岐阜市県町2-8",
-    tel: "058-212-3277",
-    fax: "058-269-4377"
+  "facility": {
+    "name": "岐阜キャッスルイン バンケットサービス",
+    "company": "有限会社バンケットサービス",
+    "address": "〒500-8176 岐阜県岐阜市県町2-8",
+    "tel": "058-212-3277",
+    "fax": "058-269-4377"
   }
 };
 
