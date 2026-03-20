@@ -83,12 +83,13 @@ body { font-family: 'Noto Sans JP', sans-serif; }
         <div class="flex items-center gap-2 pt-3" id="venue-note" style="display:none;"></div>
         <div class="flex items-center gap-6 pt-4 border-t border-slate-100">
           <div class="flex-1">
-            <label class="block text-sm font-medium mb-2">利用時間（基本2時間 + 延長）</label>
+            <label class="block text-sm font-medium mb-2" id="time-label">利用時間（基本2時間 + 延長）</label>
             <div class="flex items-center gap-3">
-              <span class="text-sm text-slate-500">基本 2時間 + 延長</span>
+              <span class="text-sm text-slate-500" id="time-base-text">基本 2時間 + 延長</span>
               <input class="w-20 rounded-lg border-slate-300 bg-transparent" id="extra_hours" min="0" onchange="calculate()" type="number" value="0"/>
               <span class="text-sm">時間</span>
             </div>
+            <div class="text-xs text-slate-500 mt-2" id="time-note" style="display:none;"></div>
           </div>
         </div>
       </div>
@@ -173,8 +174,28 @@ body { font-family: 'Noto Sans JP', sans-serif; }
         <span class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">4</span>
         <h2 class="text-lg font-bold">備品の選択</h2>
       </div>
-      <div class="p-6">
-        <div class="grid grid-cols-2 gap-y-4 gap-x-8" id="equipment-list"></div>
+      <div class="p-6 space-y-6">
+        <!-- マイクセクション -->
+        <div>
+          <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+            <span class="material-symbols-outlined text-base">mic</span> マイク
+          </h3>
+          <div class="bg-slate-50 rounded-xl p-4 space-y-4">
+            <div class="text-xs text-slate-500 space-y-1">
+              <div class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">info</span> 会場で同時使用できるマイクは最大4本です</div>
+              <div id="mic-free-note" style="display:none;" class="flex items-center gap-1 text-green-700 font-bold"><span class="material-symbols-outlined text-xs">check_circle</span> 料理プラン特典: マイク2本まで無料</div>
+            </div>
+            <div class="space-y-3" id="mic-list"></div>
+            <div class="text-xs font-medium pt-2 border-t border-slate-200" id="mic-total-display">合計: 0本 / 最大4本</div>
+          </div>
+        </div>
+        <!-- その他備品セクション -->
+        <div>
+          <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+            <span class="material-symbols-outlined text-base">devices</span> その他備品
+          </h3>
+          <div class="grid grid-cols-2 gap-y-4 gap-x-8" id="equipment-list"></div>
+        </div>
       </div>
     </section>
 
@@ -377,6 +398,13 @@ body { font-family: 'Noto Sans JP', sans-serif; }
 // アプリケーションロジック（通常編集不要）
 // ※ CONFIG は banquet-data.js から読み込まれます
 // ===================================================
+// マイク・演台・司会台のID（特別ルール適用対象）
+var MIC_IDS = ['mic_w', 'mic_c'];
+var FREE_EQUIP_IDS = ['podium', 'mc_podium']; // 会場費込プランで無料になる備品
+var MIC_MAX_TOTAL = 4; // 会場での同時使用上限
+var MIC_LIMITS = { mic_w: 4, mic_c: 2 }; // 各マイクの在庫上限
+var MIC_FREE_COUNT = 2; // 会場費込プランでの無料本数
+
 function init() {
   // 会場リスト生成
   var venueContainer = document.getElementById('venue-list');
@@ -385,10 +413,12 @@ function init() {
     var v = entry[1];
     var label = document.createElement('label');
     label.className = "relative border-2 rounded-xl p-4 cursor-pointer transition-all hover:border-primary/50 border-slate-200 has-[:checked]:border-primary has-[:checked]:bg-blue-50/50";
+    label.setAttribute('data-venue-key', key);
     label.innerHTML = '<input type="radio" name="venue" class="sr-only" value="' + key + '" onchange="calculate()">' +
       '<div class="font-bold mb-1">' + v.label + '</div>' +
       '<div class="text-sm text-slate-500">' + v.area + '</div>' +
-      '<div class="text-primary font-bold mt-2">' + v.base.toLocaleString() + '円〜</div>';
+      '<div class="text-primary font-bold mt-2" data-venue-price>' + v.base.toLocaleString() + '円〜</div>' +
+      '<div class="text-[10px] text-green-700 bg-green-50 px-1.5 py-0.5 rounded font-bold mt-1 text-center" data-venue-free-badge style="display:none;">プラン込み無料</div>';
     venueContainer.appendChild(label);
   });
 
@@ -412,15 +442,37 @@ function init() {
   document.getElementById('free_drink_price_label').textContent =
     CONFIG.free_drink.price.toLocaleString() + '円 / 1名様につき';
 
-  // 備品リスト生成
-  var eqContainer = document.getElementById('equipment-list');
+  // マイクセクション生成
+  var micContainer = document.getElementById('mic-list');
   CONFIG.equipment.forEach(function(item) {
+    if (MIC_IDS.indexOf(item.id) === -1) return;
+    var maxCount = MIC_LIMITS[item.id] || 4;
     var div = document.createElement('div');
     div.className = "flex items-center justify-between";
+    div.innerHTML = '<div class="flex items-center gap-3">' +
+      '<span class="text-sm font-medium">' + item.label + '</span>' +
+      '<span class="text-[10px] text-slate-400">最大' + maxCount + '本</span></div>' +
+      '<div class="flex items-center gap-2">' +
+      '<input type="number" min="0" max="' + maxCount + '" value="0" class="w-16 text-right rounded-lg border-slate-300 bg-transparent text-sm" data-mic-id="' + item.id + '" data-mic-price="' + item.price + '" onchange="enforceMicLimits(this); calculate()">' +
+      '<span class="text-sm">本</span>' +
+      '<span class="text-xs text-slate-500 w-16 text-right">' + item.price.toLocaleString() + '円/本</span></div>';
+    micContainer.appendChild(div);
+  });
+
+  // その他備品リスト生成（マイク以外）
+  var eqContainer = document.getElementById('equipment-list');
+  CONFIG.equipment.forEach(function(item) {
+    if (MIC_IDS.indexOf(item.id) !== -1) return; // マイクはスキップ
+    var isFreeTarget = FREE_EQUIP_IDS.indexOf(item.id) !== -1;
+    var div = document.createElement('div');
+    div.className = "flex items-center justify-between";
+    div.setAttribute('data-equip-id', item.id);
     div.innerHTML = '<label class="flex items-center gap-2 cursor-pointer">' +
       '<input type="checkbox" class="rounded text-primary focus:ring-primary h-4 w-4" data-id="' + item.id + '" onchange="calculate()">' +
-      '<span class="text-sm">' + item.label + '</span></label>' +
-      '<span class="text-xs text-slate-500">' + item.price.toLocaleString() + '円</span>';
+      '<span class="text-sm">' + item.label + '</span>' +
+      (isFreeTarget ? '<span class="text-[10px] text-green-700 bg-green-50 px-1.5 py-0.5 rounded font-bold" data-free-badge style="display:none;">プラン特典無料</span>' : '') +
+      '</label>' +
+      '<span class="text-xs text-slate-500" data-equip-price>' + item.price.toLocaleString() + '円</span>';
     eqContainer.appendChild(div);
   });
 
@@ -440,12 +492,34 @@ function init() {
   calculate();
 }
 
+// マイク本数制限の強制
+function enforceMicLimits(changedInput) {
+  var inputs = document.querySelectorAll('#mic-list input[data-mic-id]');
+  var total = 0;
+  inputs.forEach(function(inp) { total += parseInt(inp.value) || 0; });
+
+  // 合計が最大4本を超える場合、変更された入力を調整
+  if (total > MIC_MAX_TOTAL) {
+    var excess = total - MIC_MAX_TOTAL;
+    changedInput.value = Math.max(0, (parseInt(changedInput.value) || 0) - excess);
+  }
+
+  // 合計表示を更新
+  total = 0;
+  inputs.forEach(function(inp) { total += parseInt(inp.value) || 0; });
+  var display = document.getElementById('mic-total-display');
+  if (display) {
+    var color = total >= MIC_MAX_TOTAL ? 'text-amber-600' : '';
+    display.innerHTML = '<span class="' + color + '">合計: ' + total + '本 / 最大' + MIC_MAX_TOTAL + '本</span>';
+  }
+}
+
 function calculate() {
   var total = 0;
   var breakdown = [];
   var guestCount = parseInt(document.getElementById('guest_count').value) || 0;
 
-  // 料理プランの選択状態を先に取得（会場費・フリードリンクの判定に使用）
+  // 料理プランの選択状態を先に取得（会場費・フリードリンク・備品特典の判定に使用）
   var foodPlanEl = document.querySelector('input[name="food_plan"]:checked');
   var foodPlanId = foodPlanEl ? foodPlanEl.value : null;
   var selectedPlan = foodPlanId ? CONFIG.food_plans.find(function(p) { return p.id === foodPlanId; }) : null;
@@ -462,8 +536,18 @@ function calculate() {
   if (venueType) {
     var v = CONFIG.venue[venueType];
     if (isVenueFree) {
-      // 会場費込みプラン → 0円表示
-      breakdown.push({ label: '会場費: ' + v.label + ' / ' + layout + '（料理プラン込み）', unit: 0, qty: 1, total: 0 });
+      // 会場費込みプラン → 基本2時間は無料、延長分のみ課金
+      breakdown.push({
+        label: '会場費: ' + v.label + ' (2時間) / ' + layout,
+        unit: 0, qty: 1, total: 0,
+        originalPrice: v.base, // 取り消し線表示用
+        note: '料理プランに含まれます'
+      });
+      if (extraHours > 0) {
+        var extPrice = v.extra * extraHours;
+        total += extPrice;
+        breakdown.push({ label: '会議・延長: ' + extraHours + '時間', unit: v.extra, qty: extraHours, total: extPrice });
+      }
     } else {
       var venuePrice = v.base + (v.extra * extraHours);
       total += venuePrice;
@@ -471,12 +555,48 @@ function calculate() {
     }
   }
 
-  // 会場費の案内メッセージを更新
+  // === 会場カードのバッジ表示更新 ===
+  document.querySelectorAll('[data-venue-key]').forEach(function(card) {
+    var badge = card.querySelector('[data-venue-free-badge]');
+    var priceEl = card.querySelector('[data-venue-price]');
+    if (badge) badge.style.display = isVenueFree ? '' : 'none';
+    if (priceEl && isVenueFree) {
+      var key = card.getAttribute('data-venue-key');
+      var vv = CONFIG.venue[key];
+      priceEl.innerHTML = '<span class="line-through text-slate-400">' + vv.base.toLocaleString() + '円</span> <span class="text-green-700">→ 無料</span>';
+    } else if (priceEl) {
+      var key2 = card.getAttribute('data-venue-key');
+      var vv2 = CONFIG.venue[key2];
+      priceEl.innerHTML = vv2.base.toLocaleString() + '円〜';
+    }
+  });
+
+  // === 利用時間ラベルの動的変更 ===
+  var timeLabel = document.getElementById('time-label');
+  var timeBaseText = document.getElementById('time-base-text');
+  var timeNote = document.getElementById('time-note');
+  if (isVenueFree) {
+    timeLabel.textContent = '会議・延長時間';
+    timeBaseText.textContent = '宴会2時間(プラン込み) + 追加';
+    if (timeNote && venueType) {
+      var selectedVenue = CONFIG.venue[venueType];
+      timeNote.style.display = '';
+      timeNote.innerHTML = '<span class="material-symbols-outlined text-xs text-green-600 align-middle">check_circle</span> 宴会2時間はお料理プランに含まれています。追加の会議・延長は1時間あたり' + selectedVenue.extra.toLocaleString() + '円です。';
+    } else if (timeNote) {
+      timeNote.style.display = 'none';
+    }
+  } else {
+    timeLabel.textContent = '利用時間（基本2時間 + 延長）';
+    timeBaseText.textContent = '基本 2時間 + 延長';
+    if (timeNote) timeNote.style.display = 'none';
+  }
+
+  // === 会場費の案内メッセージ ===
   var venueNote = document.getElementById('venue-note');
   if (venueNote) {
     if (isVenueFree) {
       venueNote.style.display = 'flex';
-      venueNote.innerHTML = '<span class="material-symbols-outlined text-green-600 text-lg">check_circle</span><span class="text-green-700 text-sm font-bold">選択中の料理プランには会場費が含まれています</span>';
+      venueNote.innerHTML = '<span class="material-symbols-outlined text-green-600 text-lg">check_circle</span><span class="text-green-700 text-sm font-bold">選択中の料理プランには会場費（2時間分）が含まれています</span>';
     } else if (hasFoodPlan) {
       venueNote.style.display = 'flex';
       venueNote.innerHTML = '<span class="material-symbols-outlined text-amber-500 text-lg">info</span><span class="text-amber-700 text-sm">割子弁当・単品注文の場合は会場費がかかります</span>';
@@ -486,14 +606,14 @@ function calculate() {
     }
   }
 
-  // 料理
+  // === 料理 ===
   if (selectedPlan) {
     var foodTotal = selectedPlan.price * guestCount;
     total += foodTotal;
     breakdown.push({ label: '料理: ' + selectedPlan.label, unit: selectedPlan.price, qty: guestCount, total: foodTotal });
   }
 
-  // フリードリンク（料理プラン選択時のみ利用可能）
+  // === フリードリンク（料理プラン選択時のみ利用可能）===
   var freeDrinkCb = document.getElementById('free_drink_option');
   var freeDrinkBox = document.getElementById('free_drink_box');
   var freeDrinkNote = document.getElementById('free_drink_note');
@@ -514,16 +634,109 @@ function calculate() {
     breakdown.push({ label: '飲料: フリードリンク(' + CONFIG.free_drink.duration + ')', unit: CONFIG.free_drink.price, qty: guestCount, total: drinkTotal });
   }
 
-  // 備品
+  // === マイク ===
+  var micFreeNote = document.getElementById('mic-free-note');
+  if (micFreeNote) micFreeNote.style.display = isVenueFree ? '' : 'none';
+
+  var totalMics = 0;
+  var micBreakdownItems = [];
+  document.querySelectorAll('#mic-list input[data-mic-id]').forEach(function(input) {
+    var qty = parseInt(input.value) || 0;
+    if (qty > 0) {
+      var micItem = CONFIG.equipment.find(function(e) { return e.id === input.dataset.micId; });
+      if (micItem) {
+        totalMics += qty;
+        micBreakdownItems.push({ id: micItem.id, label: micItem.label, price: micItem.price, qty: qty });
+      }
+    }
+  });
+
+  // マイク無料枠の計算
+  var freeMics = isVenueFree ? MIC_FREE_COUNT : 0;
+  var remainingFree = freeMics;
+  micBreakdownItems.forEach(function(mic) {
+    var freeQty = Math.min(mic.qty, remainingFree);
+    var paidQty = mic.qty - freeQty;
+    remainingFree -= freeQty;
+
+    if (freeQty > 0 && paidQty > 0) {
+      // 一部無料・一部有料
+      breakdown.push({
+        label: '備品: ' + mic.label + ' (' + freeQty + '本無料)',
+        unit: 0, qty: freeQty, total: 0,
+        note: 'プラン特典'
+      });
+      var paidTotal = mic.price * paidQty;
+      total += paidTotal;
+      breakdown.push({ label: '備品: ' + mic.label, unit: mic.price, qty: paidQty, total: paidTotal });
+    } else if (freeQty > 0) {
+      // 全部無料
+      breakdown.push({
+        label: '備品: ' + mic.label,
+        unit: 0, qty: freeQty, total: 0,
+        originalPrice: mic.price * freeQty,
+        note: 'プラン特典（' + freeQty + '本無料）'
+      });
+    } else {
+      // 全部有料
+      var allPaidTotal = mic.price * mic.qty;
+      total += allPaidTotal;
+      breakdown.push({ label: '備品: ' + mic.label, unit: mic.price, qty: mic.qty, total: allPaidTotal });
+    }
+  });
+
+  // マイク合計表示の更新
+  var micDisplay = document.getElementById('mic-total-display');
+  if (micDisplay) {
+    var color = totalMics >= MIC_MAX_TOTAL ? 'text-amber-600 font-bold' : '';
+    var freeText = '';
+    if (isVenueFree) {
+      var usedFree = Math.min(totalMics, MIC_FREE_COUNT);
+      var remainFree = MIC_FREE_COUNT - usedFree;
+      freeText = remainFree > 0
+        ? ' ・ <span class="text-green-700">無料枠: あと' + remainFree + '本</span>'
+        : (totalMics > MIC_FREE_COUNT ? ' ・ <span class="text-amber-600">無料枠使用済み</span>' : ' ・ <span class="text-green-700">無料枠内</span>');
+    }
+    micDisplay.innerHTML = '<span class="' + color + '">合計: ' + totalMics + '本 / 最大' + MIC_MAX_TOTAL + '本</span>' + freeText;
+  }
+
+  // === その他備品 ===
   document.querySelectorAll('#equipment-list input:checked').forEach(function(cb) {
     var item = CONFIG.equipment.find(function(e) { return e.id === cb.dataset.id; });
-    if (item) {
+    if (!item) return;
+
+    var isFreeItem = isVenueFree && FREE_EQUIP_IDS.indexOf(item.id) !== -1;
+    if (isFreeItem) {
+      breakdown.push({
+        label: '備品: ' + item.label,
+        unit: 0, qty: 1, total: 0,
+        originalPrice: item.price,
+        note: 'プラン特典'
+      });
+    } else {
       total += item.price;
       breakdown.push({ label: '備品: ' + item.label, unit: item.price, qty: 1, total: item.price });
     }
   });
 
-  // 個別飲物
+  // 演台・司会台のバッジ表示更新
+  FREE_EQUIP_IDS.forEach(function(id) {
+    var el = document.querySelector('[data-equip-id="' + id + '"]');
+    if (!el) return;
+    var badge = el.querySelector('[data-free-badge]');
+    var priceEl = el.querySelector('[data-equip-price]');
+    if (badge) badge.style.display = isVenueFree ? '' : 'none';
+    if (priceEl) {
+      var eqItem = CONFIG.equipment.find(function(e) { return e.id === id; });
+      if (eqItem) {
+        priceEl.innerHTML = isVenueFree
+          ? '<span class="line-through text-slate-300">' + eqItem.price.toLocaleString() + '円</span> <span class="text-green-700 font-bold">無料</span>'
+          : eqItem.price.toLocaleString() + '円';
+      }
+    }
+  });
+
+  // === 個別飲物 ===
   document.querySelectorAll('#drink-list input[type="number"]').forEach(function(input) {
     var qty = parseInt(input.value) || 0;
     if (qty > 0) {
@@ -534,16 +747,27 @@ function calculate() {
     }
   });
 
-  // UI更新
+  // === UI更新: 内訳パネル ===
   document.getElementById('total-amount').textContent = total.toLocaleString();
   var breakdownList = document.getElementById('breakdown-list');
   if (breakdown.length === 0) {
     breakdownList.innerHTML = '<li class="flex justify-between text-slate-400 italic">項目が選択されていません</li>';
   } else {
     breakdownList.innerHTML = breakdown.map(function(item) {
+      var priceHtml;
+      if (item.total === 0 && item.originalPrice) {
+        // 取り消し線付き: 元の金額を表示しつつ0円
+        priceHtml = '<span class="shrink-0"><span class="line-through text-slate-300 text-xs">' + item.originalPrice.toLocaleString() + '円</span> <span class="text-green-700 font-medium">無料</span></span>';
+      } else if (item.total === 0 && item.note) {
+        // 無料（特典表示のみ）
+        priceHtml = '<span class="text-green-700 font-medium shrink-0">無料</span>';
+      } else {
+        priceHtml = '<span class="font-medium shrink-0">' + item.total.toLocaleString() + '円</span>';
+      }
+      var noteHtml = item.note ? '<span class="text-[10px] text-green-600 block">' + item.note + '</span>' : '';
       return '<li class="flex justify-between gap-4">' +
-        '<span class="text-slate-600">' + item.label + '</span>' +
-        '<span class="font-medium shrink-0">' + item.total.toLocaleString() + '円</span></li>';
+        '<span class="text-slate-600 text-sm">' + item.label + noteHtml + '</span>' +
+        priceHtml + '</li>';
     }).join('');
   }
 
@@ -569,11 +793,26 @@ function showPreview() {
     tbody.innerHTML = '<tr><td colspan="4" class="py-12 text-center text-slate-400">項目が選択されていません</td></tr>';
   } else {
     tbody.innerHTML = window.currentBreakdown.map(function(item) {
+      var labelHtml = item.label;
+      var unitHtml, totalHtml;
+      if (item.total === 0 && (item.originalPrice || item.note)) {
+        // 無料項目
+        if (item.originalPrice) {
+          unitHtml = '<span class="line-through text-slate-300">¥' + item.originalPrice.toLocaleString() + '</span>';
+        } else {
+          unitHtml = '¥0';
+        }
+        totalHtml = '<span class="text-green-700">無料</span>';
+        if (item.note) labelHtml += '<br><span class="text-[10px] text-green-600">' + item.note + '</span>';
+      } else {
+        unitHtml = '¥' + item.unit.toLocaleString();
+        totalHtml = '¥' + item.total.toLocaleString();
+      }
       return '<tr>' +
-        '<td class="py-4 px-4 text-slate-700">' + item.label + '</td>' +
-        '<td class="py-4 px-4 text-right">¥' + item.unit.toLocaleString() + '</td>' +
+        '<td class="py-4 px-4 text-slate-700">' + labelHtml + '</td>' +
+        '<td class="py-4 px-4 text-right">' + unitHtml + '</td>' +
         '<td class="py-4 px-4 text-center">' + item.qty + '</td>' +
-        '<td class="py-4 px-4 text-right font-bold">¥' + item.total.toLocaleString() + '</td></tr>';
+        '<td class="py-4 px-4 text-right font-bold">' + totalHtml + '</td></tr>';
     }).join('');
   }
 
@@ -591,7 +830,12 @@ function openInquiry() {
   text += '──────────────────────\n';
   if (window.currentBreakdown && window.currentBreakdown.length > 0) {
     window.currentBreakdown.forEach(function(item) {
-      text += '■ ' + item.label + '  ×' + item.qty + '  = ¥' + item.total.toLocaleString() + '\n';
+      if (item.total === 0 && (item.originalPrice || item.note)) {
+        var noteText = item.note ? '（' + item.note + '）' : '';
+        text += '■ ' + item.label + '  → 無料' + noteText + '\n';
+      } else {
+        text += '■ ' + item.label + '  ×' + item.qty + '  = ¥' + item.total.toLocaleString() + '\n';
+      }
     });
     text += '──────────────────────\n';
     text += '■ 概算合計: ¥' + window.currentTotal.toLocaleString() + '（税込）\n';
@@ -647,10 +891,15 @@ window.onload = function() {
     document.querySelectorAll('#equipment-list input:checked').forEach(function(cb) {
       savedEquipment.push(cb.dataset.id);
     });
+    var savedMics = {};
+    document.querySelectorAll('#mic-list input[data-mic-id]').forEach(function(inp) {
+      savedMics[inp.dataset.micId] = inp.value;
+    });
 
     // UIをクリアして再構築
     document.getElementById('venue-list').innerHTML = '';
     document.getElementById('food-plan-list').innerHTML = '';
+    document.getElementById('mic-list').innerHTML = '';
     document.getElementById('equipment-list').innerHTML = '';
     document.getElementById('drink-list').innerHTML = '';
     init();
@@ -674,6 +923,10 @@ window.onload = function() {
     savedEquipment.forEach(function(id) {
       var cb = document.querySelector('#equipment-list input[data-id="' + id + '"]');
       if (cb) cb.checked = true;
+    });
+    Object.keys(savedMics).forEach(function(micId) {
+      var inp = document.querySelector('#mic-list input[data-mic-id="' + micId + '"]');
+      if (inp) inp.value = savedMics[micId];
     });
 
     calculate();
