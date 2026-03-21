@@ -48,23 +48,44 @@ body { font-family: 'Noto Sans JP', sans-serif; }
 <script src="js/banquet-data.js"></script>
 
 <!-- ========== ヘッダー ========== -->
-<header class="bg-white border-b border-slate-200 sticky top-0 z-50 no-print">
-  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-    <div class="flex items-center gap-3">
-      <a href="index.html" class="flex items-center gap-3" target="_top">
-        <div class="bg-primary p-2 rounded">
-          <span class="material-symbols-outlined text-white">business</span>
-        </div>
-        <div>
-          <h1 class="text-xl font-bold tracking-tight">岐阜キャッスルイン</h1>
-          <p class="text-xs text-slate-500">バンケットサービス 料金シミュレーター</p>
-        </div>
-      </a>
-    </div>
-    <a href="index.html" class="text-sm text-primary font-bold hover:text-accent-gold transition-colors flex items-center gap-1" target="_top">
-      <span class="material-symbols-outlined text-sm">arrow_back</span> サイトに戻る
-    </a>
-  </div>
+<header class="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-primary/5">
+<div class="max-w-7xl mx-auto px-6 lg:px-12">
+<div class="flex h-20 items-center justify-between">
+<a href="index.html" class="flex flex-col border-l-4 border-accent-gold pl-4" target="_top">
+<span class="text-[10px] font-bold tracking-[.3em] text-gray-500">岐阜キャッスルイン</span>
+<span class="text-lg font-black tracking-tight leading-none text-primary mt-0.5">バンケットサービス</span>
+</a>
+<nav class="hidden lg:flex items-center gap-8 text-[14px] font-bold">
+<a href="index.html" class="hover:text-accent-gold" target="_top">ホーム</a>
+<a href="venue.html" class="hover:text-accent-gold" target="_top">会場案内</a>
+<a href="cuisine.html" class="hover:text-accent-gold" target="_top">お料理</a>
+<a href="pricing.html" class="hover:text-accent-gold" target="_top">各種料金表</a>
+<a href="simulator.html" class="hover:text-accent-gold" target="_top">料金シミュレーター</a>
+<a href="party.html" class="hover:text-accent-gold" target="_top">二次会</a>
+<a href="access.html" class="hover:text-accent-gold" target="_top">アクセス</a>
+</nav>
+<div class="flex items-center gap-4">
+<a class="hidden sm:flex flex-col items-end" href="tel:058-212-3277" target="_top">
+<span class="text-[10px] text-gray-500 font-bold">ご予約・お問い合わせ</span>
+<span class="text-lg font-serif text-primary">058-212-3277</span>
+</a>
+<button class="lg:hidden p-2 text-primary" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</div>
+<div id="mobile-menu" class="hidden lg:hidden pb-6 border-t border-gray-100 pt-4">
+<nav class="flex flex-col gap-4">
+<a class="text-sm font-bold" href="index.html" target="_top">ホーム</a>
+<a class="text-sm font-bold" href="venue.html" target="_top">会場案内</a>
+<a class="text-sm font-bold" href="cuisine.html" target="_top">お料理</a>
+<a class="text-sm font-bold" href="pricing.html" target="_top">各種料金表</a>
+<a class="text-sm font-bold" href="simulator.html" target="_top">料金シミュレーター</a>
+<a class="text-sm font-bold" href="party.html" target="_top">二次会</a>
+<a class="text-sm font-bold" href="access.html" target="_top">アクセス</a>
+</nav>
+</div>
+</div>
 </header>
 
 <!-- ========== メインコンテンツ ========== -->

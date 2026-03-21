@@ -8,7 +8,45 @@
 </head>
 <body class="bg-background-light text-[#24282B]">
 
-<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-primary/5"><div class="max-w-7xl mx-auto px-6 lg:px-12 flex h-20 items-center justify-between"><a href="index.html" class="flex flex-col border-l-4 border-primary pl-4" target="_top"><span class="text-lg font-black tracking-tighter text-primary">岐阜キャッスルイン</span><span class="text-[10px] font-bold tracking-[.3em] text-accent-gold mt-1">バンケットサービス</span></a><nav class="hidden lg:flex items-center gap-8 text-[14px] font-bold"><a href="index.html" class="hover:text-accent-gold" target="_top">ホーム</a><a href="venue.html" class="hover:text-accent-gold" target="_top">会場案内</a><a href="cuisine.html" class="hover:text-accent-gold" target="_top">お料理</a><a href="pricing.html" class="text-accent-gold" target="_top">料金表</a><a href="simulator.html" class="hover:text-accent-gold" target="_top">シミュレーター</a><a href="party.html" class="hover:text-accent-gold" target="_top">二次会</a><a href="access.html" class="hover:text-accent-gold" target="_top">アクセス</a></nav><a class="hidden sm:block text-lg font-serif text-primary" href="tel:058-212-3277" target="_top">058-212-3277</a></div></header>
+<header class="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-primary/5">
+<div class="max-w-7xl mx-auto px-6 lg:px-12">
+<div class="flex h-20 items-center justify-between">
+<a href="index.html" class="flex flex-col border-l-4 border-accent-gold pl-4" target="_top">
+<span class="text-[10px] font-bold tracking-[.3em] text-gray-500">岐阜キャッスルイン</span>
+<span class="text-lg font-black tracking-tight leading-none text-primary mt-0.5">バンケットサービス</span>
+</a>
+<nav class="hidden lg:flex items-center gap-8 text-[14px] font-bold">
+<a href="index.html" class="hover:text-accent-gold" target="_top">ホーム</a>
+<a href="venue.html" class="hover:text-accent-gold" target="_top">会場案内</a>
+<a href="cuisine.html" class="hover:text-accent-gold" target="_top">お料理</a>
+<a href="pricing.html" class="text-accent-gold" target="_top">各種料金表</a>
+<a href="simulator.html" class="hover:text-accent-gold" target="_top">料金シミュレーター</a>
+<a href="party.html" class="hover:text-accent-gold" target="_top">二次会</a>
+<a href="access.html" class="hover:text-accent-gold" target="_top">アクセス</a>
+</nav>
+<div class="flex items-center gap-4">
+<a class="hidden sm:flex flex-col items-end" href="tel:058-212-3277" target="_top">
+<span class="text-[10px] text-gray-500 font-bold">ご予約・お問い合わせ</span>
+<span class="text-lg font-serif text-primary">058-212-3277</span>
+</a>
+<button class="lg:hidden p-2 text-primary" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</div>
+<div id="mobile-menu" class="hidden lg:hidden pb-6 border-t border-gray-100 pt-4">
+<nav class="flex flex-col gap-4">
+<a class="text-sm font-bold" href="index.html" target="_top">ホーム</a>
+<a class="text-sm font-bold" href="venue.html" target="_top">会場案内</a>
+<a class="text-sm font-bold" href="cuisine.html" target="_top">お料理</a>
+<a class="text-sm font-bold" href="pricing.html" target="_top">各種料金表</a>
+<a class="text-sm font-bold" href="simulator.html" target="_top">料金シミュレーター</a>
+<a class="text-sm font-bold" href="party.html" target="_top">二次会</a>
+<a class="text-sm font-bold" href="access.html" target="_top">アクセス</a>
+</nav>
+</div>
+</div>
+</header>
 
 <main class="max-w-5xl mx-auto px-6 py-16">
 <h1 class="text-4xl font-serif font-bold text-primary mb-3">各種料金表</h1>
@@ -23,7 +61,33 @@
 <p class="text-xs text-gray-400 text-center">※表示金額は税込・サービス料込です。内容は予告なく変更になる場合があります。</p>
 </main>
 
-<footer class="bg-primary text-white/80 pt-12 pb-8 px-6 mt-16"><div class="max-w-7xl mx-auto text-center"><p class="text-sm mb-2">岐阜キャッスルイン バンケットサービス</p><p class="text-xs">〒500-8176 岐阜県岐阜市県町2-8 TEL 058-212-3277</p><p class="text-[10px] mt-6 border-t border-white/10 pt-4">&copy; 2024 有限会社バンケットサービス</p></div></footer>
+<footer class="bg-primary text-white/80 pt-16 pb-8 px-6 mt-16">
+<div class="max-w-7xl mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+<div>
+<p class="text-[10px] tracking-[.3em] text-white/60">岐阜キャッスルイン</p>
+<h2 class="text-lg font-bold text-accent-gold mb-4">バンケットサービス</h2>
+<p class="text-sm leading-loose">〒500-8176<br/>岐阜県岐阜市県町2-8<br/>名鉄岐阜駅 徒歩1分 / JR岐阜駅 徒歩5分</p>
+<a class="text-xl font-serif text-white hover:text-accent-gold mt-4 block" href="tel:058-212-3277" target="_top">058-212-3277</a>
+<p class="text-xs mt-1 text-white/50">受付時間：9時〜18時</p>
+</div>
+<div>
+<h6 class="font-bold text-sm mb-6 text-white border-l-2 border-accent-gold pl-4">MENU</h6>
+<ul class="space-y-3 text-sm"><li><a href="venue.html" class="hover:text-accent-gold" target="_top">会場案内</a></li><li><a href="cuisine.html" class="hover:text-accent-gold" target="_top">お料理プラン</a></li><li><a href="pricing.html" class="hover:text-accent-gold" target="_top">各種料金表</a></li><li><a href="simulator.html" class="hover:text-accent-gold" target="_top">料金シミュレーター</a></li></ul>
+</div>
+<div>
+<h6 class="font-bold text-sm mb-6 text-white border-l-2 border-accent-gold pl-4">INFO</h6>
+<ul class="space-y-3 text-sm"><li><a href="party.html" class="hover:text-accent-gold" target="_top">二次会ご案内</a></li><li><a href="access.html" class="hover:text-accent-gold" target="_top">アクセス・会社概要</a></li><li><a href="mailto:bs-service@vesta.ocn.ne.jp" class="hover:text-accent-gold">メールお問い合わせ</a></li></ul>
+</div>
+<div>
+<h6 class="font-bold text-sm mb-6 text-white border-l-2 border-accent-gold pl-4">関連企業</h6>
+<ul class="space-y-3 text-sm"><li><a href="https://www.buffet-restaurant-monte.com" class="hover:text-accent-gold" target="_blank">レストラン「モンテ」</a></li><li><a href="https://www.gifu-c.jp/" class="hover:text-accent-gold" target="_blank">岐阜キャッスルイン</a></li></ul>
+<p class="text-xs mt-4 text-white/40">関連会社：株式会社 山弘なまずや分店</p>
+</div>
+</div>
+<div class="pt-6 border-t border-white/10 text-center text-[10px]">&copy; 2024 有限会社バンケットサービス</div>
+</div>
+</footer>
 
 <script src="js/banquet-data.js"></script>
 <script>
