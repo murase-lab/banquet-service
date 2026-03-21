@@ -1,0 +1,143 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1.0" name="viewport"/>
+<title>各種料金表 | 岐阜キャッスルイン バンケットサービス</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>tailwind.config={theme:{extend:{colors:{"primary":"#1A2E44","accent-gold":"#C1A36A","background-light":"#FDFCF9"},fontFamily:{"sans":["Noto Sans JP"],"serif":["Noto Serif JP"]}}}}</script>
+<style>body{font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em}</style>
+</head>
+<body class="bg-background-light text-[#24282B]">
+
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-primary/5"><div class="max-w-7xl mx-auto px-6 lg:px-12 flex h-20 items-center justify-between"><a href="index.html" class="flex flex-col border-l-4 border-primary pl-4" target="_top"><span class="text-lg font-black tracking-tighter text-primary">岐阜キャッスルイン</span><span class="text-[10px] font-bold tracking-[.3em] text-accent-gold mt-1">バンケットサービス</span></a><nav class="hidden lg:flex items-center gap-8 text-[14px] font-bold"><a href="index.html" class="hover:text-accent-gold" target="_top">ホーム</a><a href="venue.html" class="hover:text-accent-gold" target="_top">会場案内</a><a href="cuisine.html" class="hover:text-accent-gold" target="_top">お料理</a><a href="pricing.html" class="text-accent-gold" target="_top">料金表</a><a href="simulator.html" class="hover:text-accent-gold" target="_top">シミュレーター</a><a href="party.html" class="hover:text-accent-gold" target="_top">二次会</a><a href="access.html" class="hover:text-accent-gold" target="_top">アクセス</a></nav><a class="hidden sm:block text-lg font-serif text-primary" href="tel:058-212-3277" target="_top">058-212-3277</a></div></header>
+
+<main class="max-w-5xl mx-auto px-6 py-16">
+<h1 class="text-4xl font-serif font-bold text-primary mb-3">各種料金表</h1>
+<p class="text-gray-500 mb-12">会場費・備品類・お飲物の料金一覧</p>
+
+<!-- 動的コンテンツ -->
+<div id="pricing-content">
+  <!-- JSで描画されます -->
+</div>
+
+<div class="text-center py-8"><p class="text-gray-500 mb-6">概算を自動計算できます</p><a href="simulator.html" class="inline-block bg-primary text-white font-bold px-10 py-4 rounded-xl shadow-lg hover:bg-primary/90" target="_top">料金シミュレーター</a></div>
+<p class="text-xs text-gray-400 text-center">※表示金額は税込・サービス料込です。内容は予告なく変更になる場合があります。</p>
+</main>
+
+<footer class="bg-primary text-white/80 pt-12 pb-8 px-6 mt-16"><div class="max-w-7xl mx-auto text-center"><p class="text-sm mb-2">岐阜キャッスルイン バンケットサービス</p><p class="text-xs">〒500-8176 岐阜県岐阜市県町2-8 TEL 058-212-3277</p><p class="text-[10px] mt-6 border-t border-white/10 pt-4">&copy; 2024 有限会社バンケットサービス</p></div></footer>
+
+<script src="js/banquet-data.js"></script>
+<script>
+// ===================================================
+// 料金表ページ描画ロジック
+// ===================================================
+
+var MIC_IDS = ['mic_w', 'mic_c'];
+var FREE_EQUIP_IDS = ['podium', 'mc_podium'];
+
+function renderPricing(config) {
+  var container = document.getElementById('pricing-content');
+  var html = '';
+
+  // ========== 1. 会場使用料金 ==========
+  html += '<section class="bg-white rounded-xl p-8 border border-gray-100 shadow-sm mb-10">';
+  html += '<h2 class="font-bold text-xl mb-6 flex items-center gap-2"><span class="material-symbols-outlined text-accent-gold">meeting_room</span>会場使用料金</h2>';
+  html += '<div class="overflow-x-auto"><table class="w-full text-left text-sm border-collapse"><thead><tr class="bg-slate-50 border-b-2 border-primary/20"><th class="py-3 px-4">会場名</th><th class="py-3 px-4">面積</th><th class="py-3 px-4">基本料金(2h)</th><th class="py-3 px-4">延長(1h)</th></tr></thead><tbody class="divide-y divide-gray-100">';
+
+  Object.entries(config.venue).forEach(function(entry) {
+    var v = entry[1];
+    var isAll = entry[0] === 'suehiro_all';
+    html += '<tr' + (isAll ? ' class="bg-blue-50/30"' : '') + '>';
+    html += '<td class="py-3 px-4 font-bold text-primary">' + v.label + '</td>';
+    html += '<td class="py-3 px-4">' + v.area + '</td>';
+    html += '<td class="py-3 px-4">' + v.base.toLocaleString() + '円</td>';
+    html += '<td class="py-3 px-4">' + v.extra.toLocaleString() + '円</td>';
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+
+  // 会場費無料の案内
+  html += '<div class="mt-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">';
+  html += '<span class="material-symbols-outlined text-green-600 mt-0.5">check_circle</span>';
+  html += '<div><p class="font-bold text-green-800 text-sm">お料理プランご利用で会場費無料</p>';
+  html += '<p class="text-green-700 text-xs mt-1">会席料理・シッティング・ビュッフェ・弁当宴会をご注文の場合、会場使用料（基本2時間分）は無料です。</p>';
+  html += '<p class="text-slate-500 text-xs mt-1">※割子弁当は対象外です。※追加の会議・延長時間は延長料金がかかります。</p>';
+  html += '</div></div>';
+  html += '</section>';
+
+  // ========== 2. 備品料金 ==========
+  html += '<section class="bg-white rounded-xl p-8 border border-gray-100 shadow-sm mb-10">';
+  html += '<h2 class="font-bold text-xl mb-6 flex items-center gap-2"><span class="material-symbols-outlined text-accent-gold">build</span>備品料金</h2>';
+
+  // マイクセクション
+  html += '<div class="mb-6">';
+  html += '<h3 class="font-bold text-sm text-slate-700 mb-3 flex items-center gap-2"><span class="material-symbols-outlined text-base">mic</span>マイク</h3>';
+  html += '<div class="bg-slate-50 rounded-lg p-4">';
+  html += '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm mb-3">';
+
+  config.equipment.forEach(function(item) {
+    if (MIC_IDS.indexOf(item.id) === -1) return;
+    var maxNote = item.id === 'mic_w' ? '在庫4本' : '在庫2本';
+    html += '<div class="flex justify-between items-center"><span>' + item.label + ' <span class="text-xs text-slate-400">(' + maxNote + ')</span></span><span class="font-bold">' + item.price.toLocaleString() + '円/本</span></div>';
+  });
+
+  html += '</div>';
+  html += '<div class="text-xs text-slate-500 space-y-1 border-t border-slate-200 pt-3">';
+  html += '<div class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">info</span>会場で同時使用できるマイクは最大4本です</div>';
+  html += '<div class="flex items-center gap-1 text-green-700 font-bold"><span class="material-symbols-outlined text-xs">check_circle</span>料理プラン特典（割子弁当除く）: マイク2本まで無料</div>';
+  html += '</div></div></div>';
+
+  // その他備品
+  html += '<h3 class="font-bold text-sm text-slate-700 mb-3 flex items-center gap-2"><span class="material-symbols-outlined text-base">devices</span>その他備品</h3>';
+  html += '<div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">';
+
+  config.equipment.forEach(function(item) {
+    if (MIC_IDS.indexOf(item.id) !== -1) return;
+    var isFreeTarget = FREE_EQUIP_IDS.indexOf(item.id) !== -1;
+    html += '<div class="flex justify-between border-b border-gray-50 pb-2">';
+    html += '<span>' + item.label;
+    if (isFreeTarget) {
+      html += ' <span class="text-[10px] text-green-700 bg-green-50 px-1.5 py-0.5 rounded font-bold">プラン特典無料</span>';
+    }
+    html += '</span>';
+    html += '<span class="font-bold">' + item.price.toLocaleString() + '円</span>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+
+  // 演台・司会台の注釈
+  html += '<p class="text-xs text-green-700 mt-3 flex items-center gap-1"><span class="material-symbols-outlined text-xs">check_circle</span>料理プラン特典（割子弁当除く）: 演台・司会台は無料でご利用いただけます</p>';
+  html += '</section>';
+
+  // ========== 3. お飲物料金 ==========
+  html += '<section class="bg-white rounded-xl p-8 border border-gray-100 shadow-sm mb-10">';
+  html += '<h2 class="font-bold text-xl mb-6 flex items-center gap-2"><span class="material-symbols-outlined text-accent-gold">local_bar</span>お飲物料金</h2>';
+  html += '<div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">';
+
+  config.drinks.forEach(function(item) {
+    html += '<div class="flex justify-between border-b border-gray-50 pb-2"><span>' + item.label + '</span><span class="font-bold">' + item.price.toLocaleString() + '円</span></div>';
+  });
+
+  html += '</div>';
+
+  // フリードリンク
+  html += '<div class="mt-6 bg-accent-gold/10 rounded-lg p-4">';
+  html += '<p class="font-bold">フリードリンク（' + config.free_drink.duration + '）：' + config.free_drink.price.toLocaleString() + '円/1名様</p>';
+  html += '<p class="text-xs text-gray-500 mt-1">ビール・ノンアルコールビール・日本酒・焼酎（麦芋）・ウィスキー・梅酒・ウーロン茶・オレンジジュース</p>';
+  html += '<p class="text-xs text-amber-600 mt-2">※お料理プランとの組み合わせが必要です</p>';
+  html += '</div>';
+  html += '</section>';
+
+  container.innerHTML = html;
+}
+
+// Stage 1: フォールバックCONFIGで即座に描画
+renderPricing(CONFIG);
+
+// Stage 2: APIから最新データを取得して再描画
+loadSimulatorConfig(function(newConfig) {
+  renderPricing(newConfig);
+});
+</script>
+</body></html>

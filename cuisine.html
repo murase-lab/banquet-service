@@ -50,6 +50,15 @@ function getBadgeColorClass(color) {
   }
 }
 
+function getVenueIncluded(planId) {
+  // CONFIG（シミュレーター設定）からvenueIncluded情報を取得
+  if (typeof CONFIG !== 'undefined' && CONFIG.food_plans) {
+    var match = CONFIG.food_plans.find(function(p) { return p.id === planId; });
+    if (match) return match.venueIncluded;
+  }
+  return null;
+}
+
 function renderCuisine(data) {
   var container = document.getElementById('cuisine-content');
   var html = '';
@@ -59,28 +68,30 @@ function renderCuisine(data) {
     var badgeClass = getBadgeColorClass(plan.badgeColor);
     var desc = escapeHtml(plan.description).replace(/\n/g, '<br/>');
 
-    html += '<section class="grid lg:grid-cols-2 gap-12 items-center">';
-
-    if (isEven) {
-      // 画像が左、テキストが右
-      html += '<img class="w-full aspect-[4/3] object-cover rounded-xl shadow-lg" src="' + escapeHtml(plan.image) + '" alt="' + escapeHtml(plan.label) + '"/>';
-      html += '<div>';
-      html += '<span class="' + badgeClass + ' text-xs font-bold px-3 py-1 rounded-full">' + escapeHtml(plan.badgeText) + '</span>';
-      html += '<h3 class="text-3xl font-serif font-bold mt-4 mb-2">' + escapeHtml(plan.label) + '</h3>';
-      html += '<p class="text-2xl font-serif text-accent-gold mb-4">&yen;' + Number(plan.price).toLocaleString() + '〜<span class="text-sm text-gray-400">（税込・サービス料込）</span></p>';
-      html += '<p class="text-gray-600 leading-relaxed">' + desc + '</p>';
-      html += '</div>';
-    } else {
-      // テキストが左（order-2 lg:order-1）、画像が右（order-1 lg:order-2）
-      html += '<div class="order-2 lg:order-1">';
-      html += '<span class="' + badgeClass + ' text-xs font-bold px-3 py-1 rounded-full">' + escapeHtml(plan.badgeText) + '</span>';
-      html += '<h3 class="text-3xl font-serif font-bold mt-4 mb-2">' + escapeHtml(plan.label) + '</h3>';
-      html += '<p class="text-2xl font-serif text-accent-gold mb-4">&yen;' + Number(plan.price).toLocaleString() + '〜<span class="text-sm text-gray-400">（税込・サービス料込）</span></p>';
-      html += '<p class="text-gray-600 leading-relaxed">' + desc + '</p>';
-      html += '</div>';
-      html += '<img class="w-full aspect-[4/3] object-cover rounded-xl shadow-lg order-1 lg:order-2" src="' + escapeHtml(plan.image) + '" alt="' + escapeHtml(plan.label) + '"/>';
+    // 会場費込バッジ
+    var venueIncluded = getVenueIncluded(plan.id);
+    var venueBadge = '';
+    if (venueIncluded === true) {
+      venueBadge = '<span class="bg-green-50 text-green-700 text-[11px] font-bold px-3 py-1 rounded-full border border-green-200 ml-2">会場費込</span>';
+    } else if (venueIncluded === false) {
+      venueBadge = '<span class="bg-slate-100 text-slate-500 text-[11px] font-bold px-3 py-1 rounded-full border border-slate-200 ml-2">会場費別途</span>';
     }
 
+    // テキストブロック生成
+    var textBlock = '<span class="' + badgeClass + ' text-xs font-bold px-3 py-1 rounded-full">' + escapeHtml(plan.badgeText) + '</span>' + venueBadge;
+    textBlock += '<h3 class="text-3xl font-serif font-bold mt-4 mb-2">' + escapeHtml(plan.label) + '</h3>';
+    textBlock += '<p class="text-2xl font-serif text-accent-gold mb-4">&yen;' + Number(plan.price).toLocaleString() + '〜<span class="text-sm text-gray-400">（税込・サービス料込）</span></p>';
+    textBlock += '<p class="text-gray-600 leading-relaxed mb-5">' + desc + '</p>';
+    textBlock += '<a href="simulator.html" class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-accent-gold transition-colors" target="_top"><span class="material-symbols-outlined text-base">calculate</span>このプランで見積もり</a>';
+
+    html += '<section class="grid lg:grid-cols-2 gap-12 items-center">';
+    if (isEven) {
+      html += '<img class="w-full aspect-[4/3] object-cover rounded-xl shadow-lg" src="' + escapeHtml(plan.image) + '" alt="' + escapeHtml(plan.label) + '"/>';
+      html += '<div>' + textBlock + '</div>';
+    } else {
+      html += '<div class="order-2 lg:order-1">' + textBlock + '</div>';
+      html += '<img class="w-full aspect-[4/3] object-cover rounded-xl shadow-lg order-1 lg:order-2" src="' + escapeHtml(plan.image) + '" alt="' + escapeHtml(plan.label) + '"/>';
+    }
     html += '</section>';
   });
 
@@ -90,20 +101,38 @@ function renderCuisine(data) {
     html += '<section class="bg-primary rounded-2xl p-10 text-white grid md:grid-cols-2 gap-8 items-center">';
     html += '<div><h3 class="text-3xl font-serif font-bold mb-3">フリードリンク</h3>';
     html += '<p class="text-2xl font-serif text-accent-gold mb-4">&yen;' + Number(fd.price).toLocaleString() + '<span class="text-base text-white/60">（' + escapeHtml(fd.duration) + '・税込サービス料込）</span></p>';
-    html += '<p class="text-white/80 leading-relaxed">' + escapeHtml(fd.description) + '</p></div>';
+    html += '<p class="text-white/80 leading-relaxed">' + escapeHtml(fd.description) + '</p>';
+    html += '<p class="text-white/50 text-xs mt-3">※お料理プランとの組み合わせが必要です</p></div>';
     html += '<img class="w-full aspect-[4/3] object-cover rounded-xl" src="' + escapeHtml(fd.image) + '" alt="フリードリンク"/>';
     html += '</section>';
   }
 
+  // 料理プランご利用特典まとめ
+  html += '<section class="bg-green-50 border border-green-200 rounded-2xl p-8 md:p-10">';
+  html += '<h3 class="text-2xl font-serif font-bold text-green-800 mb-6 flex items-center gap-3"><span class="material-symbols-outlined text-green-600">verified</span>料理プランご利用特典</h3>';
+  html += '<p class="text-sm text-green-700 mb-6">会席料理・シッティング・ビュッフェ・弁当宴会をご注文の場合、以下の特典が含まれます。</p>';
+  html += '<div class="grid sm:grid-cols-3 gap-6">';
+  html += '<div class="bg-white rounded-xl p-5 text-center shadow-sm"><span class="material-symbols-outlined text-3xl text-green-600 mb-2">meeting_room</span><p class="font-bold text-sm mb-1">会場費2時間分</p><p class="text-green-700 font-bold text-lg">無料</p></div>';
+  html += '<div class="bg-white rounded-xl p-5 text-center shadow-sm"><span class="material-symbols-outlined text-3xl text-green-600 mb-2">mic</span><p class="font-bold text-sm mb-1">マイク2本まで</p><p class="text-green-700 font-bold text-lg">無料</p></div>';
+  html += '<div class="bg-white rounded-xl p-5 text-center shadow-sm"><span class="material-symbols-outlined text-3xl text-green-600 mb-2">podium</span><p class="font-bold text-sm mb-1">演台・司会台</p><p class="text-green-700 font-bold text-lg">無料</p></div>';
+  html += '</div>';
+  html += '<p class="text-xs text-slate-500 mt-5">※割子弁当は特典対象外です。会場費・備品は通常料金となります。</p>';
+  html += '</section>';
+
   container.innerHTML = html;
 }
 
-// Stage 1: フォールバックデータで即座に描画
+// Stage 1: フォールバックデータで即座に描画（CONFIG_FALLBACKも利用可能）
 renderCuisine(CUISINE_DATA);
 
 // Stage 2: APIから最新データを取得して再描画
 loadCuisineData(function(data) {
   renderCuisine(data);
 }, 'cuisine-content');
+
+// CONFIG（venueIncluded情報）も取得して再描画
+loadSimulatorConfig(function() {
+  renderCuisine(CUISINE_DATA);
+});
 </script>
 </body></html>
