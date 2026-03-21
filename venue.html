@@ -1,0 +1,795 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1.0" name="viewport"/>
+<title>会場案内・レイアウト | 岐阜キャッスルイン バンケットサービス</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>tailwind.config={theme:{extend:{colors:{"primary":"#1A2E44","accent-gold":"#C1A36A","charcoal":"#24282B","background-light":"#FDFCF9"},fontFamily:{"sans":["Noto Sans JP"],"serif":["Noto Serif JP"]}}}}</script>
+<style>
+body{font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em}
+.hero-gradient{background:linear-gradient(to bottom,rgba(26,46,68,0) 0%,rgba(26,46,68,.8) 100%)}
+.jp-pattern{background-image:radial-gradient(#C1A36A .5px,transparent .5px);background-size:24px 24px;opacity:.08}
+.layout-tab{transition:all .2s}
+.layout-tab.active{background:#1A2E44;color:#fff}
+.layout-tab:not(.active){background:#f1f5f9;color:#475569}
+.layout-tab:not(.active):hover{background:#e2e8f0}
+.floor-svg text{font-family:'Noto Sans JP',sans-serif}
+</style>
+</head>
+<body class="bg-background-light text-charcoal">
+
+<!-- ヘッダー -->
+<header class="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-primary/5">
+<div class="max-w-7xl mx-auto px-6 lg:px-12 flex h-20 items-center justify-between">
+<a href="index.html" class="flex flex-col border-l-4 border-primary pl-4" target="_top">
+<span class="text-lg font-black tracking-tighter leading-none text-primary">岐阜キャッスルイン</span>
+<span class="text-[10px] font-bold tracking-[.3em] text-accent-gold mt-1">バンケットサービス</span>
+</a>
+<nav class="hidden lg:flex items-center gap-8 text-[14px] font-bold">
+<a href="index.html" class="hover:text-accent-gold" target="_top">ホーム</a>
+<a href="venue.html" class="text-accent-gold" target="_top">会場案内</a>
+<a href="cuisine.html" class="hover:text-accent-gold" target="_top">お料理</a>
+<a href="pricing.html" class="hover:text-accent-gold" target="_top">各種料金表</a>
+<a href="simulator.html" class="hover:text-accent-gold" target="_top">料金シミュレーター</a>
+<a href="party.html" class="hover:text-accent-gold" target="_top">二次会</a>
+<a href="access.html" class="hover:text-accent-gold" target="_top">アクセス</a>
+</nav>
+<a class="hidden sm:flex flex-col items-end" href="tel:058-212-3277" target="_top">
+<span class="text-[10px] text-gray-500 font-bold">ご予約・お問い合わせ</span>
+<span class="text-lg font-serif text-primary">058-212-3277</span>
+</a>
+</div>
+</header>
+
+<!-- ヒーロー -->
+<div class="relative h-[45vh] min-h-[350px] overflow-hidden">
+<img class="absolute inset-0 w-full h-full object-cover" src="https://static.wixstatic.com/media/216462_425ad43a3ce0489fa3b9ffef9d8167e2~mv2.jpg" alt="バンケット会場"/>
+<div class="absolute inset-0 hero-gradient"></div>
+<div class="absolute inset-0 flex flex-col justify-end p-12 max-w-7xl mx-auto w-full">
+<span class="text-accent-gold font-semibold tracking-widest uppercase text-sm mb-3 block">Event Spaces</span>
+<h2 class="text-4xl md:text-5xl font-serif text-white mb-3">会場案内・レイアウト</h2>
+<p class="text-white/80 text-base font-light max-w-xl">3室に分割可能な大宴会場と、和の趣を大切にした宴会場をご用意しています。</p>
+</div>
+</div>
+
+<main class="max-w-7xl mx-auto px-6 py-16">
+
+<!-- ====== 1F / 2Fロビー ====== -->
+<section class="mb-16 grid md:grid-cols-2 gap-8">
+<div class="bg-white rounded-xl p-8 border border-gray-100">
+<div class="flex items-center gap-3 mb-4"><span class="bg-primary text-white px-3 py-1 rounded text-xs font-bold">1F</span><h3 class="font-bold text-lg">正面玄関</h3></div>
+<p class="text-sm text-gray-600 leading-relaxed">フロント、ブッフェレストラン「モンテ」がございます。</p>
+</div>
+<div class="bg-white rounded-xl p-8 border border-gray-100">
+<div class="flex items-center gap-3 mb-4"><span class="bg-primary text-white px-3 py-1 rounded text-xs font-bold">2F</span><h3 class="font-bold text-lg">ロビー</h3></div>
+<p class="text-sm text-gray-600 leading-relaxed">ご宴会ご利用のお客様の受付、ロビー等がございます。</p>
+</div>
+</section>
+
+<!-- ====== 2F 末広の間 ====== -->
+<section class="mb-24" id="suehiro">
+<div class="bg-white rounded-xl overflow-hidden border border-primary/5 shadow-sm">
+<div class="grid md:grid-cols-2">
+<div class="relative overflow-hidden min-h-[300px]">
+<img class="h-full w-full object-cover" src="https://static.wixstatic.com/media/216462_425ad43a3ce0489fa3b9ffef9d8167e2~mv2.jpg" alt="末広の間"/>
+<div class="absolute top-4 left-4 bg-primary text-white px-3 py-1 rounded text-xs font-bold">2F 洋宴会場</div>
+</div>
+<div class="p-8">
+<h3 class="font-serif text-3xl mb-2 text-primary">末広の間</h3>
+<p class="text-sm opacity-70 mb-4 italic">3室に分割可能な多目的メインバンケット</p>
+<p class="text-sm leading-relaxed mb-6">会議、セミナー、講演会をはじめ、一般懇親会など催事に合わせて多目的にご利用いただけます。宴会場は3室に分割可能で、音響・映像設備を完備しています。</p>
+<div class="grid grid-cols-2 gap-3 text-xs font-semibold">
+<div class="flex items-center gap-2"><span class="material-symbols-outlined text-accent-gold text-lg">square_foot</span>東102㎡/中108㎡/西113㎡</div>
+<div class="flex items-center gap-2"><span class="material-symbols-outlined text-accent-gold text-lg">groups</span>全室323㎡（96坪）</div>
+<div class="flex items-center gap-2"><span class="material-symbols-outlined text-accent-gold text-lg">wifi</span>有線LAN完備</div>
+<div class="flex items-center gap-2"><span class="material-symbols-outlined text-accent-gold text-lg">tv</span>プロジェクター・スクリーン</div>
+</div>
+<div class="mt-6 pt-6 border-t border-primary/10 flex gap-3 flex-wrap">
+<span class="px-3 py-1 bg-primary/5 rounded-full text-[10px] font-bold">3分割可能</span>
+<span class="px-3 py-1 bg-primary/5 rounded-full text-[10px] font-bold">ステージ設置可</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 2F平面図SVG -->
+<h4 class="font-bold text-lg mt-12 mb-6 flex items-center gap-2"><span class="material-symbols-outlined text-accent-gold">architecture</span>2階フロア全体図</h4>
+<div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-10 overflow-x-auto">
+<svg viewBox="0 0 820 500" class="floor-svg w-full max-w-4xl mx-auto" style="min-width:600px">
+<defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e5e7eb" stroke-width="0.5"/></pattern></defs>
+<rect x="40" y="40" width="700" height="340" rx="4" fill="url(#grid)" stroke="#94a3b8" stroke-width="2"/>
+<line x1="280" y1="40" x2="280" y2="380" stroke="#64748b" stroke-width="2" stroke-dasharray="8,4"/>
+<line x1="510" y1="40" x2="510" y2="380" stroke="#64748b" stroke-width="2" stroke-dasharray="8,4"/>
+<rect x="42" y="42" width="236" height="336" rx="2" fill="#dbeafe" fill-opacity="0.4" stroke="none"/>
+<text x="160" y="200" text-anchor="middle" font-size="20" font-weight="bold" fill="#1e40af">西の間</text>
+<text x="160" y="228" text-anchor="middle" font-size="14" fill="#3b82f6">113m²</text>
+<rect x="282" y="42" width="226" height="336" rx="2" fill="#fef3c7" fill-opacity="0.4" stroke="none"/>
+<text x="395" y="200" text-anchor="middle" font-size="20" font-weight="bold" fill="#92400e">中の間</text>
+<text x="395" y="228" text-anchor="middle" font-size="14" fill="#d97706">108m²</text>
+<rect x="512" y="42" width="226" height="336" rx="2" fill="#dcfce7" fill-opacity="0.4" stroke="none"/>
+<text x="625" y="200" text-anchor="middle" font-size="20" font-weight="bold" fill="#166534">東の間</text>
+<text x="625" y="228" text-anchor="middle" font-size="14" fill="#16a34a">102m²</text>
+<rect x="250" y="380" width="280" height="60" rx="4" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="390" y="415" text-anchor="middle" font-size="12" fill="#64748b">エントランス・ロビー</text>
+<rect x="340" y="388" width="40" height="40" rx="2" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+<text x="360" y="413" text-anchor="middle" font-size="9" fill="#64748b">EV</text>
+<rect x="400" y="388" width="40" height="40" rx="2" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+<text x="420" y="413" text-anchor="middle" font-size="9" fill="#64748b">EV</text>
+<rect x="140" y="384" width="80" height="36" rx="2" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+<text x="180" y="407" text-anchor="middle" font-size="10" fill="#64748b">音響</text>
+<rect x="560" y="384" width="80" height="36" rx="2" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+<text x="600" y="407" text-anchor="middle" font-size="9" fill="#64748b">宴会事務所</text>
+<line x1="42" y1="28" x2="738" y2="28" stroke="#94a3b8" stroke-width="1"/>
+<line x1="42" y1="24" x2="42" y2="32" stroke="#94a3b8" stroke-width="1"/>
+<line x1="738" y1="24" x2="738" y2="32" stroke="#94a3b8" stroke-width="1"/>
+<text x="390" y="22" text-anchor="middle" font-size="11" fill="#64748b">約20.5m</text>
+<rect x="600" y="55" width="120" height="28" rx="4" fill="#ef4444" fill-opacity="0.1" stroke="#ef4444" stroke-width="1"/>
+<text x="660" y="74" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc2626">天井高 2.8m</text>
+<rect x="600" y="90" width="120" height="28" rx="4" fill="#3b82f6" fill-opacity="0.1" stroke="#3b82f6" stroke-width="1"/>
+<text x="660" y="109" text-anchor="middle" font-size="11" font-weight="bold" fill="#2563eb">全323m²（96坪）</text>
+<text x="280" y="395" text-anchor="middle" font-size="9" fill="#94a3b8" transform="rotate(-90,273,395)">← 可動パーティション →</text>
+<text x="510" y="395" text-anchor="middle" font-size="9" fill="#94a3b8" transform="rotate(-90,503,395)">← 可動パーティション →</text>
+</svg>
+<div class="mt-6 flex flex-wrap gap-4 justify-center text-xs text-gray-500">
+<span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-blue-100 border border-blue-300"></span>西の間</span>
+<span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-100 border border-amber-300"></span>中の間</span>
+<span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-green-100 border border-green-300"></span>東の間</span>
+<span class="flex items-center gap-1.5"><span class="w-6 h-0 border-t-2 border-dashed border-slate-400"></span>可動パーティション</span>
+</div>
+</div>
+
+<!-- 各室カード -->
+<div class="grid md:grid-cols-3 gap-6 mt-10">
+<div class="bg-white rounded-xl border border-blue-100 p-6 shadow-sm">
+<div class="flex items-center gap-3 mb-3"><span class="w-3 h-3 rounded-full bg-blue-400"></span><h3 class="font-bold text-lg">西の間</h3></div>
+<dl class="text-sm space-y-2 text-gray-600">
+<div class="flex justify-between"><dt>面積</dt><dd class="font-bold text-primary">113m²</dd></div>
+<div class="flex justify-between"><dt>スクール</dt><dd>最大42名</dd></div>
+<div class="flex justify-between"><dt>コの字</dt><dd>最大28名</dd></div>
+<div class="flex justify-between"><dt>ロの字</dt><dd>最大48名</dd></div>
+</dl>
+</div>
+<div class="bg-white rounded-xl border border-amber-100 p-6 shadow-sm">
+<div class="flex items-center gap-3 mb-3"><span class="w-3 h-3 rounded-full bg-amber-400"></span><h3 class="font-bold text-lg">中の間</h3></div>
+<dl class="text-sm space-y-2 text-gray-600">
+<div class="flex justify-between"><dt>面積</dt><dd class="font-bold text-primary">108m²</dd></div>
+<div class="flex justify-between"><dt>スクール</dt><dd>最大28名</dd></div>
+<div class="flex justify-between"><dt>コの字</dt><dd>最大24名</dd></div>
+<div class="flex justify-between"><dt>ロの字</dt><dd>最大36名</dd></div>
+</dl>
+</div>
+<div class="bg-white rounded-xl border border-green-100 p-6 shadow-sm">
+<div class="flex items-center gap-3 mb-3"><span class="w-3 h-3 rounded-full bg-green-500"></span><h3 class="font-bold text-lg">東の間</h3></div>
+<dl class="text-sm space-y-2 text-gray-600">
+<div class="flex justify-between"><dt>面積</dt><dd class="font-bold text-primary">102m²</dd></div>
+<div class="flex justify-between"><dt>スクール</dt><dd>最大28名</dd></div>
+<div class="flex justify-between"><dt>コの字</dt><dd>最大24名</dd></div>
+<div class="flex justify-between"><dt>ロの字</dt><dd>最大36名</dd></div>
+</dl>
+</div>
+</div>
+
+<!-- ====== レイアウトパターン ====== -->
+<h4 class="font-bold text-lg mt-12 mb-6 flex items-center gap-2"><span class="material-symbols-outlined text-accent-gold">architecture</span>末広の間 レイアウトパターン</h4>
+
+<!-- タブ切替 -->
+<div class="flex flex-wrap gap-2 mb-8" id="layout-tabs">
+<button class="layout-tab active rounded-full px-5 py-2.5 text-sm font-bold" data-layout="school">スクール</button>
+<button class="layout-tab rounded-full px-5 py-2.5 text-sm font-bold" data-layout="u-shape">コの字</button>
+<button class="layout-tab rounded-full px-5 py-2.5 text-sm font-bold" data-layout="o-shape">ロの字</button>
+<button class="layout-tab rounded-full px-5 py-2.5 text-sm font-bold" data-layout="round">丸テーブル</button>
+<button class="layout-tab rounded-full px-5 py-2.5 text-sm font-bold" data-layout="standing">立食（分割）</button>
+<button class="layout-tab rounded-full px-5 py-2.5 text-sm font-bold" data-layout="standing-full">立食（全室）</button>
+</div>
+
+<!-- レイアウト表示エリア -->
+<div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden" id="layout-display">
+<!-- JSで描画 -->
+</div>
+
+<!-- インターネット回線 -->
+<div class="mt-10 bg-primary/5 rounded-xl p-6">
+<h4 class="font-bold mb-3 flex items-center gap-2"><span class="material-symbols-outlined text-primary">lan</span>インターネット回線のご案内</h4>
+<ul class="text-sm text-gray-600 space-y-1">
+<li>・有線LAN設置：各会場に1か所設置</li>
+<li>・回線範囲：宴会場のみ「単独回線」 LAN回線数1台分</li>
+<li>・複数のPCで使用する場合はHUBが必要となります</li>
+</ul>
+</div>
+</section>
+
+<!-- ====== 8F 白雲の間 ====== -->
+<section class="mb-24" id="hakuun">
+<div class="bg-white rounded-xl overflow-hidden border border-primary/5 shadow-sm relative">
+<div class="jp-pattern absolute inset-0"></div>
+<div class="relative z-10 grid md:grid-cols-2">
+<div class="relative overflow-hidden min-h-[280px]">
+<img class="h-full w-full object-cover" src="https://static.wixstatic.com/media/216462_35e92123d22847b4939af69a1d4c7449~mv2.jpg" alt="白雲の間"/>
+<div class="absolute top-4 left-4 bg-accent-gold text-white px-3 py-1 rounded text-xs font-bold">8F</div>
+</div>
+<div class="p-8">
+<h3 class="font-serif text-3xl mb-2 text-primary">白雲の間</h3>
+<p class="text-sm opacity-70 mb-4 italic">畳78畳の大広間 最大60名様</p>
+<p class="text-sm leading-relaxed mb-6">畳78畳の大広間です。最大60名様までご利用いただけます。テーブル・椅子席どちらでもご利用いただけます。</p>
+<div class="grid grid-cols-2 gap-3 text-xs font-semibold">
+<div class="flex items-center gap-2"><span class="material-symbols-outlined text-accent-gold text-lg">square_foot</span>78畳 / 126㎡</div>
+<div class="flex items-center gap-2"><span class="material-symbols-outlined text-accent-gold text-lg">groups</span>最大 60名</div>
+<div class="flex items-center gap-2"><span class="material-symbols-outlined text-accent-gold text-lg">event_seat</span>お座敷 / 椅子テーブル</div>
+<div class="flex items-center gap-2"><span class="material-symbols-outlined text-accent-gold text-lg">health_and_safety</span>高座椅子完備</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 bg-primary rounded-xl p-8 text-white flex flex-col md:flex-row items-center gap-8">
+<div class="flex-1">
+<h4 class="text-lg font-bold mb-3">足腰に優しい「高座椅子」完備</h4>
+<p class="text-white/80 text-sm leading-relaxed">正座が苦手な方や高齢のお客様も安心。畳を傷めない専用設計で、ご利用人数分を無料でご用意いたします。</p>
+</div>
+<div class="shrink-0 bg-white/10 p-5 rounded-xl text-center">
+<span class="material-symbols-outlined text-4xl text-accent-gold mb-1">event_seat</span>
+<p class="font-bold text-sm">全和室対応・無料</p>
+</div>
+</div>
+</section>
+
+<!-- ====== 8F 初音の間 ====== -->
+<section class="mb-24" id="hatsune">
+<div class="bg-white rounded-xl overflow-hidden border border-primary/5 shadow-sm relative">
+<div class="jp-pattern absolute inset-0"></div>
+<div class="relative z-10 grid md:grid-cols-2">
+<div class="p-8 order-2 md:order-1">
+<h3 class="font-serif text-3xl mb-2 text-primary">初音の間</h3>
+<p class="text-sm opacity-70 mb-4 italic">畳24畳 少人数向けプライベート和室</p>
+<p class="text-sm leading-relaxed mb-6">窓に面した明るく落ち着いたお部屋です。お祝い事や接待などのお食事会におすすめです。最大12名様までご利用いただけます。</p>
+<div class="grid grid-cols-2 gap-3 text-xs font-semibold">
+<div class="flex items-center gap-2"><span class="material-symbols-outlined text-accent-gold text-lg">square_foot</span>24畳 / 45㎡</div>
+<div class="flex items-center gap-2"><span class="material-symbols-outlined text-accent-gold text-lg">groups</span>最大 12名</div>
+</div>
+</div>
+<div class="relative overflow-hidden min-h-[280px] order-1 md:order-2">
+<img class="h-full w-full object-cover" src="https://static.wixstatic.com/media/216462_9f8aa10c8862407ca44a76289ca0e7c5~mv2.jpg" alt="初音の間"/>
+<div class="absolute top-4 left-4 bg-accent-gold text-white px-3 py-1 rounded text-xs font-bold">8F</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ====== 推奨キャパシティ一覧表 ====== -->
+<section class="mb-24">
+<h3 class="font-serif text-2xl mb-6 flex items-center gap-4">会場スペック一覧<div class="flex-grow h-px bg-primary/10"></div></h3>
+<div class="overflow-x-auto bg-white rounded-xl border border-gray-100 shadow-sm">
+<table class="w-full text-left border-collapse" style="min-width:700px">
+<thead>
+<tr class="border-b-2 border-primary/20">
+<th class="py-3 px-4 text-left bg-slate-50 text-sm font-bold" rowspan="2">会場名</th>
+<th class="py-2 px-3 text-center bg-blue-50 border-l border-blue-100 text-xs" colspan="3">会議キャパシティ</th>
+<th class="py-2 px-3 text-center bg-amber-50 border-l border-amber-100 text-xs" colspan="2">宴会キャパシティ</th>
+<th class="py-2 px-3 text-center bg-green-50 border-l border-green-100 text-xs" rowspan="2">立食<br/><span class="text-[10px] text-gray-400">MAX</span></th>
+</tr>
+<tr class="border-b border-gray-200 text-xs">
+<th class="py-2 px-3 text-center bg-blue-50 border-l border-blue-100">スクール</th>
+<th class="py-2 px-3 text-center bg-blue-50">コの字</th>
+<th class="py-2 px-3 text-center bg-blue-50">ロの字</th>
+<th class="py-2 px-3 text-center bg-amber-50 border-l border-amber-100">着席(丸テーブル)</th>
+<th class="py-2 px-3 text-center bg-amber-50">着席ブッフェ</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-primary/10 text-sm">
+<tr>
+<td class="py-3 px-4 font-bold text-primary">末広 東<span class="text-xs text-gray-400 ml-1">102m²</span></td>
+<td class="py-3 px-3 text-center border-l border-blue-50">28名</td>
+<td class="py-3 px-3 text-center">24名</td>
+<td class="py-3 px-3 text-center">36名</td>
+<td class="py-3 px-3 text-center border-l border-amber-50">—</td>
+<td class="py-3 px-3 text-center">—</td>
+<td class="py-3 px-3 text-center border-l border-green-50">30名</td>
+</tr>
+<tr>
+<td class="py-3 px-4 font-bold text-primary">末広 中<span class="text-xs text-gray-400 ml-1">108m²</span></td>
+<td class="py-3 px-3 text-center border-l border-blue-50">28名</td>
+<td class="py-3 px-3 text-center">24名</td>
+<td class="py-3 px-3 text-center">36名</td>
+<td class="py-3 px-3 text-center border-l border-amber-50">20名</td>
+<td class="py-3 px-3 text-center">—</td>
+<td class="py-3 px-3 text-center border-l border-green-50">40名</td>
+</tr>
+<tr>
+<td class="py-3 px-4 font-bold text-primary">末広 西<span class="text-xs text-gray-400 ml-1">113m²</span></td>
+<td class="py-3 px-3 text-center border-l border-blue-50">42名</td>
+<td class="py-3 px-3 text-center">28名</td>
+<td class="py-3 px-3 text-center">48名</td>
+<td class="py-3 px-3 text-center border-l border-amber-50">25名</td>
+<td class="py-3 px-3 text-center">30名</td>
+<td class="py-3 px-3 text-center border-l border-green-50">50名</td>
+</tr>
+<tr class="bg-blue-50/30">
+<td class="py-3 px-4 font-bold text-primary">中＋東<span class="text-xs text-gray-400 ml-1">210m²</span></td>
+<td class="py-3 px-3 text-center border-l border-blue-50">—</td>
+<td class="py-3 px-3 text-center">—</td>
+<td class="py-3 px-3 text-center">—</td>
+<td class="py-3 px-3 text-center border-l border-amber-50">40名</td>
+<td class="py-3 px-3 text-center">48名</td>
+<td class="py-3 px-3 text-center border-l border-green-50">80名</td>
+</tr>
+<tr class="bg-blue-50/30">
+<td class="py-3 px-4 font-bold text-primary">西＋中<span class="text-xs text-gray-400 ml-1">221m²</span></td>
+<td class="py-3 px-3 text-center border-l border-blue-50">54名</td>
+<td class="py-3 px-3 text-center">32名</td>
+<td class="py-3 px-3 text-center">—</td>
+<td class="py-3 px-3 text-center border-l border-amber-50">35名</td>
+<td class="py-3 px-3 text-center">56名</td>
+<td class="py-3 px-3 text-center border-l border-green-50">70名</td>
+</tr>
+<tr class="bg-primary/5 font-bold">
+<td class="py-3 px-4 text-primary">末広 全室<span class="text-xs text-gray-400 ml-1 font-normal">323m²(96坪)</span></td>
+<td class="py-3 px-3 text-center border-l border-blue-50">102名</td>
+<td class="py-3 px-3 text-center">56名</td>
+<td class="py-3 px-3 text-center">—</td>
+<td class="py-3 px-3 text-center border-l border-amber-50">75名</td>
+<td class="py-3 px-3 text-center">120名</td>
+<td class="py-3 px-3 text-center border-l border-green-50">150名</td>
+</tr>
+<tr class="border-t-2 border-primary/10">
+<td class="py-3 px-4 font-bold text-primary">白雲の間<span class="text-xs text-gray-400 ml-1">8F / 78畳</span></td>
+<td class="py-3 px-3 text-center border-l border-blue-50">66名</td>
+<td class="py-3 px-3 text-center">—</td>
+<td class="py-3 px-3 text-center">—</td>
+<td class="py-3 px-3 text-center border-l border-amber-50">60名</td>
+<td class="py-3 px-3 text-center">—</td>
+<td class="py-3 px-3 text-center border-l border-green-50">—</td>
+</tr>
+<tr>
+<td class="py-3 px-4 font-bold text-primary">初音の間<span class="text-xs text-gray-400 ml-1">8F / 24畳</span></td>
+<td class="py-3 px-3 text-center border-l border-blue-50">—</td>
+<td class="py-3 px-3 text-center">—</td>
+<td class="py-3 px-3 text-center">—</td>
+<td class="py-3 px-3 text-center border-l border-amber-50">12名</td>
+<td class="py-3 px-3 text-center">—</td>
+<td class="py-3 px-3 text-center border-l border-green-50">—</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="text-xs text-gray-400 mt-3">※角テーブルサイズ: 1800×450 / 丸テーブル直径: 1800</p>
+</section>
+
+<!-- ====== 料理プラン特典 ====== -->
+<section class="mb-24 bg-green-50 border border-green-200 rounded-2xl p-8 md:p-10">
+<h3 class="text-2xl font-serif font-bold text-green-800 mb-6 flex items-center gap-3"><span class="material-symbols-outlined text-green-600">verified</span>料理プランご利用特典</h3>
+<p class="text-sm text-green-700 mb-6">会席料理・シッティング・ビュッフェ・弁当宴会をご注文の場合、以下の特典が含まれます。</p>
+<div class="grid sm:grid-cols-3 gap-6">
+<div class="bg-white rounded-xl p-5 text-center shadow-sm"><span class="material-symbols-outlined text-3xl text-green-600 mb-2">meeting_room</span><p class="font-bold text-sm mb-1">会場費2時間分</p><p class="text-green-700 font-bold text-lg">無料</p></div>
+<div class="bg-white rounded-xl p-5 text-center shadow-sm"><span class="material-symbols-outlined text-3xl text-green-600 mb-2">mic</span><p class="font-bold text-sm mb-1">マイク2本まで</p><p class="text-green-700 font-bold text-lg">無料</p></div>
+<div class="bg-white rounded-xl p-5 text-center shadow-sm"><span class="material-symbols-outlined text-3xl text-green-600 mb-2">podium</span><p class="font-bold text-sm mb-1">演台・司会台</p><p class="text-green-700 font-bold text-lg">無料</p></div>
+</div>
+<p class="text-xs text-slate-500 mt-5">※割子弁当は特典対象外です。会場費・備品は通常料金となります。</p>
+</section>
+
+<!-- ====== CTA ====== -->
+<section class="bg-primary rounded-2xl p-12 text-white shadow-2xl">
+<div class="flex flex-col md:flex-row items-center justify-between gap-8">
+<div class="text-center md:text-left max-w-xl">
+<h2 class="font-serif text-3xl mb-4">最適なレイアウトをご提案します</h2>
+<p class="text-white/80">ご人数や目的に合わせて、スタッフがご案内いたします。</p>
+</div>
+<div class="flex flex-col gap-3">
+<a href="simulator.html" class="bg-accent-gold text-primary font-bold px-10 py-4 rounded-full hover:bg-white transition-all text-center" target="_top">料金シミュレーター</a>
+<a href="tel:058-212-3277" class="border border-white text-white font-bold px-10 py-4 rounded-full hover:bg-white/10 text-center" target="_top">058-212-3277</a>
+</div>
+</div>
+</section>
+</main>
+
+<!-- フッター -->
+<footer class="bg-primary text-white/80 pt-16 pb-8 px-6 mt-16">
+<div class="max-w-7xl mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+<div>
+<h2 class="text-lg font-bold text-white mb-1">岐阜キャッスルイン</h2>
+<p class="text-[10px] tracking-[.3em] text-accent-gold mb-4">BANQUET SERVICE</p>
+<p class="text-sm leading-loose">〒500-8176 岐阜県岐阜市県町2-8<br/>TEL 058-212-3277</p>
+</div>
+<div>
+<h6 class="font-bold text-sm mb-6 text-white border-l-2 border-accent-gold pl-4">MENU</h6>
+<ul class="space-y-3 text-sm"><li><a href="venue.html" class="hover:text-accent-gold" target="_top">会場案内</a></li><li><a href="cuisine.html" class="hover:text-accent-gold" target="_top">お料理</a></li><li><a href="simulator.html" class="hover:text-accent-gold" target="_top">料金シミュレーター</a></li></ul>
+</div>
+<div>
+<h6 class="font-bold text-sm mb-6 text-white border-l-2 border-accent-gold pl-4">INFO</h6>
+<ul class="space-y-3 text-sm"><li><a href="party.html" class="hover:text-accent-gold" target="_top">二次会</a></li><li><a href="access.html" class="hover:text-accent-gold" target="_top">アクセス</a></li></ul>
+</div>
+</div>
+<div class="pt-6 border-t border-white/10 text-center text-[10px]">&copy; 2024 有限会社バンケットサービス</div>
+</div>
+</footer>
+
+<script>
+// ===================================================
+// レイアウトパターン SVG生成ロジック
+// ===================================================
+
+var LAYOUT_PHOTOS = {
+  school: 'https://static.wixstatic.com/media/216462_0d77b2d12e59470ba34dfc4aa7ecfafd~mv2.jpg',
+  'u-shape': 'https://static.wixstatic.com/media/216462_ed96adb1ea7b4b569f7b1b8e912fecb1~mv2.jpg',
+  'o-shape': 'https://static.wixstatic.com/media/216462_7e61c4ca52534ef482cac05026dc2321~mv2.jpg',
+  round: 'https://static.wixstatic.com/media/216462_44522492120c4c90afb842330e74c8fc~mv2.jpg',
+  standing: 'https://static.wixstatic.com/media/216462_75841838136c42f9b59eb82885229085~mv2.jpg',
+  'standing-full': 'https://static.wixstatic.com/media/216462_75841838136c42f9b59eb82885229085~mv2.jpg'
+};
+
+var LAYOUTS = {
+  school: {
+    title: 'スクール形式',
+    desc: '講演会、セミナー等でよく使われる形式です。前方にスクリーンやホワイトボードを配置し、全員が正面を向く配置です。',
+    icon: 'school',
+    capacity: [
+      { room: '西の間', cap: '最大42名', note: '3列×7行×2' },
+      { room: '中の間', cap: '最大28名', note: '2列×7行×2' },
+      { room: '東の間', cap: '最大28名', note: '2列×7行×2' }
+    ],
+    totalCap: '全室利用: 最大102名',
+    svg: function(){ return drawSchool(); }
+  },
+  'u-shape': {
+    title: 'コの字形式',
+    desc: 'スクリーン・プロジェクターを使った会議に。参加者が互いに顔を見ながら議論できる配置です。',
+    icon: 'groups',
+    capacity: [
+      { room: '西の間', cap: '最大28名', note: '' },
+      { room: '中の間', cap: '最大24名', note: '' },
+      { room: '東の間', cap: '最大24名', note: '' }
+    ],
+    totalCap: '西＋中利用: 最大32名',
+    svg: function(){ return drawUShape(); }
+  },
+  'o-shape': {
+    title: 'ロの字形式',
+    desc: '少人数で一般的な会議としてよく使われる形式です。四方にテーブルを配置し、全員が向き合う正式な会議スタイルです。',
+    icon: 'table_restaurant',
+    capacity: [
+      { room: '西の間', cap: '最大48名', note: '' },
+      { room: '中の間', cap: '最大36名', note: '' },
+      { room: '東の間', cap: '最大36名', note: '' }
+    ],
+    totalCap: '',
+    svg: function(){ return drawOShape(); }
+  },
+  round: {
+    title: '丸テーブル形式',
+    desc: '研修会やお食事スタイルなど多目的に。円卓を配置し、華やかな雰囲気を演出します。',
+    icon: 'celebration',
+    capacity: [
+      { room: '全室', cap: '着席 最大120名', note: '8人掛×15卓' },
+      { room: '正餐', cap: '最大75名', note: '6名掛' }
+    ],
+    totalCap: '',
+    svg: function(){ return drawRound(); }
+  },
+  standing: {
+    title: '立食パーティー（分割利用）',
+    desc: '大勢の方と気楽にお話ができる利点があります。パーティションで2つのエリアに分けて利用できます。',
+    icon: 'wine_bar',
+    capacity: [
+      { room: '西側エリア', cap: '約40名', note: '' },
+      { room: '東側エリア', cap: '約60名', note: '' }
+    ],
+    totalCap: '',
+    svg: function(){ return drawStanding(); }
+  },
+  'standing-full': {
+    title: '立食パーティー（全室利用）',
+    desc: '大規模パーティーに。全室をオープンにして最大150名の立食パーティーが可能です。',
+    icon: 'diversity_3',
+    capacity: [
+      { room: '全室', cap: '最大150名', note: '' }
+    ],
+    totalCap: '',
+    svg: function(){ return drawStandingFull(); }
+  }
+};
+
+// ---------- 共通SVGパーツ ----------
+var ROOM_W = 700, ROOM_H = 320;
+var PAD = 50;
+var SVG_W = ROOM_W + PAD*2, SVG_H = ROOM_H + PAD*2 + 30;
+var WEST_X = PAD, MID_X = PAD + 240, EAST_X = PAD + 470;
+var WEST_W = 238, MID_W = 228, EAST_W = 228;
+
+function svgHead() {
+  return '<svg viewBox="0 0 '+SVG_W+' '+SVG_H+'" class="floor-svg w-full" style="min-width:500px">';
+}
+
+function roomOutline() {
+  var s = '';
+  s += '<rect x="'+PAD+'" y="'+PAD+'" width="'+ROOM_W+'" height="'+ROOM_H+'" rx="3" fill="#fafafa" stroke="#cbd5e1" stroke-width="1.5"/>';
+  s += '<line x1="'+(PAD+240)+'" y1="'+PAD+'" x2="'+(PAD+240)+'" y2="'+(PAD+ROOM_H)+'" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6,3"/>';
+  s += '<line x1="'+(PAD+470)+'" y1="'+PAD+'" x2="'+(PAD+470)+'" y2="'+(PAD+ROOM_H)+'" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6,3"/>';
+  s += '<text x="'+(WEST_X+WEST_W/2)+'" y="'+(PAD+18)+'" text-anchor="middle" font-size="11" fill="#64748b" font-weight="bold">西の間</text>';
+  s += '<text x="'+(MID_X+MID_W/2)+'" y="'+(PAD+18)+'" text-anchor="middle" font-size="11" fill="#64748b" font-weight="bold">中の間</text>';
+  s += '<text x="'+(EAST_X+EAST_W/2)+'" y="'+(PAD+18)+'" text-anchor="middle" font-size="11" fill="#64748b" font-weight="bold">東の間</text>';
+  return s;
+}
+
+function drawTable(cx, cy, w, h, angle) {
+  var rot = angle ? ' transform="rotate('+angle+','+cx+','+cy+')"' : '';
+  return '<rect x="'+(cx-w/2)+'" y="'+(cy-h/2)+'" width="'+w+'" height="'+h+'" rx="1" fill="#d4a574" stroke="#b8956a" stroke-width="0.8"'+rot+'/>';
+}
+
+function drawChair(cx, cy, r) {
+  r = r || 4;
+  return '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="#64748b" stroke="#475569" stroke-width="0.5"/>';
+}
+
+function drawRoundTable(cx, cy, r, seats) {
+  var s = '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="#d4a574" stroke="#b8956a" stroke-width="1"/>';
+  for (var i = 0; i < seats; i++) {
+    var angle = (2 * Math.PI * i) / seats - Math.PI / 2;
+    var chairR = r + 9;
+    s += drawChair(cx + chairR * Math.cos(angle), cy + chairR * Math.sin(angle), 4);
+  }
+  return s;
+}
+
+function drawScreen(x, y, w) {
+  return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="5" rx="2" fill="#3b82f6" opacity="0.6"/>' +
+         '<text x="'+(x+w/2)+'" y="'+(y-4)+'" text-anchor="middle" font-size="8" fill="#3b82f6">スクリーン</text>';
+}
+
+function drawPodium(cx, cy) {
+  return '<rect x="'+(cx-10)+'" y="'+(cy-6)+'" width="20" height="12" rx="2" fill="#1e40af" opacity="0.5"/>' +
+         '<text x="'+cx+'" y="'+(cy+3)+'" text-anchor="middle" font-size="6" fill="white">演台</text>';
+}
+
+function drawBuffetTable(x, y, w, h) {
+  return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="3" fill="#a3e635" opacity="0.3" stroke="#65a30d" stroke-width="1" stroke-dasharray="4,2"/>' +
+         '<text x="'+(x+w/2)+'" y="'+(y+h/2+4)+'" text-anchor="middle" font-size="9" fill="#4d7c0f">料理台</text>';
+}
+
+function drawCocktailTable(cx, cy) {
+  return '<circle cx="'+cx+'" cy="'+cy+'" r="6" fill="#fbbf24" stroke="#d97706" stroke-width="0.8"/>';
+}
+
+// ---------- 各レイアウト ----------
+
+function drawSchool() {
+  var s = svgHead() + roomOutline();
+  var westCX = WEST_X + WEST_W/2;
+  s += drawScreen(WEST_X+20, PAD+28, WEST_W-40);
+  s += drawPodium(westCX, PAD+50);
+  for (var row = 0; row < 7; row++) {
+    for (var col = 0; col < 3; col++) {
+      var tx = WEST_X + 35 + col * 38;
+      var ty = PAD + 80 + row * 32;
+      s += drawTable(tx, ty, 30, 10, 0);
+      s += drawChair(tx-8, ty+10, 3.5);
+      s += drawChair(tx+8, ty+10, 3.5);
+    }
+    for (var c2 = 0; c2 < 3; c2++) {
+      var tx2 = WEST_X + WEST_W - 35 - (2-c2) * 38;
+      s += drawTable(tx2, ty, 30, 10, 0);
+      s += drawChair(tx2-8, ty+10, 3.5);
+      s += drawChair(tx2+8, ty+10, 3.5);
+    }
+  }
+  s += '<text x="'+westCX+'" y="'+(PAD+ROOM_H-8)+'" text-anchor="middle" font-size="10" font-weight="bold" fill="#1e40af">42名</text>';
+
+  var midCX = MID_X + MID_W/2;
+  s += drawScreen(MID_X+20, PAD+28, MID_W-40);
+  s += drawPodium(midCX, PAD+50);
+  for (var r2 = 0; r2 < 7; r2++) {
+    for (var c3 = 0; c3 < 2; c3++) {
+      var tx3 = MID_X + 45 + c3 * 38;
+      var ty3 = PAD + 80 + r2 * 32;
+      s += drawTable(tx3, ty3, 30, 10, 0);
+      s += drawChair(tx3-8, ty3+10, 3.5);
+      s += drawChair(tx3+8, ty3+10, 3.5);
+    }
+    for (var c4 = 0; c4 < 2; c4++) {
+      var tx4 = MID_X + MID_W - 45 - (1-c4) * 38;
+      var ty4 = PAD + 80 + r2 * 32;
+      s += drawTable(tx4, ty4, 30, 10, 0);
+      s += drawChair(tx4-8, ty4+10, 3.5);
+      s += drawChair(tx4+8, ty4+10, 3.5);
+    }
+  }
+  s += '<text x="'+midCX+'" y="'+(PAD+ROOM_H-8)+'" text-anchor="middle" font-size="10" font-weight="bold" fill="#92400e">28名</text>';
+
+  var eastCX = EAST_X + EAST_W/2;
+  s += drawScreen(EAST_X+20, PAD+28, EAST_W-40);
+  s += drawPodium(eastCX, PAD+50);
+  for (var r3 = 0; r3 < 7; r3++) {
+    for (var c5 = 0; c5 < 2; c5++) {
+      var tx5 = EAST_X + 45 + c5 * 38;
+      var ty5 = PAD + 80 + r3 * 32;
+      s += drawTable(tx5, ty5, 30, 10, 0);
+      s += drawChair(tx5-8, ty5+10, 3.5);
+      s += drawChair(tx5+8, ty5+10, 3.5);
+    }
+    for (var c6 = 0; c6 < 2; c6++) {
+      var tx6 = EAST_X + EAST_W - 45 - (1-c6) * 38;
+      var ty6 = PAD + 80 + r3 * 32;
+      s += drawTable(tx6, ty6, 30, 10, 0);
+      s += drawChair(tx6-8, ty6+10, 3.5);
+      s += drawChair(tx6+8, ty6+10, 3.5);
+    }
+  }
+  s += '<text x="'+eastCX+'" y="'+(PAD+ROOM_H-8)+'" text-anchor="middle" font-size="10" font-weight="bold" fill="#166534">28名</text>';
+  s += '</svg>';
+  return s;
+}
+
+function drawUShape() {
+  var s = svgHead() + roomOutline();
+  function uShape(rx, rw, cap, color) {
+    var cx = rx + rw/2, cy = PAD + ROOM_H/2;
+    var uw = rw * 0.65, uh = ROOM_H * 0.55;
+    var left = cx - uw/2, right = cx + uw/2;
+    var top = cy - uh/2, bot = cy + uh/2;
+    var sideN = Math.floor(uh / 28);
+    for (var i = 0; i < sideN; i++) {
+      var ty = top + 14 + i * 28;
+      s += drawTable(left, ty, 10, 22, 0); s += drawChair(left - 10, ty, 3.5);
+    }
+    for (var j = 0; j < sideN; j++) {
+      var ty2 = top + 14 + j * 28;
+      s += drawTable(right, ty2, 10, 22, 0); s += drawChair(right + 10, ty2, 3.5);
+    }
+    var botN = Math.floor(uw / 30);
+    for (var k = 0; k < botN; k++) {
+      var tx = left + 15 + k * (uw / botN);
+      s += drawTable(tx, bot, 22, 10, 0); s += drawChair(tx, bot + 11, 3.5);
+    }
+    s += drawScreen(cx - uw/2 + 5, PAD + 28, uw - 10);
+    s += '<text x="'+cx+'" y="'+(PAD+ROOM_H-8)+'" text-anchor="middle" font-size="10" font-weight="bold" fill="'+color+'">'+cap+'</text>';
+  }
+  uShape(WEST_X, WEST_W, '28名', '#1e40af');
+  uShape(MID_X, MID_W, '24名', '#92400e');
+  uShape(EAST_X, EAST_W, '24名', '#166534');
+  s += '</svg>';
+  return s;
+}
+
+function drawOShape() {
+  var s = svgHead() + roomOutline();
+  function oShape(rx, rw, cap, color) {
+    var cx = rx + rw/2, cy = PAD + ROOM_H/2;
+    var ow = rw * 0.65, oh = ROOM_H * 0.6;
+    var left = cx - ow/2, right = cx + ow/2;
+    var top = cy - oh/2, bot = cy + oh/2;
+    var topN = Math.floor(ow / 30);
+    for (var i = 0; i < topN; i++) {
+      var tx = left + 15 + i * (ow / topN);
+      s += drawTable(tx, top, 22, 10, 0); s += drawChair(tx, top - 11, 3.5);
+    }
+    for (var j = 0; j < topN; j++) {
+      var tx2 = left + 15 + j * (ow / topN);
+      s += drawTable(tx2, bot, 22, 10, 0); s += drawChair(tx2, bot + 11, 3.5);
+    }
+    var sideN = Math.floor(oh / 28);
+    for (var k = 0; k < sideN; k++) {
+      var ty = top + 14 + k * 28;
+      s += drawTable(left, ty, 10, 22, 0); s += drawChair(left - 10, ty, 3.5);
+    }
+    for (var l = 0; l < sideN; l++) {
+      var ty2 = top + 14 + l * 28;
+      s += drawTable(right, ty2, 10, 22, 0); s += drawChair(right + 10, ty2, 3.5);
+    }
+    s += '<rect x="'+(left+12)+'" y="'+(top+12)+'" width="'+(ow-24)+'" height="'+(oh-24)+'" rx="2" fill="#e0f2fe" fill-opacity="0.3" stroke="none"/>';
+    s += '<text x="'+cx+'" y="'+(PAD+ROOM_H-8)+'" text-anchor="middle" font-size="10" font-weight="bold" fill="'+color+'">'+cap+'</text>';
+  }
+  oShape(WEST_X, WEST_W, '48名', '#1e40af');
+  oShape(MID_X, MID_W, '36名', '#92400e');
+  oShape(EAST_X, EAST_W, '36名', '#166534');
+  s += '</svg>';
+  return s;
+}
+
+function drawRound() {
+  var s = svgHead();
+  s += '<rect x="'+PAD+'" y="'+PAD+'" width="'+ROOM_W+'" height="'+ROOM_H+'" rx="3" fill="#fafafa" stroke="#cbd5e1" stroke-width="1.5"/>';
+  s += '<text x="'+(PAD+ROOM_W/2)+'" y="'+(PAD+18)+'" text-anchor="middle" font-size="12" fill="#64748b" font-weight="bold">末広の間（西・中・東）全室利用</text>';
+  s += '<rect x="'+(PAD+10)+'" y="'+(PAD+30)+'" width="40" height="15" rx="2" fill="#7c3aed" opacity="0.3" stroke="#7c3aed" stroke-width="0.8"/>';
+  s += '<text x="'+(PAD+30)+'" y="'+(PAD+41)+'" text-anchor="middle" font-size="7" fill="#7c3aed">バー</text>';
+  var tables = [
+    {x:140,y:100},{x:260,y:100},{x:400,y:100},{x:540,y:100},{x:660,y:100},
+    {x:140,y:200},{x:260,y:200},{x:400,y:200},{x:540,y:200},{x:660,y:200},
+    {x:140,y:295},{x:260,y:295},{x:400,y:295},{x:540,y:295},{x:660,y:295}
+  ];
+  tables.forEach(function(t){ s += drawRoundTable(t.x, t.y, 18, 8); });
+  s += '<rect x="340" y="'+(PAD+ROOM_H-30)+'" width="120" height="20" rx="3" fill="#c084fc" opacity="0.4" stroke="#9333ea" stroke-width="1"/>';
+  s += '<text x="400" y="'+(PAD+ROOM_H-16)+'" text-anchor="middle" font-size="9" fill="#7e22ce" font-weight="bold">高砂・主賓席</text>';
+  s += '<text x="'+(PAD+ROOM_W/2)+'" y="'+(PAD+ROOM_H+20)+'" text-anchor="middle" font-size="11" font-weight="bold" fill="#1A2E44">8人掛×15卓 = 着席120名 ／ 正餐(6名掛) 75名</text>';
+  s += '</svg>';
+  return s;
+}
+
+function drawStanding() {
+  var s = svgHead() + roomOutline();
+  var westCX = WEST_X + WEST_W/2;
+  s += drawBuffetTable(WEST_X+30, PAD+40, WEST_W-60, 20);
+  [{x:WEST_X+50,y:PAD+100},{x:WEST_X+WEST_W-50,y:PAD+100},{x:WEST_X+50,y:PAD+160},{x:WEST_X+WEST_W-50,y:PAD+160},{x:WEST_X+WEST_W/2,y:PAD+130},{x:WEST_X+50,y:PAD+220},{x:WEST_X+WEST_W-50,y:PAD+220},{x:WEST_X+WEST_W/2,y:PAD+250}].forEach(function(t){ s += drawCocktailTable(t.x,t.y); });
+  s += '<text x="'+westCX+'" y="'+(PAD+ROOM_H-8)+'" text-anchor="middle" font-size="10" font-weight="bold" fill="#1e40af">約40名</text>';
+
+  var midEastCX = MID_X + (MID_W + EAST_W + (EAST_X - MID_X - MID_W))/2;
+  s += drawBuffetTable(MID_X+30, PAD+40, EAST_X+EAST_W-MID_X-60, 20);
+  s += drawBuffetTable(MID_X+80, PAD+160, EAST_X+EAST_W-MID_X-160, 20);
+  [{x:MID_X+50,y:PAD+90},{x:MID_X+140,y:PAD+90},{x:EAST_X+60,y:PAD+90},{x:EAST_X+170,y:PAD+90},{x:MID_X+50,y:PAD+130},{x:MID_X+140,y:PAD+130},{x:EAST_X+60,y:PAD+130},{x:EAST_X+170,y:PAD+130},{x:MID_X+80,y:PAD+220},{x:MID_X+180,y:PAD+220},{x:EAST_X+60,y:PAD+220},{x:EAST_X+150,y:PAD+220},{x:MID_X+80,y:PAD+270},{x:MID_X+180,y:PAD+270},{x:EAST_X+60,y:PAD+270},{x:EAST_X+150,y:PAD+270}].forEach(function(t){ s += drawCocktailTable(t.x,t.y); });
+  s += '<text x="'+midEastCX+'" y="'+(PAD+ROOM_H-8)+'" text-anchor="middle" font-size="10" font-weight="bold" fill="#166534">約60名</text>';
+  s += '</svg>';
+  return s;
+}
+
+function drawStandingFull() {
+  var s = svgHead();
+  s += '<rect x="'+PAD+'" y="'+PAD+'" width="'+ROOM_W+'" height="'+ROOM_H+'" rx="3" fill="#fafafa" stroke="#cbd5e1" stroke-width="1.5"/>';
+  s += '<text x="'+(PAD+ROOM_W/2)+'" y="'+(PAD+18)+'" text-anchor="middle" font-size="12" fill="#64748b" font-weight="bold">末広の間（全室）立食パーティー</text>';
+  s += drawBuffetTable(PAD+80, PAD+35, 200, 25);
+  s += drawBuffetTable(PAD+420, PAD+35, 200, 25);
+  s += drawBuffetTable(PAD+250, PAD+150, 200, 25);
+  s += '<rect x="'+(PAD+10)+'" y="'+(PAD+30)+'" width="50" height="18" rx="2" fill="#7c3aed" opacity="0.3" stroke="#7c3aed" stroke-width="0.8"/>';
+  s += '<text x="'+(PAD+35)+'" y="'+(PAD+43)+'" text-anchor="middle" font-size="7" fill="#7c3aed">バーカウンター</text>';
+  var tables = [];
+  for (var row = 0; row < 4; row++) {
+    for (var col = 0; col < 8; col++) {
+      var tx = PAD + 70 + col * 82, ty = PAD + 90 + row * 60;
+      if (row === 1 && col >= 2 && col <= 5) continue;
+      tables.push({x: tx, y: ty});
+    }
+  }
+  tables.forEach(function(t){ s += drawCocktailTable(t.x, t.y); });
+  [{x:PAD+120,y:PAD+115},{x:PAD+200,y:PAD+105},{x:PAD+500,y:PAD+110},{x:PAD+600,y:PAD+120},{x:PAD+100,y:PAD+200},{x:PAD+180,y:PAD+210},{x:PAD+500,y:PAD+195},{x:PAD+620,y:PAD+205},{x:PAD+130,y:PAD+265},{x:PAD+250,y:PAD+275},{x:PAD+480,y:PAD+260},{x:PAD+580,y:PAD+280}].forEach(function(d){
+    s += '<circle cx="'+d.x+'" cy="'+d.y+'" r="2.5" fill="#94a3b8" opacity="0.4"/>';
+  });
+  s += '<text x="'+(PAD+ROOM_W/2)+'" y="'+(PAD+ROOM_H+20)+'" text-anchor="middle" font-size="11" font-weight="bold" fill="#1A2E44">全室利用: 最大150名</text>';
+  s += '</svg>';
+  return s;
+}
+
+// ---------- タブ切替・描画 ----------
+function showLayout(key) {
+  var layout = LAYOUTS[key];
+  if (!layout) return;
+  document.querySelectorAll('.layout-tab').forEach(function(tab) {
+    tab.classList.toggle('active', tab.dataset.layout === key);
+  });
+  var container = document.getElementById('layout-display');
+  var html = '';
+
+  // 写真＋説明ヘッダー
+  html += '<div class="grid md:grid-cols-5 border-b border-gray-100">';
+  html += '<div class="md:col-span-2 relative overflow-hidden min-h-[200px]"><img class="w-full h-full object-cover" src="'+LAYOUT_PHOTOS[key]+'" alt="'+layout.title+'"/></div>';
+  html += '<div class="md:col-span-3 p-6 md:p-8 flex flex-col justify-center">';
+  html += '<div class="flex items-center gap-3 mb-2"><span class="material-symbols-outlined text-2xl text-accent-gold">'+layout.icon+'</span>';
+  html += '<h3 class="text-2xl font-serif font-bold">'+layout.title+'</h3></div>';
+  html += '<p class="text-gray-500 text-sm">'+layout.desc+'</p>';
+  html += '</div></div>';
+
+  // SVG
+  html += '<div class="p-6 md:p-8 bg-slate-50/50 overflow-x-auto">';
+  html += layout.svg();
+  html += '</div>';
+
+  // 収容人数
+  html += '<div class="p-6 md:p-8">';
+  html += '<h4 class="font-bold text-sm text-slate-700 mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-base">groups</span>推奨収容人数</h4>';
+  html += '<div class="grid grid-cols-1 sm:grid-cols-'+Math.min(layout.capacity.length, 3)+' gap-4">';
+  layout.capacity.forEach(function(c) {
+    if (!c.room) return;
+    html += '<div class="bg-white border border-gray-100 rounded-lg p-4 text-center">';
+    html += '<p class="text-xs text-gray-400 mb-1">'+c.room+'</p>';
+    html += '<p class="font-bold text-primary text-lg">'+c.cap+'</p>';
+    if (c.note) html += '<p class="text-xs text-gray-400 mt-1">'+c.note+'</p>';
+    html += '</div>';
+  });
+  html += '</div>';
+  if (layout.totalCap) {
+    html += '<p class="text-center text-sm font-bold text-primary mt-4 bg-blue-50 rounded-lg py-3">'+layout.totalCap+'</p>';
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+document.querySelectorAll('.layout-tab').forEach(function(tab) {
+  tab.addEventListener('click', function() { showLayout(this.dataset.layout); });
+});
+showLayout('school');
+</script>
+</body></html>
