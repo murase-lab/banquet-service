@@ -19,7 +19,7 @@ var CUISINE_DATA_FALLBACK = {
       "price": 5200,
       "note": "コース料理・個別提供",
       "description": "お一人おひとりにサービスする形式です。前菜〜デザートまでのコース料理です。",
-      "image": "https://static.wixstatic.com/media/216462_1d56f5eaa69a46078c0ff692d06f1ded~mv2.jpg",
+      "image": "images/会席料理.png",
       "badgeText": "個別提供",
       "badgeColor": "primary",
       "sortOrder": 1,
@@ -32,7 +32,7 @@ var CUISINE_DATA_FALLBACK = {
       "price": 4700,
       "note": "大皿盛り・スタッフ取り分け",
       "description": "大皿盛り込み料理となります。卓人数に応じお客様のテーブルまでサービススタッフがお運びしお取り分けいたします。",
-      "image": "https://static.wixstatic.com/media/216462_802edf372ae94980af7a1d89713d2dad~mv2.jpg",
+      "image": "images/シッティング.png",
       "badgeText": "スタッフ配膳",
       "badgeColor": "accent-gold",
       "sortOrder": 2,
@@ -45,7 +45,7 @@ var CUISINE_DATA_FALLBACK = {
       "price": 4700,
       "note": "20名様以上〜",
       "description": "基本ビュッフェ台までお料理を取りに行く形式です。お料理を取り分けるトング類は定期的に交換させていただきます。\\n20名様以上〜",
-      "image": "https://static.wixstatic.com/media/216462_339c44d21c824785b07564bd9d40e826~mv2.jpg",
+      "image": "images/ビュッフェ料理.png",
       "badgeText": "セルフサービス",
       "badgeColor": "gray-800",
       "sortOrder": 3,
@@ -58,7 +58,7 @@ var CUISINE_DATA_FALLBACK = {
       "price": 4200,
       "note": "開宴前に全品提供",
       "description": "開宴前デザート以外は全て最初にお出しいたします。",
-      "image": "https://static.wixstatic.com/media/216462_04577a9c62b844af862d6ebed699da22~mv2.jpg",
+      "image": "images/弁当宴会.png",
       "badgeText": "宴会向け",
       "badgeColor": "primary",
       "sortOrder": 4,
@@ -71,7 +71,7 @@ var CUISINE_DATA_FALLBACK = {
       "price": 2500,
       "note": "会議後の昼食・持ち帰り可",
       "description": "主に会議終了後のご昼食としてお弁当をご利用いただいております。また、お持ち帰り用弁当としてもご用意できます。（料金相談要）",
-      "image": "https://static.wixstatic.com/media/216462_055bfd662d9f46b6aa241de8306523b3~mv2.jpeg",
+      "image": "images/割子弁当.png",
       "badgeText": "会議向け",
       "badgeColor": "accent-gold",
       "sortOrder": 5,
@@ -83,7 +83,7 @@ var CUISINE_DATA_FALLBACK = {
     "price": 2800,
     "duration": "110分",
     "description": "ビール・ノンアルコールビール・日本酒・焼酎（麦・芋）・ウィスキー・梅酒・ウーロン茶・オレンジジュース",
-    "image": "https://static.wixstatic.com/media/216462_d671a0bc86b94646bae1218726e585e1~mv2.jpg"
+    "image": "images/フリードリンク.png"
   }
 };
 
