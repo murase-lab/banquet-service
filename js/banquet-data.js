@@ -19,7 +19,7 @@ var CUISINE_DATA_FALLBACK = {
       "price": 5200,
       "note": "コース料理・個別提供",
       "description": "お一人おひとりにサービスする形式です。前菜〜デザートまでのコース料理です。",
-      "image": "images/会席料理.png",
+      "image": "https://murase-lab.github.io/banquet-service/images/会席料理.png",
       "badgeText": "個別提供",
       "badgeColor": "primary",
       "sortOrder": 1,
@@ -32,7 +32,7 @@ var CUISINE_DATA_FALLBACK = {
       "price": 4700,
       "note": "大皿盛り・スタッフ取り分け",
       "description": "大皿盛り込み料理となります。卓人数に応じお客様のテーブルまでサービススタッフがお運びしお取り分けいたします。",
-      "image": "images/シッティング.png",
+      "image": "https://murase-lab.github.io/banquet-service/images/シッティング.png",
       "badgeText": "スタッフ配膳",
       "badgeColor": "accent-gold",
       "sortOrder": 2,
@@ -45,7 +45,7 @@ var CUISINE_DATA_FALLBACK = {
       "price": 4700,
       "note": "20名様以上〜",
       "description": "基本ビュッフェ台までお料理を取りに行く形式です。お料理を取り分けるトング類は定期的に交換させていただきます。\\n20名様以上〜",
-      "image": "images/ビュッフェ料理.png",
+      "image": "https://murase-lab.github.io/banquet-service/images/ビュッフェ料理.png",
       "badgeText": "セルフサービス",
       "badgeColor": "gray-800",
       "sortOrder": 3,
@@ -58,7 +58,7 @@ var CUISINE_DATA_FALLBACK = {
       "price": 4200,
       "note": "開宴前に全品提供",
       "description": "開宴前デザート以外は全て最初にお出しいたします。",
-      "image": "images/弁当宴会.png",
+      "image": "https://murase-lab.github.io/banquet-service/images/弁当宴会.png",
       "badgeText": "宴会向け",
       "badgeColor": "primary",
       "sortOrder": 4,
@@ -71,19 +71,32 @@ var CUISINE_DATA_FALLBACK = {
       "price": 2500,
       "note": "会議後の昼食・持ち帰り可",
       "description": "主に会議終了後のご昼食としてお弁当をご利用いただいております。また、お持ち帰り用弁当としてもご用意できます。（料金相談要）",
-      "image": "images/割子弁当.png",
+      "image": "https://murase-lab.github.io/banquet-service/images/割子弁当.png",
       "badgeText": "会議向け",
       "badgeColor": "accent-gold",
       "sortOrder": 5,
       "active": "true",
       "venueIncluded": ""
+    },
+    {
+      "id": "wedding",
+      "label": "披露宴のお料理",
+      "price": 10000,
+      "note": "披露宴・ウェディング向け",
+      "description": "",
+      "image": "",
+      "badgeText": "披露宴",
+      "badgeColor": "accent-gold",
+      "sortOrder": 6,
+      "active": "true",
+      "venueIncluded": "true"
     }
   ],
   "freeDrink": {
     "price": 2800,
     "duration": "110分",
     "description": "ビール・ノンアルコールビール・日本酒・焼酎（麦・芋）・ウィスキー・梅酒・ウーロン茶・オレンジジュース",
-    "image": "images/フリードリンク.png"
+    "image": "https://murase-lab.github.io/banquet-service/images/フリードリンク.png"
   }
 };
 
@@ -100,9 +113,17 @@ var CONFIG_FALLBACK = {
       "area": "102㎡（31坪）",
       "floor": "2F",
       "layouts": {
-        "スクール": 28, "コの字": 24, "ロの字": 36, "立食": 30
+        "スクール": 28,
+        "コの字": 24,
+        "ロの字": 36,
+        "立食": 30
       },
-      "foodPlans": ["kaiseki","sitting","bento_banquet","warigo"]
+      "foodPlans": [
+        "kaiseki",
+        "sitting",
+        "bento_banquet",
+        "warigo"
+      ]
     },
     "suehiro_mid": {
       "base": 33000,
@@ -111,7 +132,12 @@ var CONFIG_FALLBACK = {
       "area": "108㎡（33坪）",
       "floor": "2F",
       "layouts": {
-        "スクール": 28, "コの字": 24, "ロの字": 36, "円卓": 32, "着席ブッフェ": 32, "立食": 40
+        "スクール": 28,
+        "コの字": 24,
+        "ロの字": 36,
+        "円卓": 32,
+        "着席ブッフェ": 32,
+        "立食": 40
       }
     },
     "suehiro_west": {
@@ -121,7 +147,12 @@ var CONFIG_FALLBACK = {
       "area": "113㎡（34坪）",
       "floor": "2F",
       "layouts": {
-        "スクール": 42, "コの字": 28, "ロの字": 48, "円卓": 25, "着席ブッフェ": 40, "立食": 50
+        "スクール": 42,
+        "コの字": 28,
+        "ロの字": 48,
+        "円卓": 25,
+        "着席ブッフェ": 40,
+        "立食": 50
       }
     },
     "suehiro_mid_east": {
@@ -131,7 +162,9 @@ var CONFIG_FALLBACK = {
       "area": "210㎡",
       "floor": "2F",
       "layouts": {
-        "円卓": 48, "着席ブッフェ": 64, "立食": 60
+        "円卓": 48,
+        "着席ブッフェ": 64,
+        "立食": 60
       }
     },
     "suehiro_west_mid": {
@@ -141,7 +174,11 @@ var CONFIG_FALLBACK = {
       "area": "221㎡（66坪）",
       "floor": "2F",
       "layouts": {
-        "スクール": 54, "コの字": 32, "円卓": 48, "着席ブッフェ": 76, "立食": 60
+        "スクール": 54,
+        "コの字": 32,
+        "円卓": 48,
+        "着席ブッフェ": 76,
+        "立食": 60
       }
     },
     "suehiro_all": {
@@ -151,7 +188,11 @@ var CONFIG_FALLBACK = {
       "area": "323㎡（97坪）",
       "floor": "2F",
       "layouts": {
-        "スクール": 102, "コの字": 56, "円卓": 75, "着席ブッフェ": 120, "立食": 150
+        "スクール": 102,
+        "コの字": 56,
+        "円卓": 75,
+        "着席ブッフェ": 120,
+        "立食": 150
       }
     },
     "hakuun": {
@@ -161,9 +202,16 @@ var CONFIG_FALLBACK = {
       "area": "78畳（126㎡）",
       "floor": "8F",
       "layouts": {
-        "スクール": 99, "ロの字": 56, "円卓": 60
+        "スクール": 99,
+        "ロの字": 56,
+        "円卓": 60
       },
-      "foodPlans": ["kaiseki","sitting","bento_banquet","warigo"]
+      "foodPlans": [
+        "kaiseki",
+        "sitting",
+        "bento_banquet",
+        "warigo"
+      ]
     },
     "hatsune": {
       "base": 33000,
@@ -172,9 +220,13 @@ var CONFIG_FALLBACK = {
       "area": "24畳（45㎡）",
       "floor": "8F",
       "layouts": {
-        "ロの字": 16, "円卓": 12
+        "ロの字": 16,
+        "円卓": 12
       },
-      "foodPlans": ["kaiseki","warigo"]
+      "foodPlans": [
+        "kaiseki",
+        "warigo"
+      ]
     }
   },
   "food_plans": [
