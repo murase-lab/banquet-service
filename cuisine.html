@@ -127,7 +127,8 @@ function renderCuisine(data) {
   var container = document.getElementById('cuisine-content');
   var html = '';
 
-  data.plans.forEach(function(plan, index) {
+  var filteredPlans = data.plans.filter(function(p) { return p.id !== 'wedding'; });
+  filteredPlans.forEach(function(plan, index) {
     var isEven = index % 2 === 0;
     var badgeClass = getBadgeColorClass(plan.badgeColor);
     var desc = escapeHtml(plan.description).replace(/\n/g, '<br/>');

@@ -94,12 +94,22 @@ function getSimulatorConfig(ss) {
   var venue = {};
   venueRows.forEach(function(v) {
     if (v.id) {
-      venue[v.id] = {
+      var entry = {
         base: Number(v.base) || 0,
         extra: Number(v.extra) || 0,
         label: v.label || '',
         area: v.area || ''
       };
+      if (v.floor) entry.floor = v.floor;
+      // layouts列: JSON文字列 例 {"スクール":28,"コの字":24}
+      if (v.layouts) {
+        try { entry.layouts = JSON.parse(v.layouts); } catch(e) {}
+      }
+      // foodPlans列: JSON配列 例 ["kaiseki","warigo"]
+      if (v.foodPlans) {
+        try { entry.foodPlans = JSON.parse(v.foodPlans); } catch(e) {}
+      }
+      venue[v.id] = entry;
     }
   });
 
@@ -278,4 +288,45 @@ function testGetCuisineData() {
 function testGetConfigData() {
   var response = doGet({ parameter: { type: 'config' } });
   Logger.log(response.getContent());
+}
+
+/**
+ * 会場シートを最新データに更新する
+ * GASエディタから一度だけ手動実行してください
+ * ※既存データを上書きします
+ */
+function updateVenueSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('会場');
+  if (!sheet) {
+    sheet = ss.insertSheet('会場');
+  }
+
+  // ヘッダー
+  var headers = ['id', 'label', 'area', 'base', 'extra', 'floor', 'layouts', 'foodPlans', 'sortOrder'];
+
+  // データ
+  var venues = [
+    ['suehiro_east', '末広（東）', '102㎡（31坪）', 33000, 16500, '2F', '{"スクール":28,"コの字":24,"ロの字":36,"立食":30}', '["kaiseki","sitting","bento_banquet","warigo"]', 1],
+    ['suehiro_mid', '末広（中）', '108㎡（33坪）', 33000, 16500, '2F', '{"スクール":28,"コの字":24,"ロの字":36,"円卓":32,"着席ブッフェ":32,"立食":40}', '', 2],
+    ['suehiro_west', '末広（西）', '113㎡（34坪）', 33000, 16500, '2F', '{"スクール":42,"コの字":28,"ロの字":48,"円卓":25,"着席ブッフェ":40,"立食":50}', '', 3],
+    ['suehiro_mid_east', '末広（中＋東）', '210㎡', 66000, 33000, '2F', '{"円卓":48,"着席ブッフェ":64,"立食":60}', '', 4],
+    ['suehiro_west_mid', '末広（西＋中）', '221㎡（66坪）', 66000, 33000, '2F', '{"スクール":54,"コの字":32,"円卓":48,"着席ブッフェ":76,"立食":60}', '', 5],
+    ['suehiro_all', '末広（全室）', '323㎡（97坪）', 99000, 49500, '2F', '{"スクール":102,"コの字":56,"円卓":75,"着席ブッフェ":120,"立食":150}', '', 6],
+    ['hakuun', '白雲の間', '78畳（126㎡）', 33000, 16500, '8F', '{"スクール":99,"ロの字":56,"円卓":60}', '["kaiseki","sitting","bento_banquet","warigo"]', 7],
+    ['hatsune', '初音の間', '24畳（45㎡）', 33000, 16500, '8F', '{"ロの字":16,"円卓":12}', '["kaiseki","warigo"]', 8]
+  ];
+
+  // シートをクリアして書き込み
+  sheet.clear();
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  if (venues.length > 0) {
+    sheet.getRange(2, 1, venues.length, headers.length).setValues(venues);
+  }
+
+  // 書式調整
+  sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#f0f0f0');
+  sheet.autoResizeColumns(1, headers.length);
+
+  Logger.log('会場シートを更新しました: ' + venues.length + '件');
 }

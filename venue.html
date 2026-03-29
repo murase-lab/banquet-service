@@ -13,6 +13,12 @@ body{font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em}
 .layout-tab:not(.active){background:#f1f5f9;color:#475569}
 .layout-tab:not(.active):hover{background:#e2e8f0}
 .floor-svg text{font-family:'Noto Sans JP',sans-serif}
+/* ギャラリー */
+.gallery-main{width:100%;aspect-ratio:4/3;overflow:hidden;border-radius:8px;cursor:grab;user-select:none}
+.gallery-main img{width:100%;height:100%;object-fit:cover;transition:opacity .4s ease}
+.gallery-thumbs{display:flex;gap:8px;margin-top:8px}
+.gallery-thumbs img{width:0;flex:1;aspect-ratio:4/3;object-fit:cover;border-radius:6px;cursor:pointer;opacity:.5;border:2px solid transparent;transition:opacity .2s,border-color .2s}
+.gallery-thumbs img.active{opacity:1;border-color:#C1A36A}
 </style>
 </head>
 <body class="bg-background-light text-charcoal">
@@ -60,7 +66,7 @@ body{font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em}
 
 <!-- ヒーロー -->
 <div class="relative h-[45vh] min-h-[350px] overflow-hidden">
-<img class="absolute inset-0 w-full h-full object-cover" src="https://static.wixstatic.com/media/216462_425ad43a3ce0489fa3b9ffef9d8167e2~mv2.jpg" alt="バンケット会場"/>
+<img class="absolute inset-0 w-full h-full object-cover" src="images/末広の間メイン.png" alt="バンケット会場"/>
 <div class="absolute inset-0 hero-gradient"></div>
 <div class="absolute inset-0 flex flex-col justify-end p-12 max-w-7xl mx-auto w-full">
 <span class="text-accent-gold font-semibold tracking-widest uppercase text-sm mb-3 block">Event Spaces</span>
@@ -87,9 +93,18 @@ body{font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em}
 <section class="mb-24" id="suehiro">
 <div class="bg-white rounded-xl overflow-hidden border border-primary/5 shadow-sm">
 <div class="grid md:grid-cols-2">
-<div class="relative overflow-hidden min-h-[300px]">
-<img class="h-full w-full object-cover" src="https://static.wixstatic.com/media/216462_425ad43a3ce0489fa3b9ffef9d8167e2~mv2.jpg" alt="末広の間"/>
-<div class="absolute top-4 left-4 bg-primary text-white px-3 py-1 rounded text-xs font-bold">2F 洋宴会場</div>
+<div class="p-4">
+<div class="relative">
+<div class="gallery-main"><img src="images/末広の間メイン.png" alt="末広の間" data-gallery-main/></div>
+<div class="absolute top-2 left-2 bg-primary text-white px-3 py-1 rounded text-xs font-bold z-10">2F 洋宴会場</div>
+</div>
+<div class="gallery-thumbs" data-gallery-thumbs>
+<img class="active" src="images/末広の間メイン.png" alt="末広の間"/>
+<img src="images/末広.png" alt="末広の間"/>
+<img src="images/末広２.png" alt="末広の間"/>
+<img src="images/末広３.avif" alt="末広の間"/>
+<img src="images/末広４.png" alt="末広の間"/>
+</div>
 </div>
 <div class="p-8">
 <h3 class="font-serif text-3xl mb-2 text-primary">末広の間</h3>
@@ -109,50 +124,31 @@ body{font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em}
 </div>
 </div>
 
-<!-- 2F平面図SVG -->
+<!-- 2F平面図 -->
 <h4 class="font-bold text-lg mt-12 mb-6 flex items-center gap-2"><span class="material-symbols-outlined text-accent-gold">architecture</span>2階フロア全体図</h4>
-<div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-10 overflow-x-auto">
-<svg viewBox="0 0 820 500" class="floor-svg w-full max-w-4xl mx-auto" style="min-width:600px">
-<defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e5e7eb" stroke-width="0.5"/></pattern></defs>
-<rect x="40" y="40" width="700" height="340" rx="4" fill="url(#grid)" stroke="#94a3b8" stroke-width="2"/>
-<line x1="280" y1="40" x2="280" y2="380" stroke="#64748b" stroke-width="2" stroke-dasharray="8,4"/>
-<line x1="510" y1="40" x2="510" y2="380" stroke="#64748b" stroke-width="2" stroke-dasharray="8,4"/>
-<rect x="42" y="42" width="236" height="336" rx="2" fill="#dbeafe" fill-opacity="0.4" stroke="none"/>
-<text x="160" y="200" text-anchor="middle" font-size="20" font-weight="bold" fill="#1e40af">西の間</text>
-<text x="160" y="228" text-anchor="middle" font-size="14" fill="#3b82f6">113m²</text>
-<rect x="282" y="42" width="226" height="336" rx="2" fill="#fef3c7" fill-opacity="0.4" stroke="none"/>
-<text x="395" y="200" text-anchor="middle" font-size="20" font-weight="bold" fill="#92400e">中の間</text>
-<text x="395" y="228" text-anchor="middle" font-size="14" fill="#d97706">108m²</text>
-<rect x="512" y="42" width="226" height="336" rx="2" fill="#dcfce7" fill-opacity="0.4" stroke="none"/>
-<text x="625" y="200" text-anchor="middle" font-size="20" font-weight="bold" fill="#166534">東の間</text>
-<text x="625" y="228" text-anchor="middle" font-size="14" fill="#16a34a">102m²</text>
-<rect x="250" y="380" width="280" height="60" rx="4" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
-<text x="390" y="415" text-anchor="middle" font-size="12" fill="#64748b">エントランス・ロビー</text>
-<rect x="340" y="388" width="40" height="40" rx="2" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
-<text x="360" y="413" text-anchor="middle" font-size="9" fill="#64748b">EV</text>
-<rect x="400" y="388" width="40" height="40" rx="2" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
-<text x="420" y="413" text-anchor="middle" font-size="9" fill="#64748b">EV</text>
-<rect x="140" y="384" width="80" height="36" rx="2" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
-<text x="180" y="407" text-anchor="middle" font-size="10" fill="#64748b">音響</text>
-<rect x="560" y="384" width="80" height="36" rx="2" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
-<text x="600" y="407" text-anchor="middle" font-size="9" fill="#64748b">宴会事務所</text>
-<line x1="42" y1="28" x2="738" y2="28" stroke="#94a3b8" stroke-width="1"/>
-<line x1="42" y1="24" x2="42" y2="32" stroke="#94a3b8" stroke-width="1"/>
-<line x1="738" y1="24" x2="738" y2="32" stroke="#94a3b8" stroke-width="1"/>
-<text x="390" y="22" text-anchor="middle" font-size="11" fill="#64748b">約20.5m</text>
-<rect x="600" y="55" width="120" height="28" rx="4" fill="#ef4444" fill-opacity="0.1" stroke="#ef4444" stroke-width="1"/>
-<text x="660" y="74" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc2626">天井高 2.8m</text>
-<rect x="600" y="90" width="120" height="28" rx="4" fill="#3b82f6" fill-opacity="0.1" stroke="#3b82f6" stroke-width="1"/>
-<text x="660" y="109" text-anchor="middle" font-size="11" font-weight="bold" fill="#2563eb">全323m²（96坪）</text>
-<text x="280" y="395" text-anchor="middle" font-size="9" fill="#94a3b8" transform="rotate(-90,273,395)">← 可動パーティション →</text>
-<text x="510" y="395" text-anchor="middle" font-size="9" fill="#94a3b8" transform="rotate(-90,503,395)">← 可動パーティション →</text>
-</svg>
-<div class="mt-6 flex flex-wrap gap-4 justify-center text-xs text-gray-500">
-<span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-blue-100 border border-blue-300"></span>西の間</span>
-<span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-100 border border-amber-300"></span>中の間</span>
-<span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-green-100 border border-green-300"></span>東の間</span>
-<span class="flex items-center gap-1.5"><span class="w-6 h-0 border-t-2 border-dashed border-slate-400"></span>可動パーティション</span>
+<div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+<img class="w-full" src="https://static.wixstatic.com/media/216462_de07435d6c144fbfad062bb4db9da77d~mv2.jpg/v1/fill/w_981,h_584,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/image0%20(49)_edited.jpg" alt="2階フロア全体図"/>
 </div>
+
+<!-- 補足：各室スペック -->
+<div class="grid grid-cols-3 gap-3 mt-4">
+<div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+<p class="font-bold text-blue-800 text-sm">西の間</p>
+<p class="text-blue-600 text-xs mt-1">113m²</p>
+</div>
+<div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
+<p class="font-bold text-amber-800 text-sm">中の間</p>
+<p class="text-amber-600 text-xs mt-1">108m²</p>
+</div>
+<div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+<p class="font-bold text-green-800 text-sm">東の間</p>
+<p class="text-green-600 text-xs mt-1">102m²</p>
+</div>
+</div>
+<div class="flex flex-wrap justify-center gap-4 mt-3 text-[11px] text-gray-500">
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm text-red-500">height</span>天井高 2.8m</span>
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm text-blue-500">straighten</span>全323m²（96坪）</span>
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm text-gray-400">swap_horiz</span>可動パーティションで3分割可</span>
 </div>
 
 <!-- 各室カード -->
@@ -192,6 +188,7 @@ body{font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em}
 <!-- タブ切替 -->
 <div class="flex flex-wrap gap-2 mb-8" id="layout-tabs">
 <button class="layout-tab active rounded-full px-5 py-2.5 text-sm font-bold" data-layout="school">スクール</button>
+<button class="layout-tab rounded-full px-5 py-2.5 text-sm font-bold" data-layout="school-full">スクール（全スパン）</button>
 <button class="layout-tab rounded-full px-5 py-2.5 text-sm font-bold" data-layout="u-shape">コの字</button>
 <button class="layout-tab rounded-full px-5 py-2.5 text-sm font-bold" data-layout="o-shape">ロの字</button>
 <button class="layout-tab rounded-full px-5 py-2.5 text-sm font-bold" data-layout="round">丸テーブル</button>
@@ -221,7 +218,7 @@ body{font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em}
 <div class="jp-pattern absolute inset-0"></div>
 <div class="relative z-10 grid md:grid-cols-2">
 <div class="relative overflow-hidden min-h-[280px]">
-<img class="h-full w-full object-cover" src="https://static.wixstatic.com/media/216462_35e92123d22847b4939af69a1d4c7449~mv2.jpg" alt="白雲の間"/>
+<img class="h-full w-full object-cover" src="images/白雲の間メイン.png" alt="白雲の間"/>
 <div class="absolute top-4 left-4 bg-accent-gold text-white px-3 py-1 rounded text-xs font-bold">8F</div>
 </div>
 <div class="p-8">
@@ -263,9 +260,17 @@ body{font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em}
 <div class="flex items-center gap-2"><span class="material-symbols-outlined text-accent-gold text-lg">groups</span>最大 12名</div>
 </div>
 </div>
-<div class="relative overflow-hidden min-h-[280px] order-1 md:order-2">
-<img class="h-full w-full object-cover" src="https://static.wixstatic.com/media/216462_9f8aa10c8862407ca44a76289ca0e7c5~mv2.jpg" alt="初音の間"/>
-<div class="absolute top-4 left-4 bg-accent-gold text-white px-3 py-1 rounded text-xs font-bold">8F</div>
+<div class="p-4 order-1 md:order-2">
+<div class="relative">
+<div class="gallery-main"><img src="images/はつねメイン.avif" alt="初音の間" data-gallery-main/></div>
+<div class="absolute top-2 left-2 bg-accent-gold text-white px-3 py-1 rounded text-xs font-bold z-10">8F</div>
+</div>
+<div class="gallery-thumbs" data-gallery-thumbs>
+<img class="active" src="images/はつねメイン.avif" alt="初音の間"/>
+<img src="images/はつね２.avif" alt="初音の間"/>
+<img src="images/はつね３.avif" alt="初音の間"/>
+<img src="images/はつね４.avif" alt="初音の間"/>
+</div>
 </div>
 </div>
 </div>
@@ -306,8 +311,8 @@ body{font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em}
 <td class="py-3 px-3 text-center border-l border-blue-50">28名</td>
 <td class="py-3 px-3 text-center">24名</td>
 <td class="py-3 px-3 text-center">36名</td>
-<td class="py-3 px-3 text-center border-l border-amber-50">20名</td>
-<td class="py-3 px-3 text-center">—</td>
+<td class="py-3 px-3 text-center border-l border-amber-50">32名</td>
+<td class="py-3 px-3 text-center">32名</td>
 <td class="py-3 px-3 text-center border-l border-green-50">40名</td>
 </tr>
 <tr>
@@ -316,7 +321,7 @@ body{font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em}
 <td class="py-3 px-3 text-center">28名</td>
 <td class="py-3 px-3 text-center">48名</td>
 <td class="py-3 px-3 text-center border-l border-amber-50">25名</td>
-<td class="py-3 px-3 text-center">30名</td>
+<td class="py-3 px-3 text-center">40名</td>
 <td class="py-3 px-3 text-center border-l border-green-50">50名</td>
 </tr>
 <tr class="bg-blue-50/30">
@@ -348,9 +353,9 @@ body{font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em}
 </tr>
 <tr class="border-t-2 border-primary/10">
 <td class="py-3 px-4 font-bold text-primary">白雲の間<span class="text-xs text-gray-400 ml-1">8F / 78畳</span></td>
-<td class="py-3 px-3 text-center border-l border-blue-50">66名</td>
+<td class="py-3 px-3 text-center border-l border-blue-50">99名</td>
 <td class="py-3 px-3 text-center">—</td>
-<td class="py-3 px-3 text-center">—</td>
+<td class="py-3 px-3 text-center">56名</td>
 <td class="py-3 px-3 text-center border-l border-amber-50">60名</td>
 <td class="py-3 px-3 text-center">—</td>
 <td class="py-3 px-3 text-center border-l border-green-50">—</td>
@@ -359,7 +364,7 @@ body{font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em}
 <td class="py-3 px-4 font-bold text-primary">初音の間<span class="text-xs text-gray-400 ml-1">8F / 24畳</span></td>
 <td class="py-3 px-3 text-center border-l border-blue-50">—</td>
 <td class="py-3 px-3 text-center">—</td>
-<td class="py-3 px-3 text-center">—</td>
+<td class="py-3 px-3 text-center">16名</td>
 <td class="py-3 px-3 text-center border-l border-amber-50">12名</td>
 <td class="py-3 px-3 text-center">—</td>
 <td class="py-3 px-3 text-center border-l border-green-50">—</td>
@@ -432,12 +437,13 @@ body{font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em}
 // ===================================================
 
 var LAYOUT_PHOTOS = {
-  school: 'https://static.wixstatic.com/media/216462_0d77b2d12e59470ba34dfc4aa7ecfafd~mv2.jpg',
-  'u-shape': 'https://static.wixstatic.com/media/216462_ed96adb1ea7b4b569f7b1b8e912fecb1~mv2.jpg',
-  'o-shape': 'https://static.wixstatic.com/media/216462_7e61c4ca52534ef482cac05026dc2321~mv2.jpg',
-  round: 'https://static.wixstatic.com/media/216462_44522492120c4c90afb842330e74c8fc~mv2.jpg',
-  standing: 'https://static.wixstatic.com/media/216462_75841838136c42f9b59eb82885229085~mv2.jpg',
-  'standing-full': 'https://static.wixstatic.com/media/216462_75841838136c42f9b59eb82885229085~mv2.jpg'
+  school: 'https://static.wixstatic.com/media/216462_0d77b2d12e59470ba34dfc4aa7ecfafd~mv2.jpg/v1/fill/w_981,h_446,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_1459.jpg',
+  'u-shape': 'https://static.wixstatic.com/media/216462_49c2e7912dfc46c4ac6ecf30d45966cd~mv2.jpg/v1/fill/w_969,h_472,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_1465_edited.jpg',
+  'o-shape': 'https://static.wixstatic.com/media/216462_7e61c4ca52534ef482cac05026dc2321~mv2.jpg/v1/fill/w_981,h_490,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_1464_edited.jpg',
+  round: 'https://static.wixstatic.com/media/216462_9fe6cec9c6f34a93a6c099e53f527a93~mv2.jpg/v1/fill/w_964,h_432,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_1467_edited.jpg',
+  'school-full': 'https://static.wixstatic.com/media/216462_ed96adb1ea7b4b569f7b1b8e912fecb1~mv2.jpg/v1/fill/w_969,h_472,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_1463_edited.jpg',
+  standing: 'https://static.wixstatic.com/media/216462_44522492120c4c90afb842330e74c8fc~mv2.jpg/v1/fill/w_980,h_450,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_1469_edited.jpg',
+  'standing-full': 'https://static.wixstatic.com/media/216462_75841838136c42f9b59eb82885229085~mv2.jpg/v1/fill/w_980,h_400,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_1470_edited.jpg'
 };
 
 var LAYOUTS = {
@@ -445,328 +451,91 @@ var LAYOUTS = {
     title: 'スクール形式',
     desc: '講演会、セミナー等でよく使われる形式です。前方にスクリーンやホワイトボードを配置し、全員が正面を向く配置です。',
     icon: 'school',
+    miniSvg: '<svg viewBox="0 0 80 60" width="80" height="60"><rect x="10" y="2" width="60" height="4" rx="1" fill="#3b82f6" opacity=".6"/><g fill="#94a3b8">' +
+      '<rect x="15" y="14" width="20" height="4" rx="1"/><rect x="45" y="14" width="20" height="4" rx="1"/>' +
+      '<rect x="15" y="24" width="20" height="4" rx="1"/><rect x="45" y="24" width="20" height="4" rx="1"/>' +
+      '<rect x="15" y="34" width="20" height="4" rx="1"/><rect x="45" y="34" width="20" height="4" rx="1"/>' +
+      '<rect x="15" y="44" width="20" height="4" rx="1"/><rect x="45" y="44" width="20" height="4" rx="1"/>' +
+      '</g><g fill="#475569" opacity=".5"><circle cx="20" cy="22" r="1.5"/><circle cx="30" cy="22" r="1.5"/><circle cx="50" cy="22" r="1.5"/><circle cx="60" cy="22" r="1.5"/><circle cx="20" cy="32" r="1.5"/><circle cx="30" cy="32" r="1.5"/><circle cx="50" cy="32" r="1.5"/><circle cx="60" cy="32" r="1.5"/><circle cx="20" cy="42" r="1.5"/><circle cx="30" cy="42" r="1.5"/><circle cx="50" cy="42" r="1.5"/><circle cx="60" cy="42" r="1.5"/><circle cx="20" cy="52" r="1.5"/><circle cx="30" cy="52" r="1.5"/><circle cx="50" cy="52" r="1.5"/><circle cx="60" cy="52" r="1.5"/></g></svg>',
     capacity: [
       { room: '西の間', cap: '最大42名', note: '3列×7行×2' },
       { room: '中の間', cap: '最大28名', note: '2列×7行×2' },
       { room: '東の間', cap: '最大28名', note: '2列×7行×2' }
     ],
-    totalCap: '全室利用: 最大102名',
-    svg: function(){ return drawSchool(); }
+    totalCap: '全室利用: 最大102名'
+  },
+  'school-full': {
+    title: 'スクール形式（全スパン）',
+    desc: '3室すべてをオープンにしたスクール形式。大規模な講演会・セミナーに最適です。',
+    icon: 'school',
+    miniSvg: '<svg viewBox="0 0 120 60" width="120" height="60"><rect x="5" y="2" width="110" height="4" rx="1" fill="#3b82f6" opacity=".6"/><g fill="#94a3b8">' +
+      '<rect x="8" y="14" width="14" height="4" rx="1"/><rect x="28" y="14" width="14" height="4" rx="1"/><rect x="48" y="14" width="14" height="4" rx="1"/><rect x="68" y="14" width="14" height="4" rx="1"/><rect x="88" y="14" width="14" height="4" rx="1"/>' +
+      '<rect x="8" y="26" width="14" height="4" rx="1"/><rect x="28" y="26" width="14" height="4" rx="1"/><rect x="48" y="26" width="14" height="4" rx="1"/><rect x="68" y="26" width="14" height="4" rx="1"/><rect x="88" y="26" width="14" height="4" rx="1"/>' +
+      '<rect x="8" y="38" width="14" height="4" rx="1"/><rect x="28" y="38" width="14" height="4" rx="1"/><rect x="48" y="38" width="14" height="4" rx="1"/><rect x="68" y="38" width="14" height="4" rx="1"/><rect x="88" y="38" width="14" height="4" rx="1"/>' +
+      '<rect x="8" y="50" width="14" height="4" rx="1"/><rect x="28" y="50" width="14" height="4" rx="1"/><rect x="48" y="50" width="14" height="4" rx="1"/><rect x="68" y="50" width="14" height="4" rx="1"/><rect x="88" y="50" width="14" height="4" rx="1"/>' +
+      '</g></svg>',
+    capacity: [
+      { room: '全室（西＋中＋東）', cap: '最大102名', note: '' }
+    ],
+    totalCap: ''
   },
   'u-shape': {
     title: 'コの字形式',
     desc: 'スクリーン・プロジェクターを使った会議に。参加者が互いに顔を見ながら議論できる配置です。',
     icon: 'groups',
+    miniSvg: '<svg viewBox="0 0 80 60" width="80" height="60"><rect x="10" y="2" width="60" height="4" rx="1" fill="#3b82f6" opacity=".6"/><g fill="#94a3b8"><rect x="15" y="15" width="4" height="30" rx="1"/><rect x="61" y="15" width="4" height="30" rx="1"/><rect x="19" y="41" width="42" height="4" rx="1"/></g><g fill="#475569" opacity=".5"><circle cx="12" cy="22" r="1.5"/><circle cx="12" cy="30" r="1.5"/><circle cx="12" cy="38" r="1.5"/><circle cx="68" cy="22" r="1.5"/><circle cx="68" cy="30" r="1.5"/><circle cx="68" cy="38" r="1.5"/><circle cx="28" cy="48" r="1.5"/><circle cx="40" cy="48" r="1.5"/><circle cx="52" cy="48" r="1.5"/></g></svg>',
     capacity: [
       { room: '西の間', cap: '最大28名', note: '' },
       { room: '中の間', cap: '最大24名', note: '' },
       { room: '東の間', cap: '最大24名', note: '' }
     ],
     totalCap: '西＋中利用: 最大32名',
-    svg: function(){ return drawUShape(); }
   },
   'o-shape': {
     title: 'ロの字形式',
     desc: '少人数で一般的な会議としてよく使われる形式です。四方にテーブルを配置し、全員が向き合う正式な会議スタイルです。',
     icon: 'table_restaurant',
+    miniSvg: '<svg viewBox="0 0 80 60" width="80" height="60"><g fill="#94a3b8"><rect x="19" y="12" width="42" height="4" rx="1"/><rect x="19" y="44" width="42" height="4" rx="1"/><rect x="15" y="16" width="4" height="28" rx="1"/><rect x="61" y="16" width="4" height="28" rx="1"/></g><g fill="#475569" opacity=".5"><circle cx="28" cy="9" r="1.5"/><circle cx="40" cy="9" r="1.5"/><circle cx="52" cy="9" r="1.5"/><circle cx="28" cy="51" r="1.5"/><circle cx="40" cy="51" r="1.5"/><circle cx="52" cy="51" r="1.5"/><circle cx="12" cy="24" r="1.5"/><circle cx="12" cy="36" r="1.5"/><circle cx="68" cy="24" r="1.5"/><circle cx="68" cy="36" r="1.5"/></g></svg>',
     capacity: [
       { room: '西の間', cap: '最大48名', note: '' },
       { room: '中の間', cap: '最大36名', note: '' },
       { room: '東の間', cap: '最大36名', note: '' }
     ],
     totalCap: '',
-    svg: function(){ return drawOShape(); }
   },
   round: {
     title: '丸テーブル形式',
     desc: '研修会やお食事スタイルなど多目的に。円卓を配置し、華やかな雰囲気を演出します。',
     icon: 'celebration',
+    miniSvg: '<svg viewBox="0 0 80 60" width="80" height="60"><g fill="#d4a574" opacity=".6"><circle cx="20" cy="20" r="7"/><circle cx="50" cy="20" r="7"/><circle cx="35" cy="45" r="7"/><circle cx="65" cy="45" r="7"/></g><g fill="#475569" opacity=".4"><circle cx="13" cy="15" r="1.5"/><circle cx="15" cy="26" r="1.5"/><circle cx="25" cy="13" r="1.5"/><circle cx="27" cy="25" r="1.5"/><circle cx="43" cy="15" r="1.5"/><circle cx="45" cy="26" r="1.5"/><circle cx="55" cy="13" r="1.5"/><circle cx="57" cy="25" r="1.5"/><circle cx="28" cy="40" r="1.5"/><circle cx="30" cy="51" r="1.5"/><circle cx="40" cy="38" r="1.5"/><circle cx="42" cy="50" r="1.5"/><circle cx="58" cy="40" r="1.5"/><circle cx="60" cy="51" r="1.5"/><circle cx="70" cy="38" r="1.5"/><circle cx="72" cy="50" r="1.5"/></g></svg>',
     capacity: [
       { room: '全室', cap: '着席 最大120名', note: '8人掛×15卓' },
       { room: '正餐', cap: '最大75名', note: '6名掛' }
     ],
     totalCap: '',
-    svg: function(){ return drawRound(); }
   },
   standing: {
     title: '立食パーティー（分割利用）',
     desc: '大勢の方と気楽にお話ができる利点があります。パーティションで2つのエリアに分けて利用できます。',
     icon: 'wine_bar',
+    miniSvg: '<svg viewBox="0 0 80 60" width="80" height="60"><rect x="5" y="5" width="30" height="50" rx="2" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/><rect x="45" y="5" width="30" height="50" rx="2" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/><line x1="40" y1="5" x2="40" y2="55" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,2"/><g fill="#fbbf24" opacity=".7"><circle cx="13" cy="20" r="3"/><circle cx="27" cy="20" r="3"/><circle cx="20" cy="38" r="3"/><circle cx="53" cy="18" r="3"/><circle cx="67" cy="18" r="3"/><circle cx="53" cy="38" r="3"/><circle cx="67" cy="38" r="3"/></g><rect x="8" y="8" width="24" height="4" rx="1" fill="#a3e635" opacity=".5"/><rect x="48" y="8" width="24" height="4" rx="1" fill="#a3e635" opacity=".5"/></svg>',
     capacity: [
       { room: '西側エリア', cap: '約40名', note: '' },
       { room: '東側エリア', cap: '約60名', note: '' }
     ],
     totalCap: '',
-    svg: function(){ return drawStanding(); }
   },
   'standing-full': {
     title: '立食パーティー（全室利用）',
     desc: '大規模パーティーに。全室をオープンにして最大150名の立食パーティーが可能です。',
     icon: 'diversity_3',
+    miniSvg: '<svg viewBox="0 0 80 60" width="80" height="60"><rect x="5" y="5" width="70" height="50" rx="2" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/><g fill="#fbbf24" opacity=".7"><circle cx="15" cy="22" r="3"/><circle cx="30" cy="22" r="3"/><circle cx="50" cy="22" r="3"/><circle cx="65" cy="22" r="3"/><circle cx="22" cy="40" r="3"/><circle cx="40" cy="40" r="3"/><circle cx="58" cy="40" r="3"/></g><rect x="10" y="8" width="25" height="4" rx="1" fill="#a3e635" opacity=".5"/><rect x="45" y="8" width="25" height="4" rx="1" fill="#a3e635" opacity=".5"/><rect x="25" y="30" width="30" height="4" rx="1" fill="#a3e635" opacity=".5"/></svg>',
     capacity: [
       { room: '全室', cap: '最大150名', note: '' }
     ],
     totalCap: '',
-    svg: function(){ return drawStandingFull(); }
   }
 };
-
-// ---------- 共通SVGパーツ ----------
-var ROOM_W = 700, ROOM_H = 320;
-var PAD = 50;
-var SVG_W = ROOM_W + PAD*2, SVG_H = ROOM_H + PAD*2 + 30;
-var WEST_X = PAD, MID_X = PAD + 240, EAST_X = PAD + 470;
-var WEST_W = 238, MID_W = 228, EAST_W = 228;
-
-function svgHead() {
-  return '<svg viewBox="0 0 '+SVG_W+' '+SVG_H+'" class="floor-svg w-full" style="min-width:500px">';
-}
-
-function roomOutline() {
-  var s = '';
-  s += '<rect x="'+PAD+'" y="'+PAD+'" width="'+ROOM_W+'" height="'+ROOM_H+'" rx="3" fill="#fafafa" stroke="#cbd5e1" stroke-width="1.5"/>';
-  s += '<line x1="'+(PAD+240)+'" y1="'+PAD+'" x2="'+(PAD+240)+'" y2="'+(PAD+ROOM_H)+'" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6,3"/>';
-  s += '<line x1="'+(PAD+470)+'" y1="'+PAD+'" x2="'+(PAD+470)+'" y2="'+(PAD+ROOM_H)+'" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6,3"/>';
-  s += '<text x="'+(WEST_X+WEST_W/2)+'" y="'+(PAD+18)+'" text-anchor="middle" font-size="11" fill="#64748b" font-weight="bold">西の間</text>';
-  s += '<text x="'+(MID_X+MID_W/2)+'" y="'+(PAD+18)+'" text-anchor="middle" font-size="11" fill="#64748b" font-weight="bold">中の間</text>';
-  s += '<text x="'+(EAST_X+EAST_W/2)+'" y="'+(PAD+18)+'" text-anchor="middle" font-size="11" fill="#64748b" font-weight="bold">東の間</text>';
-  return s;
-}
-
-function drawTable(cx, cy, w, h, angle) {
-  var rot = angle ? ' transform="rotate('+angle+','+cx+','+cy+')"' : '';
-  return '<rect x="'+(cx-w/2)+'" y="'+(cy-h/2)+'" width="'+w+'" height="'+h+'" rx="1" fill="#d4a574" stroke="#b8956a" stroke-width="0.8"'+rot+'/>';
-}
-
-function drawChair(cx, cy, r) {
-  r = r || 4;
-  return '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="#64748b" stroke="#475569" stroke-width="0.5"/>';
-}
-
-function drawRoundTable(cx, cy, r, seats) {
-  var s = '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="#d4a574" stroke="#b8956a" stroke-width="1"/>';
-  for (var i = 0; i < seats; i++) {
-    var angle = (2 * Math.PI * i) / seats - Math.PI / 2;
-    var chairR = r + 9;
-    s += drawChair(cx + chairR * Math.cos(angle), cy + chairR * Math.sin(angle), 4);
-  }
-  return s;
-}
-
-function drawScreen(x, y, w) {
-  return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="5" rx="2" fill="#3b82f6" opacity="0.6"/>' +
-         '<text x="'+(x+w/2)+'" y="'+(y-4)+'" text-anchor="middle" font-size="8" fill="#3b82f6">スクリーン</text>';
-}
-
-function drawPodium(cx, cy) {
-  return '<rect x="'+(cx-10)+'" y="'+(cy-6)+'" width="20" height="12" rx="2" fill="#1e40af" opacity="0.5"/>' +
-         '<text x="'+cx+'" y="'+(cy+3)+'" text-anchor="middle" font-size="6" fill="white">演台</text>';
-}
-
-function drawBuffetTable(x, y, w, h) {
-  return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="3" fill="#a3e635" opacity="0.3" stroke="#65a30d" stroke-width="1" stroke-dasharray="4,2"/>' +
-         '<text x="'+(x+w/2)+'" y="'+(y+h/2+4)+'" text-anchor="middle" font-size="9" fill="#4d7c0f">料理台</text>';
-}
-
-function drawCocktailTable(cx, cy) {
-  return '<circle cx="'+cx+'" cy="'+cy+'" r="6" fill="#fbbf24" stroke="#d97706" stroke-width="0.8"/>';
-}
-
-// ---------- 各レイアウト ----------
-
-function drawSchool() {
-  var s = svgHead() + roomOutline();
-  var westCX = WEST_X + WEST_W/2;
-  s += drawScreen(WEST_X+20, PAD+28, WEST_W-40);
-  s += drawPodium(westCX, PAD+50);
-  for (var row = 0; row < 7; row++) {
-    for (var col = 0; col < 3; col++) {
-      var tx = WEST_X + 35 + col * 38;
-      var ty = PAD + 80 + row * 32;
-      s += drawTable(tx, ty, 30, 10, 0);
-      s += drawChair(tx-8, ty+10, 3.5);
-      s += drawChair(tx+8, ty+10, 3.5);
-    }
-    for (var c2 = 0; c2 < 3; c2++) {
-      var tx2 = WEST_X + WEST_W - 35 - (2-c2) * 38;
-      s += drawTable(tx2, ty, 30, 10, 0);
-      s += drawChair(tx2-8, ty+10, 3.5);
-      s += drawChair(tx2+8, ty+10, 3.5);
-    }
-  }
-  s += '<text x="'+westCX+'" y="'+(PAD+ROOM_H-8)+'" text-anchor="middle" font-size="10" font-weight="bold" fill="#1e40af">42名</text>';
-
-  var midCX = MID_X + MID_W/2;
-  s += drawScreen(MID_X+20, PAD+28, MID_W-40);
-  s += drawPodium(midCX, PAD+50);
-  for (var r2 = 0; r2 < 7; r2++) {
-    for (var c3 = 0; c3 < 2; c3++) {
-      var tx3 = MID_X + 45 + c3 * 38;
-      var ty3 = PAD + 80 + r2 * 32;
-      s += drawTable(tx3, ty3, 30, 10, 0);
-      s += drawChair(tx3-8, ty3+10, 3.5);
-      s += drawChair(tx3+8, ty3+10, 3.5);
-    }
-    for (var c4 = 0; c4 < 2; c4++) {
-      var tx4 = MID_X + MID_W - 45 - (1-c4) * 38;
-      var ty4 = PAD + 80 + r2 * 32;
-      s += drawTable(tx4, ty4, 30, 10, 0);
-      s += drawChair(tx4-8, ty4+10, 3.5);
-      s += drawChair(tx4+8, ty4+10, 3.5);
-    }
-  }
-  s += '<text x="'+midCX+'" y="'+(PAD+ROOM_H-8)+'" text-anchor="middle" font-size="10" font-weight="bold" fill="#92400e">28名</text>';
-
-  var eastCX = EAST_X + EAST_W/2;
-  s += drawScreen(EAST_X+20, PAD+28, EAST_W-40);
-  s += drawPodium(eastCX, PAD+50);
-  for (var r3 = 0; r3 < 7; r3++) {
-    for (var c5 = 0; c5 < 2; c5++) {
-      var tx5 = EAST_X + 45 + c5 * 38;
-      var ty5 = PAD + 80 + r3 * 32;
-      s += drawTable(tx5, ty5, 30, 10, 0);
-      s += drawChair(tx5-8, ty5+10, 3.5);
-      s += drawChair(tx5+8, ty5+10, 3.5);
-    }
-    for (var c6 = 0; c6 < 2; c6++) {
-      var tx6 = EAST_X + EAST_W - 45 - (1-c6) * 38;
-      var ty6 = PAD + 80 + r3 * 32;
-      s += drawTable(tx6, ty6, 30, 10, 0);
-      s += drawChair(tx6-8, ty6+10, 3.5);
-      s += drawChair(tx6+8, ty6+10, 3.5);
-    }
-  }
-  s += '<text x="'+eastCX+'" y="'+(PAD+ROOM_H-8)+'" text-anchor="middle" font-size="10" font-weight="bold" fill="#166534">28名</text>';
-  s += '</svg>';
-  return s;
-}
-
-function drawUShape() {
-  var s = svgHead() + roomOutline();
-  function uShape(rx, rw, cap, color) {
-    var cx = rx + rw/2, cy = PAD + ROOM_H/2;
-    var uw = rw * 0.65, uh = ROOM_H * 0.55;
-    var left = cx - uw/2, right = cx + uw/2;
-    var top = cy - uh/2, bot = cy + uh/2;
-    var sideN = Math.floor(uh / 28);
-    for (var i = 0; i < sideN; i++) {
-      var ty = top + 14 + i * 28;
-      s += drawTable(left, ty, 10, 22, 0); s += drawChair(left - 10, ty, 3.5);
-    }
-    for (var j = 0; j < sideN; j++) {
-      var ty2 = top + 14 + j * 28;
-      s += drawTable(right, ty2, 10, 22, 0); s += drawChair(right + 10, ty2, 3.5);
-    }
-    var botN = Math.floor(uw / 30);
-    for (var k = 0; k < botN; k++) {
-      var tx = left + 15 + k * (uw / botN);
-      s += drawTable(tx, bot, 22, 10, 0); s += drawChair(tx, bot + 11, 3.5);
-    }
-    s += drawScreen(cx - uw/2 + 5, PAD + 28, uw - 10);
-    s += '<text x="'+cx+'" y="'+(PAD+ROOM_H-8)+'" text-anchor="middle" font-size="10" font-weight="bold" fill="'+color+'">'+cap+'</text>';
-  }
-  uShape(WEST_X, WEST_W, '28名', '#1e40af');
-  uShape(MID_X, MID_W, '24名', '#92400e');
-  uShape(EAST_X, EAST_W, '24名', '#166534');
-  s += '</svg>';
-  return s;
-}
-
-function drawOShape() {
-  var s = svgHead() + roomOutline();
-  function oShape(rx, rw, cap, color) {
-    var cx = rx + rw/2, cy = PAD + ROOM_H/2;
-    var ow = rw * 0.65, oh = ROOM_H * 0.6;
-    var left = cx - ow/2, right = cx + ow/2;
-    var top = cy - oh/2, bot = cy + oh/2;
-    var topN = Math.floor(ow / 30);
-    for (var i = 0; i < topN; i++) {
-      var tx = left + 15 + i * (ow / topN);
-      s += drawTable(tx, top, 22, 10, 0); s += drawChair(tx, top - 11, 3.5);
-    }
-    for (var j = 0; j < topN; j++) {
-      var tx2 = left + 15 + j * (ow / topN);
-      s += drawTable(tx2, bot, 22, 10, 0); s += drawChair(tx2, bot + 11, 3.5);
-    }
-    var sideN = Math.floor(oh / 28);
-    for (var k = 0; k < sideN; k++) {
-      var ty = top + 14 + k * 28;
-      s += drawTable(left, ty, 10, 22, 0); s += drawChair(left - 10, ty, 3.5);
-    }
-    for (var l = 0; l < sideN; l++) {
-      var ty2 = top + 14 + l * 28;
-      s += drawTable(right, ty2, 10, 22, 0); s += drawChair(right + 10, ty2, 3.5);
-    }
-    s += '<rect x="'+(left+12)+'" y="'+(top+12)+'" width="'+(ow-24)+'" height="'+(oh-24)+'" rx="2" fill="#e0f2fe" fill-opacity="0.3" stroke="none"/>';
-    s += '<text x="'+cx+'" y="'+(PAD+ROOM_H-8)+'" text-anchor="middle" font-size="10" font-weight="bold" fill="'+color+'">'+cap+'</text>';
-  }
-  oShape(WEST_X, WEST_W, '48名', '#1e40af');
-  oShape(MID_X, MID_W, '36名', '#92400e');
-  oShape(EAST_X, EAST_W, '36名', '#166534');
-  s += '</svg>';
-  return s;
-}
-
-function drawRound() {
-  var s = svgHead();
-  s += '<rect x="'+PAD+'" y="'+PAD+'" width="'+ROOM_W+'" height="'+ROOM_H+'" rx="3" fill="#fafafa" stroke="#cbd5e1" stroke-width="1.5"/>';
-  s += '<text x="'+(PAD+ROOM_W/2)+'" y="'+(PAD+18)+'" text-anchor="middle" font-size="12" fill="#64748b" font-weight="bold">末広の間（西・中・東）全室利用</text>';
-  s += '<rect x="'+(PAD+10)+'" y="'+(PAD+30)+'" width="40" height="15" rx="2" fill="#7c3aed" opacity="0.3" stroke="#7c3aed" stroke-width="0.8"/>';
-  s += '<text x="'+(PAD+30)+'" y="'+(PAD+41)+'" text-anchor="middle" font-size="7" fill="#7c3aed">バー</text>';
-  var tables = [
-    {x:140,y:100},{x:260,y:100},{x:400,y:100},{x:540,y:100},{x:660,y:100},
-    {x:140,y:200},{x:260,y:200},{x:400,y:200},{x:540,y:200},{x:660,y:200},
-    {x:140,y:295},{x:260,y:295},{x:400,y:295},{x:540,y:295},{x:660,y:295}
-  ];
-  tables.forEach(function(t){ s += drawRoundTable(t.x, t.y, 18, 8); });
-  s += '<rect x="340" y="'+(PAD+ROOM_H-30)+'" width="120" height="20" rx="3" fill="#c084fc" opacity="0.4" stroke="#9333ea" stroke-width="1"/>';
-  s += '<text x="400" y="'+(PAD+ROOM_H-16)+'" text-anchor="middle" font-size="9" fill="#7e22ce" font-weight="bold">高砂・主賓席</text>';
-  s += '<text x="'+(PAD+ROOM_W/2)+'" y="'+(PAD+ROOM_H+20)+'" text-anchor="middle" font-size="11" font-weight="bold" fill="#1A2E44">8人掛×15卓 = 着席120名 ／ 正餐(6名掛) 75名</text>';
-  s += '</svg>';
-  return s;
-}
-
-function drawStanding() {
-  var s = svgHead() + roomOutline();
-  var westCX = WEST_X + WEST_W/2;
-  s += drawBuffetTable(WEST_X+30, PAD+40, WEST_W-60, 20);
-  [{x:WEST_X+50,y:PAD+100},{x:WEST_X+WEST_W-50,y:PAD+100},{x:WEST_X+50,y:PAD+160},{x:WEST_X+WEST_W-50,y:PAD+160},{x:WEST_X+WEST_W/2,y:PAD+130},{x:WEST_X+50,y:PAD+220},{x:WEST_X+WEST_W-50,y:PAD+220},{x:WEST_X+WEST_W/2,y:PAD+250}].forEach(function(t){ s += drawCocktailTable(t.x,t.y); });
-  s += '<text x="'+westCX+'" y="'+(PAD+ROOM_H-8)+'" text-anchor="middle" font-size="10" font-weight="bold" fill="#1e40af">約40名</text>';
-
-  var midEastCX = MID_X + (MID_W + EAST_W + (EAST_X - MID_X - MID_W))/2;
-  s += drawBuffetTable(MID_X+30, PAD+40, EAST_X+EAST_W-MID_X-60, 20);
-  s += drawBuffetTable(MID_X+80, PAD+160, EAST_X+EAST_W-MID_X-160, 20);
-  [{x:MID_X+50,y:PAD+90},{x:MID_X+140,y:PAD+90},{x:EAST_X+60,y:PAD+90},{x:EAST_X+170,y:PAD+90},{x:MID_X+50,y:PAD+130},{x:MID_X+140,y:PAD+130},{x:EAST_X+60,y:PAD+130},{x:EAST_X+170,y:PAD+130},{x:MID_X+80,y:PAD+220},{x:MID_X+180,y:PAD+220},{x:EAST_X+60,y:PAD+220},{x:EAST_X+150,y:PAD+220},{x:MID_X+80,y:PAD+270},{x:MID_X+180,y:PAD+270},{x:EAST_X+60,y:PAD+270},{x:EAST_X+150,y:PAD+270}].forEach(function(t){ s += drawCocktailTable(t.x,t.y); });
-  s += '<text x="'+midEastCX+'" y="'+(PAD+ROOM_H-8)+'" text-anchor="middle" font-size="10" font-weight="bold" fill="#166534">約60名</text>';
-  s += '</svg>';
-  return s;
-}
-
-function drawStandingFull() {
-  var s = svgHead();
-  s += '<rect x="'+PAD+'" y="'+PAD+'" width="'+ROOM_W+'" height="'+ROOM_H+'" rx="3" fill="#fafafa" stroke="#cbd5e1" stroke-width="1.5"/>';
-  s += '<text x="'+(PAD+ROOM_W/2)+'" y="'+(PAD+18)+'" text-anchor="middle" font-size="12" fill="#64748b" font-weight="bold">末広の間（全室）立食パーティー</text>';
-  s += drawBuffetTable(PAD+80, PAD+35, 200, 25);
-  s += drawBuffetTable(PAD+420, PAD+35, 200, 25);
-  s += drawBuffetTable(PAD+250, PAD+150, 200, 25);
-  s += '<rect x="'+(PAD+10)+'" y="'+(PAD+30)+'" width="50" height="18" rx="2" fill="#7c3aed" opacity="0.3" stroke="#7c3aed" stroke-width="0.8"/>';
-  s += '<text x="'+(PAD+35)+'" y="'+(PAD+43)+'" text-anchor="middle" font-size="7" fill="#7c3aed">バーカウンター</text>';
-  var tables = [];
-  for (var row = 0; row < 4; row++) {
-    for (var col = 0; col < 8; col++) {
-      var tx = PAD + 70 + col * 82, ty = PAD + 90 + row * 60;
-      if (row === 1 && col >= 2 && col <= 5) continue;
-      tables.push({x: tx, y: ty});
-    }
-  }
-  tables.forEach(function(t){ s += drawCocktailTable(t.x, t.y); });
-  [{x:PAD+120,y:PAD+115},{x:PAD+200,y:PAD+105},{x:PAD+500,y:PAD+110},{x:PAD+600,y:PAD+120},{x:PAD+100,y:PAD+200},{x:PAD+180,y:PAD+210},{x:PAD+500,y:PAD+195},{x:PAD+620,y:PAD+205},{x:PAD+130,y:PAD+265},{x:PAD+250,y:PAD+275},{x:PAD+480,y:PAD+260},{x:PAD+580,y:PAD+280}].forEach(function(d){
-    s += '<circle cx="'+d.x+'" cy="'+d.y+'" r="2.5" fill="#94a3b8" opacity="0.4"/>';
-  });
-  s += '<text x="'+(PAD+ROOM_W/2)+'" y="'+(PAD+ROOM_H+20)+'" text-anchor="middle" font-size="11" font-weight="bold" fill="#1A2E44">全室利用: 最大150名</text>';
-  s += '</svg>';
-  return s;
-}
 
 // ---------- タブ切替・描画 ----------
 function showLayout(key) {
@@ -778,19 +547,19 @@ function showLayout(key) {
   var container = document.getElementById('layout-display');
   var html = '';
 
-  // 写真＋説明ヘッダー
-  html += '<div class="grid md:grid-cols-5 border-b border-gray-100">';
-  html += '<div class="md:col-span-2 relative overflow-hidden min-h-[200px]"><img class="w-full h-full object-cover" src="'+LAYOUT_PHOTOS[key]+'" alt="'+layout.title+'"/></div>';
-  html += '<div class="md:col-span-3 p-6 md:p-8 flex flex-col justify-center">';
-  html += '<div class="flex items-center gap-3 mb-2"><span class="material-symbols-outlined text-2xl text-accent-gold">'+layout.icon+'</span>';
-  html += '<h3 class="text-2xl font-serif font-bold">'+layout.title+'</h3></div>';
-  html += '<p class="text-gray-500 text-sm">'+layout.desc+'</p>';
-  html += '</div></div>';
+  // メイン写真（大きく表示）
+  html += '<img class="w-full object-cover" style="max-height:500px" src="'+LAYOUT_PHOTOS[key]+'" alt="'+layout.title+'"/>';
 
-  // SVG
-  html += '<div class="p-6 md:p-8 bg-slate-50/50 overflow-x-auto">';
-  html += layout.svg();
-  html += '</div>';
+  // タイトル＋説明（ミニSVGをタイトル左に配置）
+  html += '<div class="p-6 md:p-8 border-b border-gray-100">';
+  html += '<div class="flex items-center gap-4 mb-2">';
+  if (layout.miniSvg) {
+    html += '<div class="shrink-0 bg-slate-50 rounded-lg p-1.5 border border-slate-200">' + layout.miniSvg + '</div>';
+  }
+  html += '<div><div class="flex items-center gap-2 mb-1"><span class="material-symbols-outlined text-xl text-accent-gold">'+layout.icon+'</span>';
+  html += '<h3 class="text-2xl font-serif font-bold">'+layout.title+'</h3></div>';
+  html += '<p class="text-gray-500 text-sm leading-relaxed">'+layout.desc+'</p></div>';
+  html += '</div></div>';
 
   // 収容人数
   html += '<div class="p-6 md:p-8">';
@@ -816,5 +585,66 @@ document.querySelectorAll('.layout-tab').forEach(function(tab) {
   tab.addEventListener('click', function() { showLayout(this.dataset.layout); });
 });
 showLayout('school');
+</script>
+<script>
+// サムネイルギャラリー + スワイプ対応
+document.querySelectorAll('[data-gallery-thumbs]').forEach(function(thumbsEl) {
+  var mainWrap = thumbsEl.previousElementSibling;
+  var mainImg = mainWrap.querySelector('[data-gallery-main]');
+  var thumbs = Array.from(thumbsEl.querySelectorAll('img'));
+  var cur = 0;
+
+  function goTo(n) {
+    cur = (n + thumbs.length) % thumbs.length;
+    thumbsEl.querySelector('.active').classList.remove('active');
+    thumbs[cur].classList.add('active');
+    mainImg.style.opacity = '0';
+    setTimeout(function() {
+      mainImg.src = thumbs[cur].src;
+      mainImg.style.opacity = '1';
+    }, 200);
+  }
+
+  thumbs.forEach(function(thumb, i) {
+    thumb.addEventListener('click', function() { goTo(i); });
+  });
+
+  // スワイプ（タッチ + マウスドラッグ）
+  var startX = 0, startY = 0, tracking = false;
+  var mainArea = mainWrap.querySelector('.gallery-main');
+
+  mainArea.addEventListener('touchstart', function(e) {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    tracking = true;
+  }, { passive: true });
+
+  mainArea.addEventListener('touchend', function(e) {
+    if (!tracking) return;
+    tracking = false;
+    var dx = e.changedTouches[0].clientX - startX;
+    var dy = e.changedTouches[0].clientY - startY;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+      goTo(dx < 0 ? cur + 1 : cur - 1);
+    }
+  });
+
+  mainArea.addEventListener('mousedown', function(e) {
+    startX = e.clientX;
+    tracking = true;
+    e.preventDefault();
+  });
+
+  mainArea.addEventListener('mouseup', function(e) {
+    if (!tracking) return;
+    tracking = false;
+    var dx = e.clientX - startX;
+    if (Math.abs(dx) > 40) {
+      goTo(dx < 0 ? cur + 1 : cur - 1);
+    }
+  });
+
+  mainArea.addEventListener('mouseleave', function() { tracking = false; });
+});
 </script>
 </body></html>

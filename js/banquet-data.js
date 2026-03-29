@@ -97,25 +97,84 @@ var CONFIG_FALLBACK = {
       "base": 33000,
       "extra": 16500,
       "label": "末広（東）",
-      "area": "102㎡（30坪）"
+      "area": "102㎡（31坪）",
+      "floor": "2F",
+      "layouts": {
+        "スクール": 28, "コの字": 24, "ロの字": 36, "立食": 30
+      },
+      "foodPlans": ["kaiseki","sitting","bento_banquet","warigo"]
     },
     "suehiro_mid": {
       "base": 33000,
       "extra": 16500,
       "label": "末広（中）",
-      "area": "108㎡（32坪）"
+      "area": "108㎡（33坪）",
+      "floor": "2F",
+      "layouts": {
+        "スクール": 28, "コの字": 24, "ロの字": 36, "円卓": 32, "着席ブッフェ": 32, "立食": 40
+      }
     },
     "suehiro_west": {
       "base": 33000,
       "extra": 16500,
       "label": "末広（西）",
-      "area": "113㎡（34坪）"
+      "area": "113㎡（34坪）",
+      "floor": "2F",
+      "layouts": {
+        "スクール": 42, "コの字": 28, "ロの字": 48, "円卓": 25, "着席ブッフェ": 40, "立食": 50
+      }
+    },
+    "suehiro_mid_east": {
+      "base": 66000,
+      "extra": 33000,
+      "label": "末広（中＋東）",
+      "area": "210㎡",
+      "floor": "2F",
+      "layouts": {
+        "円卓": 48, "着席ブッフェ": 64, "立食": 60
+      }
+    },
+    "suehiro_west_mid": {
+      "base": 66000,
+      "extra": 33000,
+      "label": "末広（西＋中）",
+      "area": "221㎡（66坪）",
+      "floor": "2F",
+      "layouts": {
+        "スクール": 54, "コの字": 32, "円卓": 48, "着席ブッフェ": 76, "立食": 60
+      }
     },
     "suehiro_all": {
       "base": 99000,
       "extra": 49500,
       "label": "末広（全室）",
-      "area": "323㎡（96坪）"
+      "area": "323㎡（97坪）",
+      "floor": "2F",
+      "layouts": {
+        "スクール": 102, "コの字": 56, "円卓": 75, "着席ブッフェ": 120, "立食": 150
+      }
+    },
+    "hakuun": {
+      "base": 33000,
+      "extra": 16500,
+      "label": "白雲の間",
+      "area": "78畳（126㎡）",
+      "floor": "8F",
+      "layouts": {
+        "スクール": 99, "ロの字": 56, "円卓": 60
+      },
+      "foodPlans": ["kaiseki","sitting","bento_banquet","warigo"]
+    },
+    "hatsune": {
+      "base": 33000,
+      "extra": 16500,
+      "label": "初音の間",
+      "area": "24畳（45㎡）",
+      "floor": "8F",
+      "layouts": {
+        "ロの字": 16, "円卓": 12
+      },
+      "foodPlans": ["kaiseki","warigo"]
     }
   },
   "food_plans": [
@@ -153,6 +212,13 @@ var CONFIG_FALLBACK = {
       "price": 2500,
       "note": "会議後の昼食・持ち帰り可",
       "venueIncluded": false
+    },
+    {
+      "id": "wedding",
+      "label": "披露宴のお料理",
+      "price": 10000,
+      "note": "披露宴・ウェディング向け",
+      "venueIncluded": true
     }
   ],
   "free_drink": {
@@ -368,10 +434,16 @@ function loadSimulatorConfig(callback) {
     })
     .then(function(data) {
       if (data && data.venue && data.food_plans) {
-        // 数値型に変換
+        // 数値型に変換 + layouts解析
         Object.keys(data.venue).forEach(function(key) {
           data.venue[key].base = Number(data.venue[key].base) || 0;
           data.venue[key].extra = Number(data.venue[key].extra) || 0;
+          if (data.venue[key].layouts && typeof data.venue[key].layouts === 'string') {
+            try { data.venue[key].layouts = JSON.parse(data.venue[key].layouts); } catch(e) {}
+          }
+          if (data.venue[key].foodPlans && typeof data.venue[key].foodPlans === 'string') {
+            try { data.venue[key].foodPlans = JSON.parse(data.venue[key].foodPlans); } catch(e) {}
+          }
         });
         data.food_plans.forEach(function(p) {
           p.price = Number(p.price) || 0;
