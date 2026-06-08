@@ -196,7 +196,7 @@ var CONFIG_FALLBACK = {
       }
     },
     "hakuun": {
-      "base": 33000,
+      "base": 66000,
       "extra": 16500,
       "label": "白雲の間",
       "area": "78畳（126㎡）",
@@ -214,7 +214,7 @@ var CONFIG_FALLBACK = {
       ]
     },
     "hatsune": {
-      "base": 33000,
+      "base": 22000,
       "extra": 16500,
       "label": "初音の間",
       "area": "24畳（45㎡）",

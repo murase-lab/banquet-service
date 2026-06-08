@@ -51,7 +51,7 @@ body { font-family: 'Noto Sans JP', sans-serif; }
 <script src="js/banquet-data.js"></script>
 
 <!-- ========== ヘッダー ========== -->
-<header class="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-primary/5">
+<header class="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-primary/5 no-print">
 <div class="max-w-7xl mx-auto px-6 lg:px-12">
 <div class="flex h-20 items-center justify-between">
 <a href="index.html" class="flex flex-col border-l-4 border-accent-gold pl-4" target="_top">
@@ -215,6 +215,10 @@ body { font-family: 'Noto Sans JP', sans-serif; }
             <span class="text-3xl font-bold text-primary" id="total-amount">0</span>
             <span class="font-bold text-lg">円</span>
             <span class="text-xs text-slate-400 ml-2">(税込)</span>
+          </div>
+          <div class="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2">
+            <span class="material-symbols-outlined text-amber-500 text-base leading-none mt-0.5">info</span>
+            <p class="text-[11px] leading-relaxed text-amber-800">こちらはあくまで<span class="font-bold">おおよその見積もり</span>です。ご利用人数・内容により実際の金額は変動いたします。正確なお見積りは<span class="font-bold">お問い合わせください</span>。</p>
           </div>
         </div>
         <div class="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-4">
