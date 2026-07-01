@@ -13,7 +13,11 @@
  *    - 備品: id, label, price, sortOrder
  *    - 飲物: id, label, price, sortOrder
  *    - 設定: key, value
+ *    - SEO: page, title, description, ogImage, noindex （updateSeoSheet() で自動作成可）
  * 3. 拡張機能 → Apps Script を開く
+ *
+ * 【管理画面】 /exec?page=admin （Googleログイン・ADMIN_EMAILS で制限）
+ * 【追加エンドポイント】 ?type=seo → SEOシートのデータ
  * 4. このコードを貼り付けて保存
  * 5. デプロイ → 新しいデプロイ → ウェブアプリ
  *    - 実行するユーザー: 自分
@@ -28,8 +32,16 @@
  */
 
 function doGet(e) {
+  var p = (e && e.parameter) || {};
+
+  // ── 管理画面（HtmlService）分岐 ──
+  // /exec?page=admin → フォーム型の管理UIを返す。それ以外は従来通りJSON。
+  if (p.page === 'admin') {
+    return renderAdminPage_();
+  }
+
   try {
-    var type = (e && e.parameter && e.parameter.type) || 'all';
+    var type = p.type || 'all';
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var result;
 
@@ -40,11 +52,15 @@ function doGet(e) {
       case 'config':
         result = getSimulatorConfig(ss);
         break;
+      case 'seo':
+        result = getSeoData(ss);
+        break;
       case 'all':
       default:
         result = {
           cuisine: getCuisineData(ss),
-          config: getSimulatorConfig(ss)
+          config: getSimulatorConfig(ss),
+          seo: getSeoData(ss)
         };
         break;
     }
@@ -330,3 +346,420 @@ function updateVenueSheet() {
 
   Logger.log('会場シートを更新しました: ' + venues.length + '件');
 }
+
+
+// ===================================================================
+// ▼▼▼ 管理画面（編集UI）＋書き込み層  ここから追記 ▼▼▼
+//   - doGet の JSON 契約は変更しない（?type=seo と ?page=admin を追加したのみ）
+//   - 書き込みは google.script.run 経由（CORS/トークン不要）
+// ===================================================================
+
+/**
+ * 管理者メールの許可リスト（実質のアクセスゲート）
+ * ここに載っていない Google アカウントは管理画面を開けない／書き込めない。
+ * ※スプレッドシートを所有する Google アカウントのメールを必ず含めること。
+ */
+var ADMIN_EMAILS = [
+  'murase@nayu.work'
+  // , '追加の管理者@example.com'
+];
+
+/**
+ * GitHub リポジトリ（「今すぐ反映」ボタン用）
+ */
+var GITHUB_REPO = 'murase-lab/banquet-service';
+
+/**
+ * シート・スキーマ定義（UI描画とサーバ検証の単一の源）
+ * type: id | text | textarea | number | bool | select | image | json-object | json-array
+ * key: 一意キー列名（null は行キーなし）
+ * singleRow: true なら1行のみ（追加/削除不可・編集のみ）
+ * reindex: true なら sortOrder を 1..N で振り直す
+ * keyValue: true なら key/value 形式（設定シート）
+ */
+var SHEET_SCHEMA = {
+  '料理プラン': {
+    label: 'お料理プラン', key: 'id', singleRow: false, reindex: true,
+    columns: [
+      { name: 'id',           type: 'id' },
+      { name: 'label',        type: 'text' },
+      { name: 'price',        type: 'number' },
+      { name: 'note',         type: 'text' },
+      { name: 'description',  type: 'textarea' },
+      { name: 'image',        type: 'image' },
+      { name: 'badgeText',    type: 'text' },
+      { name: 'badgeColor',   type: 'select', options: ['primary', 'accent-gold', 'gray-800'] },
+      { name: 'sortOrder',    type: 'number' },
+      { name: 'active',       type: 'bool' },
+      { name: 'venueIncluded', type: 'bool' }
+    ]
+  },
+  'フリードリンク': {
+    label: 'フリードリンク', key: null, singleRow: true, reindex: false,
+    columns: [
+      { name: 'price',       type: 'number' },
+      { name: 'duration',    type: 'text' },
+      { name: 'description', type: 'textarea' },
+      { name: 'image',       type: 'image' }
+    ]
+  },
+  '会場': {
+    label: '会場', key: 'id', singleRow: false, reindex: true,
+    columns: [
+      { name: 'id',        type: 'id' },
+      { name: 'label',     type: 'text' },
+      { name: 'area',      type: 'text' },
+      { name: 'base',      type: 'number' },
+      { name: 'extra',     type: 'number' },
+      { name: 'floor',     type: 'text' },
+      { name: 'layouts',   type: 'json-object' },
+      { name: 'foodPlans', type: 'json-array' },
+      { name: 'sortOrder', type: 'number' }
+    ]
+  },
+  '備品': {
+    label: '備品', key: 'id', singleRow: false, reindex: true,
+    columns: [
+      { name: 'id',        type: 'id' },
+      { name: 'label',     type: 'text' },
+      { name: 'price',     type: 'number' },
+      { name: 'sortOrder', type: 'number' }
+    ]
+  },
+  '飲物': {
+    label: '飲物', key: 'id', singleRow: false, reindex: true,
+    columns: [
+      { name: 'id',        type: 'id' },
+      { name: 'label',     type: 'text' },
+      { name: 'price',     type: 'number' },
+      { name: 'sortOrder', type: 'number' }
+    ]
+  },
+  '設定': {
+    label: '施設情報', key: 'key', singleRow: false, reindex: false, keyValue: true,
+    columns: [
+      { name: 'key',   type: 'text' },
+      { name: 'value', type: 'text' }
+    ]
+  },
+  'SEO': {
+    label: 'SEO', key: 'page', singleRow: false, reindex: false,
+    columns: [
+      { name: 'page',        type: 'text' },
+      { name: 'title',       type: 'text' },
+      { name: 'description', type: 'textarea' },
+      { name: 'ogImage',     type: 'image' },
+      { name: 'noindex',     type: 'bool' }
+    ]
+  }
+};
+
+// ── 認証 ──────────────────────────────────────────
+function assertAdmin_() {
+  var email = '';
+  try { email = Session.getActiveUser().getEmail(); } catch (e) {}
+  if (!email || ADMIN_EMAILS.indexOf(email) === -1) {
+    throw new Error('権限がありません（' + (email || '未ログイン') + '）');
+  }
+  return email;
+}
+
+// ── 管理画面レンダラ ──────────────────────────────
+function renderAdminPage_() {
+  var email = '';
+  try { email = Session.getActiveUser().getEmail(); } catch (e) {}
+  if (!email || ADMIN_EMAILS.indexOf(email) === -1) {
+    return HtmlService.createHtmlOutput(
+      '<div style="font-family:sans-serif;padding:40px;text-align:center">' +
+      '<h2>権限がありません</h2><p>' + (email || '未ログイン') +
+      ' はこの管理画面にアクセスできません。</p></div>'
+    ).setTitle('バンケットサービス 管理');
+  }
+  var t = HtmlService.createTemplateFromFile('Admin');
+  return t.evaluate()
+    .setTitle('バンケットサービス 管理')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
+}
+
+/** HTMLパーシャルの取り込み（<?!= include('AdminJs') ?>） */
+function include(name) {
+  return HtmlService.createHtmlOutputFromFile(name).getContent();
+}
+
+// ── SEO 読み取り（doGet ?type=seo 用） ────────────
+function getSeoData(ss) {
+  var rows = sheetToObjects(ss, 'SEO');
+  var pages = rows.filter(function(r) { return r.page; }).map(function(r) {
+    return {
+      page: r.page,
+      title: r.title || '',
+      description: r.description || '',
+      ogImage: r.ogImage ? convertDriveLink(r.ogImage) : '',
+      noindex: String(r.noindex).toUpperCase() === 'TRUE'
+    };
+  });
+  return { pages: pages };
+}
+
+// ── 書き込み内部ヘルパー ──────────────────────────
+function withLock_(fn) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000); // 20秒。取れなければ例外
+  try { return fn(); } finally { lock.releaseLock(); }
+}
+
+function getSheetOrThrow_(ss, name) {
+  var s = ss.getSheetByName(name);
+  if (!s) throw new Error('シートがありません: ' + name);
+  return s;
+}
+
+/** key列で対象行を特定（1始まり・ヘッダー含む）。無ければ -1 */
+function findRowIndex_(sheet, keyCol, keyValue) {
+  var data = sheet.getDataRange().getValues();
+  var headers = data[0].map(function(h) { return String(h).trim(); });
+  var col = headers.indexOf(keyCol);
+  if (col === -1) throw new Error('キー列がありません: ' + keyCol);
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][col]).trim() === String(keyValue).trim()) return i + 1;
+  }
+  return -1;
+}
+
+function assertJson_(v, kind) {
+  if (v === '' || v == null) return;
+  var parsed;
+  try { parsed = JSON.parse(v); } catch (e) { throw new Error('JSONの形式が不正です: ' + v); }
+  if (kind === 'array' && !Array.isArray(parsed)) throw new Error('JSON配列で入力してください: ' + v);
+  if (kind === 'object' && (Array.isArray(parsed) || typeof parsed !== 'object')) {
+    throw new Error('JSONオブジェクトで入力してください: ' + v);
+  }
+}
+
+/** 画像は生のまま保存（convertDriveLink は読み取り時に走るので二重変換しない） */
+function normalizeImageInput_(v) {
+  return v == null ? '' : String(v).trim();
+}
+
+/** schema に沿って rowObj を検証し、シート列順に並べた配列を返す */
+function normalizeRow_(sheetName, sheet, rowObj) {
+  var schema = SHEET_SCHEMA[sheetName];
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0]
+    .map(function(h) { return String(h).trim(); });
+  return headers.map(function(h) {
+    var col = null;
+    for (var k = 0; k < schema.columns.length; k++) {
+      if (schema.columns[k].name === h) { col = schema.columns[k]; break; }
+    }
+    var v = rowObj[h];
+    if (!col) return v == null ? '' : v;
+    switch (col.type) {
+      case 'number':
+        if (v === '' || v == null) return '';
+        var n = Number(String(v).replace(/[,¥\s]/g, ''));
+        if (isNaN(n)) throw new Error(h + ' は数値で入力してください: ' + v);
+        return n;
+      case 'bool':
+        return (v === true || String(v).toUpperCase() === 'TRUE') ? 'TRUE' : 'FALSE';
+      case 'image':
+        return normalizeImageInput_(v);
+      case 'json-object':
+        assertJson_(v, 'object'); return v || '';
+      case 'json-array':
+        assertJson_(v, 'array'); return v || '';
+      case 'id':
+        if (!/^[A-Za-z0-9_]+$/.test(v)) throw new Error('id は英数字とアンダースコアのみ: ' + v);
+        return v;
+      default:
+        return v == null ? '' : String(v);
+    }
+  });
+}
+
+// ── 書き込みAPI（google.script.run から呼ぶ） ──────
+function adminGetSchema() {
+  assertAdmin_();
+  return SHEET_SCHEMA;
+}
+
+/** 生の文字列で全行を返す（doGet と違い非activeも含む・型変換なし） */
+function adminListSheet(sheetName) {
+  assertAdmin_();
+  if (!SHEET_SCHEMA[sheetName]) throw new Error('不明なシート: ' + sheetName);
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = getSheetOrThrow_(ss, sheetName);
+  var rows = sheetToObjects(ss, sheetName);
+  return { sheet: sheetName, schema: SHEET_SCHEMA[sheetName], rows: rows };
+}
+
+function adminAddRow(sheetName, rowObj) {
+  assertAdmin_();
+  return withLock_(function() {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = getSheetOrThrow_(ss, sheetName);
+    var sc = SHEET_SCHEMA[sheetName];
+    if (sc.singleRow) throw new Error('この表は行追加できません（編集のみ）');
+    if (sc.key) {
+      if (!rowObj[sc.key]) throw new Error(sc.key + ' は必須です');
+      if (findRowIndex_(sheet, sc.key, rowObj[sc.key]) !== -1) {
+        throw new Error('キーが重複しています: ' + rowObj[sc.key]);
+      }
+    }
+    if (sc.reindex && (rowObj.sortOrder === '' || rowObj.sortOrder == null)) {
+      rowObj.sortOrder = Math.max(1, sheet.getLastRow()); // 末尾に追加
+    }
+    var arr = normalizeRow_(sheetName, sheet, rowObj);
+    sheet.appendRow(arr);
+    return { ok: true, row: rowObj };
+  });
+}
+
+function adminUpdateRow(sheetName, keyValue, rowObj) {
+  assertAdmin_();
+  return withLock_(function() {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = getSheetOrThrow_(ss, sheetName);
+    var sc = SHEET_SCHEMA[sheetName];
+    if (!sc.key) throw new Error('この表はキー更新できません');
+    var rowIdx = findRowIndex_(sheet, sc.key, keyValue);
+    if (rowIdx === -1) throw new Error('対象が見つかりません: ' + keyValue);
+    // キー変更時は重複チェック
+    if (rowObj[sc.key] && String(rowObj[sc.key]) !== String(keyValue)) {
+      if (findRowIndex_(sheet, sc.key, rowObj[sc.key]) !== -1) {
+        throw new Error('キーが重複しています: ' + rowObj[sc.key]);
+      }
+    }
+    var arr = normalizeRow_(sheetName, sheet, rowObj);
+    sheet.getRange(rowIdx, 1, 1, arr.length).setValues([arr]);
+    return { ok: true, row: rowObj };
+  });
+}
+
+function adminDeleteRow(sheetName, keyValue) {
+  assertAdmin_();
+  return withLock_(function() {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = getSheetOrThrow_(ss, sheetName);
+    var sc = SHEET_SCHEMA[sheetName];
+    if (sc.singleRow) throw new Error('この表は削除できません');
+    if (sc.keyValue) throw new Error('設定は削除できません（値の編集のみ）');
+    var rowIdx = findRowIndex_(sheet, sc.key, keyValue);
+    if (rowIdx === -1) throw new Error('対象が見つかりません: ' + keyValue);
+    sheet.deleteRow(rowIdx);
+    return { ok: true };
+  });
+}
+
+/** sortOrder を orderedKeys の順で 1..N に振り直す */
+function adminReorder(sheetName, orderedKeys) {
+  assertAdmin_();
+  return withLock_(function() {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = getSheetOrThrow_(ss, sheetName);
+    var sc = SHEET_SCHEMA[sheetName];
+    if (!sc.reindex) throw new Error('この表は並び替えできません');
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0]
+      .map(function(h) { return String(h).trim(); });
+    var soCol = headers.indexOf('sortOrder');
+    if (soCol === -1) throw new Error('sortOrder列がありません');
+    for (var i = 0; i < orderedKeys.length; i++) {
+      var rowIdx = findRowIndex_(sheet, sc.key, orderedKeys[i]);
+      if (rowIdx !== -1) sheet.getRange(rowIdx, soCol + 1).setValue(i + 1);
+    }
+    return { ok: true };
+  });
+}
+
+/** フリードリンク（1行のみ）編集専用 */
+function adminUpdateSingleRow(sheetName, rowObj) {
+  assertAdmin_();
+  return withLock_(function() {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = getSheetOrThrow_(ss, sheetName);
+    var sc = SHEET_SCHEMA[sheetName];
+    if (!sc.singleRow) throw new Error('この表は単一行編集ではありません');
+    var arr = normalizeRow_(sheetName, sheet, rowObj);
+    if (sheet.getLastRow() < 2) {
+      sheet.getRange(2, 1, 1, arr.length).setValues([arr]);
+    } else {
+      sheet.getRange(2, 1, 1, arr.length).setValues([arr]);
+    }
+    return { ok: true, row: rowObj };
+  });
+}
+
+/** SEO行の保存（無ければ追加、あれば更新） */
+function adminSaveSeoRow(page, seoObj) {
+  assertAdmin_();
+  seoObj.page = page;
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = getSheetOrThrow_(ss, 'SEO');
+  var exists = findRowIndex_(sheet, 'page', page) !== -1;
+  return exists ? adminUpdateRow('SEO', page, seoObj) : adminAddRow('SEO', seoObj);
+}
+
+/** 「今すぐ反映」→ GitHub Actions を repository_dispatch で起動 */
+function adminTriggerResync() {
+  assertAdmin_();
+  var token = PropertiesService.getScriptProperties().getProperty('GITHUB_PAT');
+  if (!token) throw new Error('GITHUB_PAT が未設定です（スクリプトのプロパティに登録してください）');
+  var url = 'https://api.github.com/repos/' + GITHUB_REPO + '/dispatches';
+  var res = UrlFetchApp.fetch(url, {
+    method: 'post',
+    contentType: 'application/json',
+    headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' },
+    payload: JSON.stringify({ event_type: 'resync' }),
+    muteHttpExceptions: true
+  });
+  var code = res.getResponseCode();
+  if (code !== 204) throw new Error('GitHub 起動に失敗しました（HTTP ' + code + '）: ' + res.getContentText());
+  return { ok: true };
+}
+
+/**
+ * SEOシートを初期値で作成/更新する
+ * GASエディタから一度だけ手動実行してください（既存を上書き）
+ */
+function updateSeoSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('SEO');
+  if (!sheet) sheet = ss.insertSheet('SEO');
+
+  var headers = ['page', 'title', 'description', 'ogImage', 'noindex'];
+  var rows = [
+    ['index',     '【公式】バンケットサービス | 岐阜キャッスルイン 宴会・会議・法要',
+      '岐阜市・名鉄岐阜駅から徒歩1分。宴会・会議・法要・二次会に対応する岐阜キャッスルインのバンケットサービス。会席・ビュッフェ料理、最大150名の会場をご用意。', '', 'FALSE'],
+    ['cuisine',   'お料理プラン | 岐阜キャッスルイン バンケットサービス',
+      '会席・シッティング・ビュッフェ・折詰など、ご予算とシーンに合わせて選べるお料理プラン。フリードリンクもご用意しています。', '', 'FALSE'],
+    ['venue',     '会場案内・レイアウト | 岐阜キャッスルイン バンケットサービス',
+      '末広の間・白雲の間・初音の間など、10名の会議から150名の宴会まで対応する多彩な会場とレイアウトをご案内します。', '', 'FALSE'],
+    ['pricing',   '各種料金表 | 岐阜キャッスルイン バンケットサービス',
+      '会場費・お料理・お飲物・備品レンタルの料金表。宴会・会議・法要のご予算検討にお役立てください。', '', 'FALSE'],
+    ['simulator', '料金シミュレーター | 岐阜キャッスルイン バンケットサービス',
+      '人数・会場・料理・備品を選ぶだけで、宴会・会議の概算費用がその場でわかる料金シミュレーター。', '', 'FALSE'],
+    ['party',     '二次会ご案内 | 岐阜キャッスルイン バンケットサービス',
+      '結婚式二次会・各種パーティーに。岐阜駅前で好アクセス、幹事様の負担を減らすプランをご用意しています。', '', 'FALSE'],
+    ['access',    'アクセス・会社概要 | 岐阜キャッスルイン バンケットサービス',
+      '名鉄岐阜駅から徒歩1分。有限会社バンケットサービスの所在地・連絡先・会社概要のご案内。', '', 'FALSE']
+  ];
+
+  sheet.clear();
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  sheet.getRange(2, 1, rows.length, headers.length).setValues(rows);
+  sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#f0f0f0');
+  sheet.autoResizeColumns(1, headers.length);
+  Logger.log('SEOシートを更新しました: ' + rows.length + '件');
+}
+
+/**
+ * テスト用: SEOデータを確認
+ */
+function testGetSeoData() {
+  var response = doGet({ parameter: { type: 'seo' } });
+  Logger.log(response.getContent());
+}
+
+// ===================================================================
+// ▲▲▲ 管理画面（編集UI）＋書き込み層  ここまで追記 ▲▲▲
+// ===================================================================

@@ -132,6 +132,35 @@ WIXエディタ → 「要素を追加」→「埋め込みコード」→「HTM
 
 1. 「飲物」シートに新しい行を追加
 
+## 管理画面（編集UI）
+
+スプレッドシートを直接触らず、フォームで編集・追加・削除できる管理画面を GAS 内に用意している。
+
+- **URL**: `https://script.google.com/macros/s/＜デプロイID＞/exec?page=admin`
+- **ログイン**: `gas/Code.gs` の `ADMIN_EMAILS` に登録した Google アカウントのみアクセス可
+- **できること**: 料理プラン / フリードリンク / 会場 / 備品 / 飲物 / 施設情報 / SEO の一覧・追加・編集・削除・並び替え
+  - 会場の `layouts`（レイアウト別人数）は「名前＝人数」の入力欄、`foodPlans` は料理プランのチェックボックスで編集（JSON手打ち不要）
+- **反映タイミング**:
+  - 料理・会場・料金など（データページ）＝ページを**リロードすれば即反映**
+  - SEO・フォールバックデータ＝毎朝3時の自動同期、または管理画面の**「サイトに今すぐ反映」ボタン**（1〜2分）
+
+### セットアップ（初回のみ）
+1. `gas/Code.gs`・`Admin.html`・`AdminJs.html`・`AdminCss.html` を Apps Script プロジェクトに配置
+2. `ADMIN_EMAILS` に管理者の Google メールを設定
+3. GASエディタで `updateSeoSheet()` を1回実行して `SEO` シートを作成
+4. 「デプロイを管理 → 編集（鉛筆）→ バージョン: 新バージョン」で更新（**URLは固定のまま**）
+5. 「今すぐ反映」を使う場合: GitHub の fine-grained PAT（`contents:write` 相当）を発行し、Apps Script の「プロジェクトの設定 → スクリプト プロパティ」に `GITHUB_PAT` として登録
+
+## SEO（自動焼き込み）
+
+各ページの `<head>` の meta / OGP / canonical / 構造化データ（JSON-LD）は、`SEO` シート＋`設定` シートを元に **`scripts/build-seo.js`** が静的に生成する（GitHub Actions が実行）。`sitemap.xml` / `robots.txt` も自動生成。
+
+- HTML内の `<!-- SEO:AUTO:START -->` 〜 `<!-- SEO:AUTO:END -->` は**自動生成領域**。手で編集しない（次回同期で上書きされる）。
+- title / description / OGP画像は管理画面の「SEO」タブから編集。
+- GA4を使う場合: GitHub Secrets に `GA4_ID`（`G-XXXXXXXXXX`）を登録。
+- Google Search Console は **DNSのTXTレコード方式**を推奨（ファイル不要）。
+- `favicon.ico` / `apple-touch-icon.png` はロゴから作成してリポジトリ直下に置く（未配置でも表示は問題なし）。
+
 ## GAS コード更新時の注意
 
 コードを修正した場合は、必ず「デプロイ」→「**新しいデプロイ**」で新バージョンを作成してください。

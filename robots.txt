@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://banquet-service.net/sitemap.xml
