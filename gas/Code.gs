@@ -16,7 +16,7 @@
  *    - SEO: page, title, description, ogImage, noindex （updateSeoSheet() で自動作成可）
  * 3. 拡張機能 → Apps Script を開く
  *
- * 【管理画面】 /exec?page=admin （Googleログイン・ADMIN_EMAILS で制限）
+ * 【管理画面】 /exec?page=admin （共有パスワード ADMIN_PASSWORD で制限）
  * 【追加エンドポイント】 ?type=seo → SEOシートのデータ
  * 4. このコードを貼り付けて保存
  * 5. デプロイ → 新しいデプロイ → ウェブアプリ
@@ -355,14 +355,11 @@ function updateVenueSheet() {
 // ===================================================================
 
 /**
- * 管理者メールの許可リスト（実質のアクセスゲート）
- * ここに載っていない Google アカウントは管理画面を開けない／書き込めない。
- * ※スプレッドシートを所有する Google アカウントのメールを必ず含めること。
+ * 管理画面の共有パスワード（実質のアクセスゲート）
+ * スクリプトのプロパティ（プロジェクトの設定 → スクリプト プロパティ）に
+ * キー ADMIN_PASSWORD で登録する。従業員には別途このパスワードを共有する。
+ * ※コードに直書きしない（プロパティで管理し、変更・ローテーションを容易にする）
  */
-var ADMIN_EMAILS = [
-  'murase@nayu.work'
-  // , '追加の管理者@example.com'
-];
 
 /**
  * GitHub リポジトリ（「今すぐ反映」ボタン用）
@@ -454,27 +451,22 @@ var SHEET_SCHEMA = {
   }
 };
 
-// ── 認証 ──────────────────────────────────────────
-function assertAdmin_() {
-  var email = '';
-  try { email = Session.getActiveUser().getEmail(); } catch (e) {}
-  if (!email || ADMIN_EMAILS.indexOf(email) === -1) {
-    throw new Error('権限がありません（' + (email || '未ログイン') + '）');
+// ── 認証（共有パスワード方式） ────────────────────
+function assertAdmin_(pw) {
+  var expected = PropertiesService.getScriptProperties().getProperty('ADMIN_PASSWORD');
+  if (!expected) {
+    throw new Error('ADMIN_PASSWORD が未設定です（スクリプトのプロパティに登録してください）');
   }
-  return email;
+  if (String(pw == null ? '' : pw) !== String(expected)) {
+    throw new Error('パスワードが違います');
+  }
+  return true;
 }
 
 // ── 管理画面レンダラ ──────────────────────────────
+// シェルHTMLは誰でも取得可（機密なし）。データ取得・書き込みは
+// すべて assertAdmin_(pw) で守られるため、パスワードなしでは何もできない。
 function renderAdminPage_() {
-  var email = '';
-  try { email = Session.getActiveUser().getEmail(); } catch (e) {}
-  if (!email || ADMIN_EMAILS.indexOf(email) === -1) {
-    return HtmlService.createHtmlOutput(
-      '<div style="font-family:sans-serif;padding:40px;text-align:center">' +
-      '<h2>権限がありません</h2><p>' + (email || '未ログイン') +
-      ' はこの管理画面にアクセスできません。</p></div>'
-    ).setTitle('バンケットサービス 管理');
-  }
   var t = HtmlService.createTemplateFromFile('Admin');
   return t.evaluate()
     .setTitle('バンケットサービス 管理')
@@ -578,14 +570,14 @@ function normalizeRow_(sheetName, sheet, rowObj) {
 }
 
 // ── 書き込みAPI（google.script.run から呼ぶ） ──────
-function adminGetSchema() {
-  assertAdmin_();
+function adminGetSchema(pw) {
+  assertAdmin_(pw);
   return SHEET_SCHEMA;
 }
 
 /** 生の文字列で全行を返す（doGet と違い非activeも含む・型変換なし） */
-function adminListSheet(sheetName) {
-  assertAdmin_();
+function adminListSheet(pw, sheetName) {
+  assertAdmin_(pw);
   if (!SHEET_SCHEMA[sheetName]) throw new Error('不明なシート: ' + sheetName);
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = getSheetOrThrow_(ss, sheetName);
@@ -593,8 +585,8 @@ function adminListSheet(sheetName) {
   return { sheet: sheetName, schema: SHEET_SCHEMA[sheetName], rows: rows };
 }
 
-function adminAddRow(sheetName, rowObj) {
-  assertAdmin_();
+function adminAddRow(pw, sheetName, rowObj) {
+  assertAdmin_(pw);
   return withLock_(function() {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = getSheetOrThrow_(ss, sheetName);
@@ -615,8 +607,8 @@ function adminAddRow(sheetName, rowObj) {
   });
 }
 
-function adminUpdateRow(sheetName, keyValue, rowObj) {
-  assertAdmin_();
+function adminUpdateRow(pw, sheetName, keyValue, rowObj) {
+  assertAdmin_(pw);
   return withLock_(function() {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = getSheetOrThrow_(ss, sheetName);
@@ -636,8 +628,8 @@ function adminUpdateRow(sheetName, keyValue, rowObj) {
   });
 }
 
-function adminDeleteRow(sheetName, keyValue) {
-  assertAdmin_();
+function adminDeleteRow(pw, sheetName, keyValue) {
+  assertAdmin_(pw);
   return withLock_(function() {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = getSheetOrThrow_(ss, sheetName);
@@ -652,8 +644,8 @@ function adminDeleteRow(sheetName, keyValue) {
 }
 
 /** sortOrder を orderedKeys の順で 1..N に振り直す */
-function adminReorder(sheetName, orderedKeys) {
-  assertAdmin_();
+function adminReorder(pw, sheetName, orderedKeys) {
+  assertAdmin_(pw);
   return withLock_(function() {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = getSheetOrThrow_(ss, sheetName);
@@ -672,8 +664,8 @@ function adminReorder(sheetName, orderedKeys) {
 }
 
 /** フリードリンク（1行のみ）編集専用 */
-function adminUpdateSingleRow(sheetName, rowObj) {
-  assertAdmin_();
+function adminUpdateSingleRow(pw, sheetName, rowObj) {
+  assertAdmin_(pw);
   return withLock_(function() {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = getSheetOrThrow_(ss, sheetName);
@@ -690,18 +682,18 @@ function adminUpdateSingleRow(sheetName, rowObj) {
 }
 
 /** SEO行の保存（無ければ追加、あれば更新） */
-function adminSaveSeoRow(page, seoObj) {
-  assertAdmin_();
+function adminSaveSeoRow(pw, page, seoObj) {
+  assertAdmin_(pw);
   seoObj.page = page;
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = getSheetOrThrow_(ss, 'SEO');
   var exists = findRowIndex_(sheet, 'page', page) !== -1;
-  return exists ? adminUpdateRow('SEO', page, seoObj) : adminAddRow('SEO', seoObj);
+  return exists ? adminUpdateRow(pw, 'SEO', page, seoObj) : adminAddRow(pw, 'SEO', seoObj);
 }
 
 /** 「今すぐ反映」→ GitHub Actions を repository_dispatch で起動 */
-function adminTriggerResync() {
-  assertAdmin_();
+function adminTriggerResync(pw) {
+  assertAdmin_(pw);
   var token = PropertiesService.getScriptProperties().getProperty('GITHUB_PAT');
   if (!token) throw new Error('GITHUB_PAT が未設定です（スクリプトのプロパティに登録してください）');
   var url = 'https://api.github.com/repos/' + GITHUB_REPO + '/dispatches';

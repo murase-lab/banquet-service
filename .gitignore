@@ -3,3 +3,6 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# 管理画面のローカル検証用に生成する一時ファイル（scripts/_gen-admin-test.js が生成）
+_admin_test.html

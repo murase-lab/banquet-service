@@ -12,9 +12,41 @@
       } } }
     };
   </script>
-  <?!= include('AdminCss'); ?>
+  <style>
+    body { font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .tab-btn { white-space: nowrap; padding: .55rem .9rem; font-size: .85rem; border-top-left-radius: .4rem; border-top-right-radius: .4rem; color: #cbd5e1; }
+    .tab-btn.active { background: #f3f4f6; color: #1A2E44; font-weight: 700; }
+    table.data { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    table.data th { text-align: left; background: #f8fafc; color: #64748b; font-weight: 600; padding: .5rem .6rem; border-bottom: 1px solid #e5e7eb; white-space: nowrap; }
+    table.data td { padding: .5rem .6rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    table.data tr:hover td { background: #fafafa; }
+    .cell-clip { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .btn-sm { font-size: .75rem; padding: .25rem .55rem; border-radius: .3rem; border: 1px solid #e5e7eb; background: #fff; }
+    .btn-sm:hover { background: #f3f4f6; }
+    .fld-label { display:block; font-size:.8rem; font-weight:600; color:#475569; margin-bottom:.25rem; }
+    .fld-input { width:100%; border:1px solid #cbd5e1; border-radius:.4rem; padding:.5rem .6rem; font-size:.9rem; }
+    .fld-input:focus { outline:none; border-color:#1A2E44; }
+    .kv-row { display:flex; gap:.4rem; align-items:center; margin-bottom:.35rem; }
+    .thumb { max-height:64px; border-radius:.3rem; margin-top:.4rem; border:1px solid #e5e7eb; }
+  </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
+
+  <!-- ログイン画面 -->
+  <div id="login" class="fixed inset-0 z-50 bg-primary flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-sm p-6">
+      <div class="text-center mb-5">
+        <div class="text-xs text-gray-400">バンケットサービス</div>
+        <div class="font-bold text-primary text-lg">データ管理</div>
+      </div>
+      <label class="fld-label">パスワード</label>
+      <input id="pwInput" type="password" class="fld-input" placeholder="共有パスワード"
+        onkeydown="if(event.key==='Enter')doLogin()">
+      <p id="loginErr" class="text-red-600 text-sm mt-2 hidden"></p>
+      <button id="loginBtn" onclick="doLogin()"
+        class="w-full mt-4 bg-primary text-white font-bold py-2 rounded">ログイン</button>
+    </div>
+  </div>
 
   <!-- ヘッダー -->
   <header class="bg-primary text-white sticky top-0 z-20 shadow">
@@ -64,6 +96,394 @@
   <!-- トースト -->
   <div id="toast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded text-white text-sm shadow-lg"></div>
 
-  <?!= include('AdminJs'); ?>
+  <script>
+// ===== 状態 =====
+var PW = '';                // 管理パスワード（全サーバ呼び出しの先頭に付与）
+var SCHEMA = null;          // 全シートのスキーマ
+var CUR_SHEET = null;       // 選択中シート名
+var CUR_ROWS = [];          // 選択中シートの行（表示順）
+var EDIT_KEY = null;        // 編集中のキー値（null=新規追加）
+var FOODPLAN_OPTS = [];     // foodPlans用: 料理プランidリスト [{id,label}]
+
+// ===== 共通ヘルパー =====
+// 全 admin* 関数は第1引数が pw。run() が自動で PW を先頭に付ける。
+function run(fnName) {
+  var args = [PW].concat(Array.prototype.slice.call(arguments, 1));
+  return new Promise(function(resolve, reject) {
+    var runner = google.script.run
+      .withSuccessHandler(resolve)
+      .withFailureHandler(function(e) { reject(e); });
+    runner[fnName].apply(runner, args);
+  });
+}
+// onclick属性に安全に文字列引数を埋める（二重引用符の入れ子崩れを防ぐ）
+function jsArg(s) {
+  return "'" + String(s == null ? '' : s)
+    .replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;') + "'";
+}
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+function driveToDirect(url) {
+  if (!url) return '';
+  var m = url.match(/drive\.google\.com\/file\/d\/([-\w]+)/) ||
+          url.match(/drive\.google\.com\/open\?id=([-\w]+)/);
+  return m ? 'https://lh3.googleusercontent.com/d/' + m[1] : url;
+}
+function toast(msg, ok) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'fixed bottom-5 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded text-white text-sm shadow-lg ' +
+    (ok === false ? 'bg-red-600' : 'bg-green-600');
+  t.classList.remove('hidden');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function() { t.classList.add('hidden'); }, ok === false ? 5000 : 2500);
+}
+function schemaOf(name) { return SCHEMA[name]; }
+
+// ===== ログイン =====
+window.addEventListener('DOMContentLoaded', function() {
+  var saved = '';
+  try { saved = sessionStorage.getItem('adm_pw') || ''; } catch (e) {}
+  if (saved) { document.getElementById('pwInput').value = saved; doLogin(true); }
+});
+
+function doLogin(silent) {
+  var pw = document.getElementById('pwInput').value;
+  var err = document.getElementById('loginErr');
+  var btn = document.getElementById('loginBtn');
+  err.classList.add('hidden');
+  if (!pw) { err.textContent = 'パスワードを入力してください'; err.classList.remove('hidden'); return; }
+  btn.disabled = true; btn.textContent = '確認中…';
+  google.script.run
+    .withSuccessHandler(function(schema) {
+      PW = pw;
+      try { sessionStorage.setItem('adm_pw', pw); } catch (e) {}
+      SCHEMA = schema;
+      document.getElementById('login').classList.add('hidden');
+      btn.disabled = false; btn.textContent = 'ログイン';
+      initApp();
+    })
+    .withFailureHandler(function(e) {
+      btn.disabled = false; btn.textContent = 'ログイン';
+      try { sessionStorage.removeItem('adm_pw'); } catch (ex) {}
+      if (!silent) { err.textContent = (e && e.message ? e.message : 'ログインに失敗しました'); err.classList.remove('hidden'); }
+    })
+    .adminGetSchema(pw);
+}
+
+// ===== 初期化（ログイン後） =====
+function initApp() {
+  buildTabs();
+  run('adminListSheet', '料理プラン').then(function(res) {
+    FOODPLAN_OPTS = (res.rows || [])
+      .filter(function(r) { return r.id; })
+      .map(function(r) { return { id: r.id, label: r.label || r.id }; });
+    var first = Object.keys(SCHEMA)[0];
+    selectTab(first);
+  }).catch(function(e) {
+    document.getElementById('loading').textContent = 'エラー: ' + (e && e.message ? e.message : e);
+  });
+}
+
+function buildTabs() {
+  var nav = document.getElementById('tabs');
+  nav.innerHTML = '';
+  Object.keys(SCHEMA).forEach(function(name) {
+    var b = document.createElement('button');
+    b.className = 'tab-btn';
+    b.textContent = SCHEMA[name].label || name;
+    b.dataset.sheet = name;
+    b.onclick = function() { selectTab(name); };
+    nav.appendChild(b);
+  });
+}
+
+// ===== 一覧表示 =====
+function selectTab(name) {
+  CUR_SHEET = name;
+  document.querySelectorAll('.tab-btn').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.sheet === name);
+  });
+  document.getElementById('panel').classList.add('hidden');
+  document.getElementById('loading').classList.remove('hidden');
+  document.getElementById('loading').textContent = '読み込み中…';
+
+  run('adminListSheet', name).then(function(res) {
+    var sc = schemaOf(name);
+    CUR_ROWS = res.rows || [];
+    if (sc.reindex) {
+      CUR_ROWS.sort(function(a, b) { return (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0); });
+    }
+    renderPanel(sc);
+  }).catch(function(e) {
+    document.getElementById('loading').textContent = 'エラー: ' + (e && e.message ? e.message : e);
+  });
+}
+
+function renderPanel(sc) {
+  document.getElementById('loading').classList.add('hidden');
+  document.getElementById('panel').classList.remove('hidden');
+  document.getElementById('panelTitle').textContent = sc.label || CUR_SHEET;
+
+  var addBtn = document.getElementById('addBtn');
+  var canAdd = !sc.singleRow && !sc.keyValue;
+  addBtn.classList.toggle('hidden', !canAdd);
+
+  var hint = document.getElementById('hint');
+  if (sc.singleRow) hint.textContent = '※この表は1件のみ。編集のみ可能です。';
+  else if (sc.keyValue) hint.textContent = '※施設情報は値の編集のみ可能です（項目の追加・削除は不可）。';
+  else if (CUR_SHEET === 'SEO') hint.textContent = '※編集後は「サイトに今すぐ反映」で1〜2分後にサイトへ反映されます。';
+  else hint.textContent = '※料理・会場・料金などの編集はリロードで即サイトに反映されます。';
+
+  if (sc.singleRow) {
+    document.getElementById('tableWrap').innerHTML =
+      '<div class="p-4"><button class="btn-sm" onclick="openEditor(\'__single__\')">この内容を編集</button></div>';
+    return;
+  }
+  renderTable(sc);
+}
+
+function renderTable(sc) {
+  var cols = sc.columns;
+  var html = '<table class="data"><thead><tr>';
+  if (sc.reindex) html += '<th>並び</th>';
+  cols.forEach(function(c) { html += '<th>' + esc(c.name) + '</th>'; });
+  html += '<th></th></tr></thead><tbody>';
+
+  CUR_ROWS.forEach(function(row, idx) {
+    var key = sc.key ? row[sc.key] : idx;
+    html += '<tr>';
+    if (sc.reindex) {
+      html += '<td class="whitespace-nowrap">' +
+        '<button class="btn-sm" ' + (idx === 0 ? 'disabled' : '') + ' onclick="moveRow(' + idx + ',-1)">↑</button> ' +
+        '<button class="btn-sm" ' + (idx === CUR_ROWS.length - 1 ? 'disabled' : '') + ' onclick="moveRow(' + idx + ',1)">↓</button></td>';
+    }
+    cols.forEach(function(c) {
+      var v = row[c.name];
+      var disp;
+      if (c.type === 'bool') disp = String(v).toUpperCase() === 'TRUE' ? '✓' : '–';
+      else if (c.type === 'image') disp = v ? '<img class="thumb" style="max-height:32px" src="' + esc(driveToDirect(v)) + '">' : '–';
+      else disp = '<div class="cell-clip">' + esc(v) + '</div>';
+      html += '<td>' + disp + '</td>';
+    });
+    html += '<td class="whitespace-nowrap text-right">' +
+      '<button class="btn-sm" onclick="openEditor(' + jsArg(key) + ')">編集</button> ';
+    if (!sc.keyValue) {
+      html += '<button class="btn-sm" style="color:#dc2626" onclick="deleteRow(' + jsArg(key) + ')">削除</button>';
+    }
+    html += '</td></tr>';
+  });
+  html += '</tbody></table>';
+  document.getElementById('tableWrap').innerHTML = html;
+}
+
+// ===== 並び替え =====
+function moveRow(idx, dir) {
+  var j = idx + dir;
+  if (j < 0 || j >= CUR_ROWS.length) return;
+  var tmp = CUR_ROWS[idx]; CUR_ROWS[idx] = CUR_ROWS[j]; CUR_ROWS[j] = tmp;
+  var sc = schemaOf(CUR_SHEET);
+  renderTable(sc);
+  var keys = CUR_ROWS.map(function(r) { return r[sc.key]; });
+  run('adminReorder', CUR_SHEET, keys)
+    .then(function() { toast('並び順を保存しました'); })
+    .catch(function(e) { toast('並び替え失敗: ' + e.message, false); });
+}
+
+// ===== 編集モーダル =====
+function findRow(key) {
+  var sc = schemaOf(CUR_SHEET);
+  if (key === '__single__') return CUR_ROWS[0] || {};
+  for (var i = 0; i < CUR_ROWS.length; i++) if (String(CUR_ROWS[i][sc.key]) === String(key)) return CUR_ROWS[i];
+  return {};
+}
+
+function openEditor(key) {
+  var sc = schemaOf(CUR_SHEET);
+  EDIT_KEY = (key === '__single__') ? '__single__' : key; // null=新規
+  var row = key ? findRow(key) : {};
+  document.getElementById('modalTitle').textContent =
+    (key && key !== '__single__') ? '編集' : (key === '__single__' ? '編集' : '新規追加');
+
+  var body = document.getElementById('formBody');
+  body.innerHTML = '';
+  sc.columns.forEach(function(c) {
+    body.appendChild(buildField(c, row[c.name]));
+  });
+  document.getElementById('modal').classList.remove('hidden');
+}
+function closeEditor() { document.getElementById('modal').classList.add('hidden'); EDIT_KEY = undefined; }
+
+function buildField(col, value) {
+  var wrap = document.createElement('div');
+  var lbl = document.createElement('label');
+  lbl.className = 'fld-label';
+  lbl.textContent = col.name + (col.type === 'id' ? '（英数字_のみ）' : '');
+  wrap.appendChild(lbl);
+
+  var el;
+  if (col.type === 'textarea') {
+    el = document.createElement('textarea');
+    el.className = 'fld-input'; el.rows = 3; el.value = value || '';
+  } else if (col.type === 'bool') {
+    el = document.createElement('input');
+    el.type = 'checkbox'; el.checked = String(value).toUpperCase() === 'TRUE';
+    el.style.width = '20px'; el.style.height = '20px';
+  } else if (col.type === 'select') {
+    el = document.createElement('select');
+    el.className = 'fld-input';
+    (col.options || []).forEach(function(o) {
+      var op = document.createElement('option'); op.value = o; op.textContent = o;
+      if (String(value) === o) op.selected = true; el.appendChild(op);
+    });
+  } else if (col.type === 'number') {
+    el = document.createElement('input');
+    el.type = 'number'; el.className = 'fld-input'; el.value = (value === '' || value == null) ? '' : value;
+  } else if (col.type === 'image') {
+    el = document.createElement('input');
+    el.type = 'text'; el.className = 'fld-input'; el.value = value || '';
+    el.placeholder = '画像URL または Google Drive 共有リンク';
+    var thumb = document.createElement('img'); thumb.className = 'thumb';
+    var updImg = function() { var u = driveToDirect(el.value); if (u) { thumb.src = u; thumb.style.display = ''; } else thumb.style.display = 'none'; };
+    el.addEventListener('input', updImg); setTimeout(updImg, 0);
+    el.dataset.field = col.name; wrap.appendChild(el); wrap.appendChild(thumb);
+    return wrap;
+  } else if (col.type === 'json-object') {
+    return buildJsonObjectField(col, value, wrap);
+  } else if (col.type === 'json-array') {
+    return buildJsonArrayField(col, value, wrap);
+  } else {
+    el = document.createElement('input');
+    el.type = 'text'; el.className = 'fld-input'; el.value = value || '';
+    if (col.type === 'id') el.pattern = '[A-Za-z0-9_]+';
+    if (col.type === 'id' && EDIT_KEY && EDIT_KEY !== '__single__') { el.readOnly = true; el.style.background = '#f1f5f9'; }
+  }
+  el.dataset.field = col.name;
+  wrap.appendChild(el);
+  return wrap;
+}
+
+// layouts: {"スクール":28,...} → キー=数値のリピーターUI
+function buildJsonObjectField(col, value, wrap) {
+  var obj = {};
+  try { obj = value ? JSON.parse(value) : {}; } catch (e) {}
+  var box = document.createElement('div');
+  box.dataset.jsonObject = col.name;
+  var addRow = function(k, v) {
+    var r = document.createElement('div'); r.className = 'kv-row';
+    r.innerHTML = '<input class="fld-input jk" placeholder="レイアウト名" value="' + esc(k) + '">' +
+      '<input class="fld-input jv" type="number" placeholder="人数" style="max-width:110px" value="' + esc(v) + '">' +
+      '<button type="button" class="btn-sm" onclick="this.parentNode.remove()">×</button>';
+    box.appendChild(r);
+  };
+  Object.keys(obj).forEach(function(k) { addRow(k, obj[k]); });
+  var add = document.createElement('button');
+  add.type = 'button'; add.className = 'btn-sm'; add.textContent = '＋ レイアウト追加';
+  add.onclick = function() { addRow('', ''); };
+  wrap.appendChild(box); wrap.appendChild(add);
+  return wrap;
+}
+
+// foodPlans: ["kaiseki",...] → 料理プランidのチェックボックス
+function buildJsonArrayField(col, value, wrap) {
+  var arr = [];
+  try { arr = value ? JSON.parse(value) : []; } catch (e) {}
+  var box = document.createElement('div');
+  box.dataset.jsonArray = col.name;
+  box.className = 'space-y-1';
+  var note = document.createElement('div');
+  note.className = 'text-xs text-gray-500 mb-1';
+  note.textContent = '（未選択なら全プラン対象）';
+  wrap.appendChild(note);
+  FOODPLAN_OPTS.forEach(function(o) {
+    var row = document.createElement('label');
+    row.className = 'flex items-center gap-2 text-sm';
+    var cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.value = o.id; cb.className = 'fp-cb';
+    if (arr.indexOf(o.id) !== -1) cb.checked = true;
+    row.appendChild(cb);
+    row.appendChild(document.createTextNode(o.label + '（' + o.id + '）'));
+    box.appendChild(row);
+  });
+  wrap.appendChild(box);
+  return wrap;
+}
+
+// ===== 収集 → 保存 =====
+function collectForm() {
+  var sc = schemaOf(CUR_SHEET);
+  var obj = {};
+  var body = document.getElementById('formBody');
+  sc.columns.forEach(function(c) {
+    if (c.type === 'json-object') {
+      var box = body.querySelector('[data-json-object="' + c.name + '"]');
+      var o = {};
+      box.querySelectorAll('.kv-row').forEach(function(r) {
+        var k = r.querySelector('.jk').value.trim();
+        var v = r.querySelector('.jv').value.trim();
+        if (k) o[k] = Number(v) || 0;
+      });
+      obj[c.name] = Object.keys(o).length ? JSON.stringify(o) : '';
+    } else if (c.type === 'json-array') {
+      var box2 = body.querySelector('[data-json-array="' + c.name + '"]');
+      var arr = [];
+      box2.querySelectorAll('.fp-cb').forEach(function(cb) { if (cb.checked) arr.push(cb.value); });
+      obj[c.name] = arr.length ? JSON.stringify(arr) : '';
+    } else {
+      var el = body.querySelector('[data-field="' + c.name + '"]');
+      if (!el) { obj[c.name] = ''; return; }
+      if (c.type === 'bool') obj[c.name] = el.checked ? 'TRUE' : 'FALSE';
+      else obj[c.name] = el.value;
+    }
+  });
+  return obj;
+}
+
+function saveRow() {
+  var sc = schemaOf(CUR_SHEET);
+  var obj = collectForm();
+  var btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = '保存中…';
+
+  var p;
+  if (sc.singleRow) {
+    p = run('adminUpdateSingleRow', CUR_SHEET, obj);
+  } else if (EDIT_KEY && EDIT_KEY !== '__single__') {
+    p = run('adminUpdateRow', CUR_SHEET, EDIT_KEY, obj);
+  } else {
+    p = run('adminAddRow', CUR_SHEET, obj);
+  }
+  p.then(function() {
+    btn.disabled = false; btn.textContent = '保存';
+    closeEditor(); toast('保存しました'); selectTab(CUR_SHEET);
+  }).catch(function(e) {
+    btn.disabled = false; btn.textContent = '保存';
+    toast('保存失敗: ' + (e && e.message ? e.message : e), false);
+  });
+}
+
+function deleteRow(key) {
+  if (!confirm('この行を削除しますか？')) return;
+  run('adminDeleteRow', CUR_SHEET, key)
+    .then(function() { toast('削除しました'); selectTab(CUR_SHEET); })
+    .catch(function(e) { toast('削除失敗: ' + e.message, false); });
+}
+
+// ===== 今すぐ反映 =====
+function doResync() {
+  var btn = document.getElementById('resyncBtn');
+  btn.disabled = true; btn.textContent = '起動中…';
+  run('adminTriggerResync').then(function() {
+    btn.disabled = false; btn.textContent = 'サイトに今すぐ反映';
+    toast('反映を開始しました（1〜2分で反映されます）');
+  }).catch(function(e) {
+    btn.disabled = false; btn.textContent = 'サイトに今すぐ反映';
+    toast('反映失敗: ' + (e && e.message ? e.message : e), false);
+  });
+}
+  </script>
 </body>
 </html>
