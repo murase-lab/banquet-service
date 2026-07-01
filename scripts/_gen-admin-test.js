@@ -19,7 +19,10 @@ const schema = {
   'フリードリンク': { label: 'フリードリンク', key: null, singleRow: true, reindex: false, columns: [
     { name: 'price', type: 'number' }, { name: 'duration', type: 'text' }, { name: 'description', type: 'textarea' }, { name: 'image', type: 'image' } ] },
   '設定': { label: '施設情報', key: 'key', singleRow: false, reindex: false, keyValue: true, columns: [
-    { name: 'key', type: 'text' }, { name: 'value', type: 'text' } ] }
+    { name: 'key', type: 'text' }, { name: 'value', type: 'text' } ] },
+  'SEO': { label: 'SEO', key: 'page', singleRow: false, reindex: false, columns: [
+    { name: 'page', type: 'text' }, { name: 'title', type: 'text' }, { name: 'description', type: 'textarea' },
+    { name: 'ogImage', type: 'image' }, { name: 'noindex', type: 'bool' } ] }
 };
 
 const data = {
@@ -31,7 +34,8 @@ const data = {
     { id: 'suehiro_east', label: '末広東', area: '102', base: '33000', extra: '16500', floor: '2F', layouts: JSON.stringify({ 'スクール': 28, 'コの字': 24 }), foodPlans: JSON.stringify(['kaiseki']), sortOrder: '1' }
   ],
   'フリードリンク': [ { price: '2800', duration: '110分', description: 'x', image: '' } ],
-  '設定': [ { key: 'facility_tel', value: '058-212-3277' } ]
+  '設定': [ { key: 'facility_tel', value: '058-212-3277' } ],
+  'SEO': [ { page: 'cuisine', title: 'お料理プラン | 岐阜キャッスルイン バンケットサービス', description: '会席・ビュッフェなど選べるお料理プラン。', ogImage: '', noindex: 'FALSE' } ]
 };
 
 const mock =

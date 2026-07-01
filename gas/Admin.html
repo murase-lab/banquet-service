@@ -55,10 +55,14 @@
         <div class="text-xs text-gray-300">バンケットサービス</div>
         <div class="font-bold">データ管理</div>
       </div>
-      <button id="resyncBtn" onclick="doResync()"
-        class="bg-accent-gold hover:opacity-90 text-primary font-bold text-sm px-4 py-2 rounded">
-        サイトに今すぐ反映
-      </button>
+      <div class="flex items-center gap-2">
+        <button onclick="openHelp()"
+          class="border border-white/40 hover:bg-white/10 text-white text-sm px-3 py-2 rounded">？ 使い方</button>
+        <button id="resyncBtn" onclick="doResync()"
+          class="bg-accent-gold hover:opacity-90 text-primary font-bold text-sm px-4 py-2 rounded">
+          サイトに今すぐ反映
+        </button>
+      </div>
     </div>
     <!-- タブ -->
     <nav id="tabs" class="max-w-6xl mx-auto px-2 flex gap-1 overflow-x-auto"></nav>
@@ -86,9 +90,56 @@
         <button onclick="closeEditor()" class="text-gray-400 hover:text-gray-700 text-xl leading-none">×</button>
       </div>
       <div id="formBody" class="px-5 py-4 space-y-4"></div>
-      <div class="px-5 py-3 border-t flex justify-end gap-2">
+      <div class="px-5 pb-4">
+        <div class="text-xs font-semibold text-gray-500 mb-1">プレビュー（目安）</div>
+        <div id="previewBody" class="border rounded-lg p-3 bg-gray-50 min-h-[3rem]"></div>
+      </div>
+      <div class="px-5 py-3 border-t flex justify-end gap-2 sticky bottom-0 bg-white">
         <button onclick="closeEditor()" class="px-4 py-2 text-sm rounded border">キャンセル</button>
         <button id="saveBtn" onclick="saveRow()" class="px-4 py-2 text-sm rounded bg-primary text-white font-bold">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 使い方モーダル -->
+  <div id="help" class="hidden fixed inset-0 z-40 bg-black/40 flex items-start justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-lg my-8">
+      <div class="px-5 py-3 border-b flex items-center justify-between">
+        <h3 class="font-bold text-primary">使い方</h3>
+        <button onclick="closeHelp()" class="text-gray-400 hover:text-gray-700 text-xl leading-none">×</button>
+      </div>
+      <div class="px-5 py-4 space-y-4 text-sm text-gray-700 leading-relaxed">
+        <div>
+          <div class="font-bold text-primary mb-1">1. 基本の流れ</div>
+          上のタブで編集したい種類（料理・会場・料金など）を選び、各行の<b>「編集」</b>を押して内容を変え、<b>「保存」</b>で確定します。新しく足すときは<b>「＋追加」</b>。
+        </div>
+        <div>
+          <div class="font-bold text-primary mb-1">2. 保存前にプレビュー</div>
+          編集画面の下に<b>プレビュー（目安）</b>が出ます。入力しながら仕上がりを確認して「保存」してください。
+        </div>
+        <div>
+          <div class="font-bold text-primary mb-1">3. サイトへの反映タイミング</div>
+          ・料理・会場・料金など … サイトを<b>再読み込み（リロード）</b>すればすぐ反映<br>
+          ・SEO・トップの一部 … 右上の<b>「サイトに今すぐ反映」</b>を押して1〜2分
+        </div>
+        <div>
+          <div class="font-bold text-primary mb-1">4. 画像の入れ方</div>
+          画像欄に<b>画像URL</b>か<b>Googleドライブの共有リンク</b>を貼ると、下にサムネイルが出ます。大きい画像でも自動で軽くなります。
+        </div>
+        <div>
+          <div class="font-bold text-primary mb-1">5. 並び替え・削除</div>
+          左の<b>↑↓</b>で表示順を変更（自動保存）。行の<b>「削除」</b>で消えます。
+        </div>
+        <div>
+          <div class="font-bold text-primary mb-1">6. 会場のレイアウト・対応プラン</div>
+          レイアウトは「名前＝人数」を追加、対応プランは料理の<b>チェックボックス</b>で選びます（文字入力は不要）。
+        </div>
+        <div class="text-xs text-gray-500 border-t pt-3">
+          ※パスワードは関係者以外に共有しないでください。困ったときは管理者にご連絡を。
+        </div>
+      </div>
+      <div class="px-5 py-3 border-t flex justify-end">
+        <button onclick="closeHelp()" class="px-4 py-2 text-sm rounded bg-primary text-white font-bold">閉じる</button>
       </div>
     </div>
   </div>
@@ -313,9 +364,94 @@ function openEditor(key) {
   sc.columns.forEach(function(c) {
     body.appendChild(buildField(c, row[c.name]));
   });
+  body.oninput = updatePreview;
+  body.onchange = updatePreview;
+  updatePreview();
   document.getElementById('modal').classList.remove('hidden');
 }
 function closeEditor() { document.getElementById('modal').classList.add('hidden'); EDIT_KEY = undefined; }
+
+// ===== 使い方モーダル =====
+function openHelp() { document.getElementById('help').classList.remove('hidden'); }
+function closeHelp() { document.getElementById('help').classList.add('hidden'); }
+
+// ===== プレビュー（保存前の仕上がり目安） =====
+function yen(v) {
+  var n = Number(String(v == null ? '' : v).replace(/[^\d.-]/g, '')) || 0;
+  return '¥' + n.toLocaleString();
+}
+function badgeStyle(c) {
+  if (c === 'accent-gold') return 'background:#C1A36A;color:#1A2E44';
+  if (c === 'gray-800') return 'background:#1f2937;color:#fff';
+  return 'background:#1A2E44;color:#fff';
+}
+function updatePreview() {
+  var sc = schemaOf(CUR_SHEET);
+  var o;
+  try { o = collectForm(); } catch (e) { return; }
+  document.getElementById('previewBody').innerHTML = renderPreviewHtml(sc, o);
+}
+function renderPreviewHtml(sc, o) {
+  if (CUR_SHEET === 'SEO') return seoPreview(o);
+  if (sc.keyValue) return '<div class="text-sm"><span class="text-gray-500">' + esc(o.key) + '：</span>' + esc(o.value) + '</div>';
+
+  var hasImg = sc.columns.some(function(c) { return c.type === 'image'; });
+  var richCols = ['image', 'area', 'layouts', 'description', 'note', 'badgeText', 'duration', 'floor', 'base'];
+  var isRich = sc.columns.some(function(c) { return richCols.indexOf(c.name) !== -1; });
+  if (!isRich) {
+    // 備品・飲物など: 名称 — 金額
+    return '<div style="display:flex;justify-content:space-between;font-size:14px">' +
+      '<span>' + esc(o.label || '（名称）') + '</span>' +
+      '<span style="color:#C1A36A;font-weight:700">' + yen(o.price) + '</span></div>';
+  }
+  var img = o.image ? driveToDirect(o.image) : '';
+  var h = '<div style="display:flex;gap:10px">';
+  if (hasImg) {
+    h += img
+      ? '<img src="' + esc(img) + '" style="width:96px;height:72px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;flex:none">'
+      : '<div style="width:96px;height:72px;border-radius:6px;background:#e5e7eb;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:11px;flex:none">画像なし</div>';
+  }
+  h += '<div style="flex:1;min-width:0">';
+  if (o.badgeText) h += '<span style="font-size:11px;padding:1px 8px;border-radius:999px;' + badgeStyle(o.badgeColor) + '">' + esc(o.badgeText) + '</span> ';
+  if ('label' in o) h += '<div style="font-weight:700;color:#1A2E44">' + esc(o.label || '（名称）') + '</div>';
+  var pp = [];
+  if (o.price) pp.push(yen(o.price));
+  if (o.base) pp.push('会場費 ' + yen(o.base));
+  if (o.extra) pp.push('延長 ' + yen(o.extra));
+  if (o.duration) pp.push(esc(o.duration));
+  if (pp.length) h += '<div style="color:#C1A36A;font-weight:700">' + pp.join(' / ') + '</div>';
+  if (o.area) h += '<div style="font-size:12px;color:#6b7280">' + esc(o.area) + (o.floor ? '／' + esc(o.floor) : '') + '</div>';
+  if (o.note) h += '<div style="font-size:12px;color:#6b7280">' + esc(o.note) + '</div>';
+  if (o.description) h += '<div style="font-size:12px;color:#6b7280;margin-top:2px">' + esc(o.description) + '</div>';
+  if (o.layouts) {
+    try {
+      var L = JSON.parse(o.layouts);
+      var chips = Object.keys(L).map(function(k) {
+        return '<span style="font-size:11px;background:#eef2f7;border-radius:4px;padding:1px 6px;margin:2px 2px 0 0;display:inline-block">' + esc(k) + ' ' + L[k] + '名</span>';
+      }).join('');
+      if (chips) h += '<div style="margin-top:4px">' + chips + '</div>';
+    } catch (e) {}
+  }
+  h += '</div></div>';
+  return h;
+}
+function seoPreview(o) {
+  var page = o.page || 'index';
+  var url = 'banquet-service.net' + (page === 'index' ? '/' : '/' + page + '.html');
+  var h = '<div style="font-family:arial,sans-serif;max-width:520px">';
+  h += '<div style="color:#202124;font-size:12px">' + esc(url) + '</div>';
+  h += '<div style="color:#1a0dab;font-size:18px;line-height:1.3;margin:2px 0">' + esc(o.title || '（タイトル未設定）') + '</div>';
+  h += '<div style="color:#4d5156;font-size:13px;line-height:1.5">' + esc(o.description || '（説明文未設定）') + '</div>';
+  var img = o.ogImage ? driveToDirect(o.ogImage) : '';
+  if (img) {
+    h += '<div style="margin-top:10px;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;max-width:320px">' +
+      '<img src="' + esc(img) + '" style="width:100%;height:150px;object-fit:cover;display:block">' +
+      '<div style="padding:6px 10px"><div style="font-size:11px;color:#6b7280">banquet-service.net</div>' +
+      '<div style="font-size:13px;font-weight:600;color:#1A2E44">' + esc(o.title || '') + '</div></div></div>';
+  }
+  h += '</div>';
+  return h;
+}
 
 function buildField(col, value) {
   var wrap = document.createElement('div');
