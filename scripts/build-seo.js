@@ -15,7 +15,7 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://banquet-service.net';
-const DEFAULT_OG_IMAGE = SITE + encodeURI('/images/末広の間メイン.png');
+const DEFAULT_OG_IMAGE = SITE + encodeURI('/images/末広の間メイン.webp');
 const GA4_ID = (process.env.GA4_ID || '').trim();      // 例: G-XXXXXXXXXX（未設定ならGA4を挿入しない）
 
 const START = '<!-- SEO:AUTO:START — generated, do not edit by hand -->';

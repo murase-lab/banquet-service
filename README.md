@@ -163,6 +163,21 @@ WIXエディタ → 「要素を追加」→「埋め込みコード」→「HTM
 - Google Search Console は **DNSのTXTレコード方式**を推奨（ファイル不要）。
 - `favicon.ico` / `apple-touch-icon.png` はロゴから作成してリポジトリ直下に置く（未配置でも表示は問題なし）。
 
+## 画像の最適化（WebP自動変換）
+
+サイトの静的画像は **WebP** で配信して軽量化している（PNG比で概ね 95〜99% 削減）。
+
+- **既存画像**は `scripts/optimize-images.py`（Pillow）で長辺1600px・WebPに変換済み。`images/` には `.webp` と、既に軽い `.avif` のみを置く。
+- **今後の追加は GitHub Actions が自動変換**（`.github/workflows/optimize-images.yml`）：
+  - `images/` に PNG/JPG を追加して push（GitHubのWeb UIでのアップロードでもOK）すると、CIが自動で WebP 化・リサイズ・**元画像削除**・HTMLの参照張り替え・コミットまで行う。
+  - **どのPC・誰でも**、ローカルにツール不要で軽量化される。
+- **管理画面から入れる画像**（料理・会場の image 欄＝Googleドライブリンク）は、Google側が自動でWebP配信するため対応不要。
+- 手元で一括変換したいときは:
+  ```bash
+  python scripts/optimize-images.py --delete-source --fix-html
+  ```
+  （`--max` で長辺px、`--quality` で品質を調整可能）
+
 ## GAS コード更新時の注意
 
 コードを修正した場合は、必ず「デプロイ」→「**新しいデプロイ**」で新バージョンを作成してください。
