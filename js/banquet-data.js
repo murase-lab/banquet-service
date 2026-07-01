@@ -19,7 +19,7 @@ var CUISINE_DATA_FALLBACK = {
       "price": 5200,
       "note": "コース料理・個別提供",
       "description": "お一人おひとりにサービスする形式です。前菜〜デザートまでのコース料理です。",
-      "image": "https://murase-lab.github.io/banquet-service/images/会席料理.png",
+      "image": "https://murase-lab.github.io/banquet-service/images/会席料理.webp",
       "badgeText": "個別提供",
       "badgeColor": "primary",
       "sortOrder": 1,
@@ -32,7 +32,7 @@ var CUISINE_DATA_FALLBACK = {
       "price": 4700,
       "note": "大皿盛り・スタッフ取り分け",
       "description": "大皿盛り込み料理となります。卓人数に応じお客様のテーブルまでサービススタッフがお運びしお取り分けいたします。",
-      "image": "https://murase-lab.github.io/banquet-service/images/シッティング.png",
+      "image": "https://murase-lab.github.io/banquet-service/images/シッティング.webp",
       "badgeText": "スタッフ配膳",
       "badgeColor": "accent-gold",
       "sortOrder": 2,
@@ -45,7 +45,7 @@ var CUISINE_DATA_FALLBACK = {
       "price": 4700,
       "note": "20名様以上〜",
       "description": "基本ビュッフェ台までお料理を取りに行く形式です。お料理を取り分けるトング類は定期的に交換させていただきます。\\n20名様以上〜",
-      "image": "https://murase-lab.github.io/banquet-service/images/ビュッフェ料理.png",
+      "image": "https://murase-lab.github.io/banquet-service/images/ビュッフェ料理.webp",
       "badgeText": "セルフサービス",
       "badgeColor": "gray-800",
       "sortOrder": 3,
@@ -58,7 +58,7 @@ var CUISINE_DATA_FALLBACK = {
       "price": 4200,
       "note": "開宴前に全品提供",
       "description": "開宴前デザート以外は全て最初にお出しいたします。",
-      "image": "https://murase-lab.github.io/banquet-service/images/弁当宴会.png",
+      "image": "https://murase-lab.github.io/banquet-service/images/弁当宴会.webp",
       "badgeText": "宴会向け",
       "badgeColor": "primary",
       "sortOrder": 4,
@@ -71,7 +71,7 @@ var CUISINE_DATA_FALLBACK = {
       "price": 2500,
       "note": "会議後の昼食・持ち帰り可",
       "description": "主に会議終了後のご昼食としてお弁当をご利用いただいております。また、お持ち帰り用弁当としてもご用意できます。（料金相談要）",
-      "image": "https://murase-lab.github.io/banquet-service/images/割子弁当.png",
+      "image": "https://murase-lab.github.io/banquet-service/images/割子弁当.webp",
       "badgeText": "会議向け",
       "badgeColor": "accent-gold",
       "sortOrder": 5,
@@ -96,7 +96,7 @@ var CUISINE_DATA_FALLBACK = {
     "price": 2800,
     "duration": "110分",
     "description": "ビール・ノンアルコールビール・日本酒・焼酎（麦・芋）・ウィスキー・梅酒・ウーロン茶・オレンジジュース",
-    "image": "https://murase-lab.github.io/banquet-service/images/フリードリンク.png"
+    "image": "https://murase-lab.github.io/banquet-service/images/フリードリンク.webp"
   }
 };
 

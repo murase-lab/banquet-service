@@ -752,6 +752,41 @@ function testGetSeoData() {
   Logger.log(response.getContent());
 }
 
+/**
+ * シートの画像URL（静的 /images/ の .png/.jpg）を .webp に一括置換する
+ * WebP化に合わせて GASエディタから一度だけ手動実行してください。
+ * ※Googleドライブの画像リンクは対象外（触らない）。
+ */
+function migrateImagesToWebp() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var targets = ['料理プラン', 'フリードリンク', '会場', 'SEO'];
+  var re = /(\/images\/[^"\s]+?)\.(png|jpe?g)(\b)/gi;
+  var changed = 0;
+  targets.forEach(function(name) {
+    var sheet = ss.getSheetByName(name);
+    if (!sheet || sheet.getLastRow() < 2) return;
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0]
+      .map(function(h) { return String(h).trim(); });
+    ['image', 'ogImage'].forEach(function(colName) {
+      var col = headers.indexOf(colName);
+      if (col === -1) return;
+      var rng = sheet.getRange(2, col + 1, sheet.getLastRow() - 1, 1);
+      var vals = rng.getValues();
+      var dirty = false;
+      for (var i = 0; i < vals.length; i++) {
+        var v = String(vals[i][0] || '');
+        if (!v) continue;
+        // Driveリンクは除外
+        if (/drive\.google\.com|googleusercontent\.com/.test(v)) continue;
+        var nv = v.replace(re, '$1.webp$3');
+        if (nv !== v) { vals[i][0] = nv; dirty = true; changed++; }
+      }
+      if (dirty) rng.setValues(vals);
+    });
+  });
+  Logger.log('画像URLを .webp に置換: ' + changed + '件');
+}
+
 // ===================================================================
 // ▲▲▲ 管理画面（編集UI）＋書き込み層  ここまで追記 ▲▲▲
 // ===================================================================
