@@ -383,12 +383,12 @@ var CONFIG_FALLBACK = {
     {
       "id": "pet_water",
       "label": "ペットボトル水",
-      "price": 360
+      "price": 400
     },
     {
       "id": "pet_tea",
       "label": "ペットボトルお茶",
-      "price": 360
+      "price": 400
     }
   ],
   "facility": {
