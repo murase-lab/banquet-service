@@ -362,29 +362,29 @@ body { font-family: 'Noto Sans JP', sans-serif; }
           <label class="flex items-center gap-2 text-sm font-bold mb-2">
             会社名 / 団体名 <span class="bg-accent-gold text-white text-[10px] px-1.5 py-0.5 rounded">必須</span>
           </label>
-          <input required class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3" placeholder="株式会社 〇〇" type="text"/>
+          <input required id="inq-company" class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3" placeholder="株式会社 〇〇" type="text"/>
         </div>
         <div>
           <label class="flex items-center gap-2 text-sm font-bold mb-2">ご担当者名 <span class="bg-accent-gold text-white text-[10px] px-1.5 py-0.5 rounded">必須</span></label>
-          <input required class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3" placeholder="岐阜 太郎" type="text"/>
+          <input required id="inq-name" class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3" placeholder="岐阜 太郎" type="text"/>
         </div>
         <div>
           <label class="flex items-center gap-2 text-sm font-bold mb-2">メールアドレス <span class="bg-accent-gold text-white text-[10px] px-1.5 py-0.5 rounded">必須</span></label>
-          <input required class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3" placeholder="example@company.co.jp" type="email"/>
+          <input required id="inq-email" class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3" placeholder="example@company.co.jp" type="email"/>
         </div>
         <div>
           <label class="flex items-center gap-2 text-sm font-bold mb-2">電話番号 <span class="bg-accent-gold text-white text-[10px] px-1.5 py-0.5 rounded">必須</span></label>
-          <input required class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3" placeholder="058-000-0000" type="tel"/>
+          <input required id="inq-tel" class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3" placeholder="058-000-0000" type="tel"/>
         </div>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label class="text-sm font-bold mb-2 block">ご希望日時</label>
-          <input class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3" type="date"/>
+          <input id="inq-date" class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3" type="date"/>
         </div>
         <div>
           <label class="text-sm font-bold mb-2 block">ご利用目的</label>
-          <select class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3">
+          <select id="inq-purpose" class="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary px-4 py-3">
             <option>会議・セミナー</option>
             <option>懇親会・宴会</option>
             <option>二次会・ウェディング</option>
@@ -1037,8 +1037,28 @@ function hideInquiry() {
 
 function handleSubmit(e) {
   e.preventDefault();
-  var body = document.getElementById('inquiry-body').value;
-  var mailtoLink = 'mailto:bs-service@vesta.ocn.ne.jp?subject=' + encodeURIComponent('【HP】料金シミュレーターからのお問い合わせ') + '&body=' + encodeURIComponent(body);
+
+  // 入力欄の値をメール本文に載せる（フォームの値は mailto の body に入れないと届かない）
+  var fields = [
+    { label: '会社名 / 団体名', id: 'inq-company' },
+    { label: 'ご担当者名', id: 'inq-name' },
+    { label: 'メールアドレス', id: 'inq-email' },
+    { label: '電話番号', id: 'inq-tel' },
+    { label: 'ご希望日時', id: 'inq-date' },
+    { label: 'ご利用目的', id: 'inq-purpose' }
+  ];
+
+  var text = '【お客様情報】\n';
+  text += '──────────────────────\n';
+  fields.forEach(function(f) {
+    var el = document.getElementById(f.id);
+    var val = el && el.value ? el.value.trim() : '';
+    text += '■ ' + f.label + ': ' + (val || '（未記入）') + '\n';
+  });
+  text += '──────────────────────\n\n';
+  text += document.getElementById('inquiry-body').value;
+
+  var mailtoLink = 'mailto:bs-service@vesta.ocn.ne.jp?subject=' + encodeURIComponent('【HP】料金シミュレーターからのお問い合わせ') + '&body=' + encodeURIComponent(text);
   window.location.href = mailtoLink;
   return false;
 }
