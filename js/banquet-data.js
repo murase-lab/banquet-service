@@ -204,7 +204,7 @@ var CONFIG_FALLBACK = {
       "layouts": {
         "スクール": 99,
         "ロの字": 56,
-        "円卓": 60
+        "対面": 60
       },
       "foodPlans": [
         "kaiseki",
@@ -221,7 +221,7 @@ var CONFIG_FALLBACK = {
       "floor": "8F",
       "layouts": {
         "ロの字": 16,
-        "円卓": 12
+        "対面": 16
       },
       "foodPlans": [
         "kaiseki",
