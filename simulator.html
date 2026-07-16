@@ -142,7 +142,7 @@ body { font-family: 'Noto Sans JP', sans-serif; }
         <h2 class="text-lg font-bold">レイアウトの選択</h2>
       </div>
       <div class="p-6">
-        <div class="grid grid-cols-3 md:grid-cols-6 gap-4" id="layout-list"></div>
+        <div class="grid grid-cols-3 md:grid-cols-7 gap-4" id="layout-list"></div>
         <p class="text-xs text-slate-400 mt-3" id="layout-cap-note"></p>
       </div>
     </section>
@@ -186,7 +186,7 @@ body { font-family: 'Noto Sans JP', sans-serif; }
       </div>
       <div class="p-6 space-y-6">
         <!-- マイクセクション -->
-        <div>
+        <div id="mic-section">
           <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
             <span class="material-symbols-outlined text-base">mic</span> マイク
           </h3>
@@ -423,12 +423,19 @@ var MIC_MAX_TOTAL = 4; // 会場での同時使用上限
 var MIC_LIMITS = { mic_w: 4, mic_c: 2 }; // 各マイクの在庫上限
 var MIC_FREE_COUNT = 2; // 会場費込プランでの無料本数
 
+// 会場ごとに設置できない備品（CONFIG.equipment のid。ここに無い会場は全備品が選択可）
+var VENUE_EXCLUDED_EQUIP = {
+  hatsune: ['mic_w', 'mic_c', 'tv', 'sign_hang', 'scr_l'],
+  hakuun: ['sign_hang', 'scr_l', 'lan']
+};
+
 // レイアウト定義
 var LAYOUT_DEFS = [
   { value: 'スクール', icon: 'grid_view' },
   { value: 'コの字', icon: 'crop_square' },
   { value: 'ロの字', icon: 'check_box_outline_blank' },
   { value: '円卓', icon: 'radio_button_unchecked' },
+  { value: '対面', icon: 'table_rows' },
   { value: '着席ブッフェ', icon: 'restaurant' },
   { value: '立食', icon: 'celebration' }
 ];
@@ -492,6 +499,41 @@ function updateLayoutAvailability() {
   if (foodNeedReselect) {
     var firstFood = document.querySelector('#food-plan-list input[name="food_plan"]:not(:disabled)');
     if (firstFood) firstFood.checked = true;
+  }
+
+  updateEquipmentAvailability();
+}
+
+// 設置できない備品を会場ごとに無効化する（VENUE_EXCLUDED_EQUIP 参照）
+function updateEquipmentAvailability() {
+  var venueEl = document.querySelector('input[name="venue"]:checked');
+  var venueKey = venueEl ? venueEl.value : null;
+  var excluded = (venueKey && VENUE_EXCLUDED_EQUIP[venueKey]) || [];
+
+  // その他備品: 除外品はチェックを外して選択不可にする
+  document.querySelectorAll('#equipment-list [data-equip-id]').forEach(function(row) {
+    var isExcluded = excluded.indexOf(row.getAttribute('data-equip-id')) !== -1;
+    var input = row.querySelector('input');
+    row.classList.toggle('opacity-30', isExcluded);
+    row.classList.toggle('pointer-events-none', isExcluded);
+    input.disabled = isExcluded;
+    if (isExcluded && input.checked) input.checked = false;
+  });
+
+  // マイク: 除外品は本数を0に戻して入力不可にする
+  document.querySelectorAll('#mic-list [data-mic-row]').forEach(function(row) {
+    var isExcluded = excluded.indexOf(row.getAttribute('data-mic-row')) !== -1;
+    var input = row.querySelector('input');
+    row.classList.toggle('opacity-30', isExcluded);
+    input.disabled = isExcluded;
+    if (isExcluded && Number(input.value) > 0) input.value = 0;
+  });
+
+  // マイクが1本も使えない会場ではセクションごと隠す
+  var micSection = document.getElementById('mic-section');
+  if (micSection) {
+    var allMicsExcluded = MIC_IDS.every(function(id) { return excluded.indexOf(id) !== -1; });
+    micSection.style.display = allMicsExcluded ? 'none' : '';
   }
 }
 
@@ -563,6 +605,7 @@ function init() {
     var maxCount = MIC_LIMITS[item.id] || 4;
     var div = document.createElement('div');
     div.className = "flex items-center justify-between";
+    div.setAttribute('data-mic-row', item.id);
     div.innerHTML = '<div class="flex items-center gap-3">' +
       '<span class="text-sm font-medium">' + item.label + '</span>' +
       '<span class="text-[10px] text-slate-400">最大' + maxCount + '本</span></div>' +
@@ -1066,6 +1109,8 @@ window.onload = function() {
       if (inp) inp.value = savedMics[micId];
     });
 
+    // 会場を復元した後に可否を再判定する（init時点では会場が未選択のため）
+    updateLayoutAvailability();
     calculate();
   });
 };
