@@ -2,7 +2,8 @@
  * 「文面」シートの作成＋投入（upsert）
  *
  * scripts/extract-texts.js が生成したファイル。GASエディタに貼り付けて
- * seedTexts_() を1回だけ手動実行してください。実行後はこの関数を削除して構いません。
+ * seedTexts() を1回だけ手動実行してください。
+ * ※関数名の末尾に _ を付けないこと（GASでは非公開扱いになり実行メニューに出なくなる）
  *
  * upsert 方式なので、キーを追加した第2期以降でも安全に再実行できる:
  *   - 既にある行は value（スタッフが編集した文面）をそのまま残し、
@@ -10,7 +11,7 @@
  *   - 新しいキーだけ行を追加する
  *   - HTMLから消えたキーは自動削除せず、ログに報告するだけ（誤削除を避ける）
  */
-function seedTexts_() {
+function seedTexts() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('文面');
   var headers = ['key', 'page', 'section', 'label', 'value', 'note'];

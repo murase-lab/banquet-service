@@ -3,7 +3,7 @@
  *
  * マーカーを埋め込んだHTMLから現在の文面を吸い出し、
  *   - spreadsheet-data/07_文面.seed.json  … シートの内容ミラー（記録用）
- *   - gas/SeedTexts.gs.txt                … GASに貼って1回実行するシード関数
+ *   - gas/SeedTexts.gs.txt                … GASに貼って seedTexts() を1回実行するシード関数
  * を生成する。
  *
  * 併せて3種の検証を行い、マーカー挿入時の人為ミスを機械的に検出する:
@@ -172,7 +172,8 @@ const gas = [
   ' * 「文面」シートの作成＋投入（upsert）',
   ' *',
   ' * scripts/extract-texts.js が生成したファイル。GASエディタに貼り付けて',
-  ' * seedTexts_() を1回だけ手動実行してください。実行後はこの関数を削除して構いません。',
+  ' * seedTexts() を1回だけ手動実行してください。',
+  ' * ※関数名の末尾に _ を付けないこと（GASでは非公開扱いになり実行メニューに出なくなる）',
   ' *',
   ' * upsert 方式なので、キーを追加した第2期以降でも安全に再実行できる:',
   ' *   - 既にある行は value（スタッフが編集した文面）をそのまま残し、',
@@ -180,7 +181,7 @@ const gas = [
   ' *   - 新しいキーだけ行を追加する',
   ' *   - HTMLから消えたキーは自動削除せず、ログに報告するだけ（誤削除を避ける）',
   ' */',
-  'function seedTexts_() {',
+  'function seedTexts() {',
   '  var ss = SpreadsheetApp.getActiveSpreadsheet();',
   '  var sheet = ss.getSheetByName(\'文面\');',
   '  var headers = [\'key\', \'page\', \'section\', \'label\', \'value\', \'note\'];',
@@ -235,5 +236,5 @@ const gas = [
 ].join('\n');
 
 fs.writeFileSync(SEED_GAS, gas, 'utf8');
-console.log('出力: gas/SeedTexts.gs.txt（GASに貼って seedTexts_() を1回実行）');
+console.log('出力: gas/SeedTexts.gs.txt（GASに貼って seedTexts() を1回実行）');
 console.log('\n=== 完了（' + rows.length + 'キー） ===');
