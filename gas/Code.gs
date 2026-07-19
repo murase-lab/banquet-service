@@ -8,6 +8,7 @@
  * 1. Google Sheets で「バンケットサービス データ管理」スプレッドシートを作成
  * 2. 下記6つのシートを作成し、1行目にヘッダーを入力
  *    - 料理プラン: id, label, price, note, description, image, badgeText, badgeColor, sortOrder, active
+ *    - コース: id, categoryId, label, price, images, description, sortOrder, active （initCourseSheet() で自動作成可）
  *    - フリードリンク: price, duration, description, image
  *    - 会場: id, label, area, base, extra, sortOrder
  *    - 備品: id, label, price, sortOrder
@@ -73,6 +74,34 @@ function doGet(e) {
 }
 
 // ===================================================
+// 料理コース（料理プラン内の複数コース）
+// ===================================================
+/**
+ * 「コース」シートを読み、categoryId別に参照できる形で返す。
+ * シート未作成・データ0件でも例外にせず空配列を返す（後方互換フォールバック）。
+ */
+function getCourseRows_(ss) {
+  var rows = sheetToObjects(ss, 'コース');
+  rows = rows.filter(function(c) {
+    return c.id && c.categoryId && String(c.active).toUpperCase() !== 'FALSE';
+  });
+  rows.forEach(function(c) {
+    c.price = Number(c.price) || 0;
+    c.sortOrder = Number(c.sortOrder) || 0;
+    var imgs = [];
+    if (c.images) {
+      try {
+        imgs = JSON.parse(c.images);
+        if (!Array.isArray(imgs)) imgs = [];
+      } catch (e) { imgs = []; }
+    }
+    c.images = imgs.filter(function(u) { return typeof u === 'string' && u; }).map(convertDriveLink);
+  });
+  rows.sort(function(a, b) { return a.sortOrder - b.sortOrder; });
+  return rows;
+}
+
+// ===================================================
 // 料理ページ用データ取得
 // ===================================================
 function getCuisineData(ss) {
@@ -87,6 +116,16 @@ function getCuisineData(ss) {
     if (p.image) p.image = convertDriveLink(p.image);
   });
   plans.sort(function(a, b) { return a.sortOrder - b.sortOrder; });
+
+  // コース（categoryIdで料理プランへネスト。コースがあれば最安値をprice表示に採用）
+  var courses = getCourseRows_(ss);
+  plans.forEach(function(p) {
+    p.courses = courses.filter(function(c) { return c.categoryId === p.id; });
+    var pricedCourses = p.courses.filter(function(c) { return c.price > 0; });
+    if (pricedCourses.length > 0) {
+      p.price = Math.min.apply(null, pricedCourses.map(function(c) { return c.price; }));
+    }
+  });
 
   // フリードリンク
   var fdRows = sheetToObjects(ss, 'フリードリンク');
@@ -135,13 +174,23 @@ function getSimulatorConfig(ss) {
     return p.id && String(p.active).toUpperCase() !== 'FALSE';
   });
   cuisinePlans.sort(function(a, b) { return (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0); });
+  var allCourses = getCourseRows_(ss);
   var food_plans = cuisinePlans.map(function(p) {
+    // シミュレーターには画像・説明は不要なため軽量projectionのみネストする
+    var planCourses = allCourses
+      .filter(function(c) { return c.categoryId === p.id; })
+      .map(function(c) { return { id: c.id, label: c.label, price: c.price }; });
+    var pricedCourses = planCourses.filter(function(c) { return c.price > 0; });
+    var price = pricedCourses.length > 0
+      ? Math.min.apply(null, pricedCourses.map(function(c) { return c.price; }))
+      : (Number(p.price) || 0);
     return {
       id: p.id,
       label: p.label || '',
-      price: Number(p.price) || 0,
+      price: price,
       note: p.note || '',
-      venueIncluded: String(p.venueIncluded).toUpperCase() === 'TRUE'
+      venueIncluded: String(p.venueIncluded).toUpperCase() === 'TRUE',
+      courses: planCourses
     };
   });
 
@@ -400,6 +449,19 @@ var SHEET_SCHEMA = {
       { name: 'image',       type: 'image' }
     ]
   },
+  'コース': {
+    label: '料理コース', key: 'id', singleRow: false, reindex: true,
+    columns: [
+      { name: 'id',          type: 'id' },
+      { name: 'categoryId',  type: 'select', optionsSource: 'foodplans' },
+      { name: 'label',       type: 'text' },
+      { name: 'price',       type: 'number' },
+      { name: 'images',      type: 'image-list' },
+      { name: 'description', type: 'textarea' },
+      { name: 'sortOrder',   type: 'number' },
+      { name: 'active',      type: 'bool' }
+    ]
+  },
   '会場': {
     label: '会場', key: 'id', singleRow: false, reindex: true,
     columns: [
@@ -559,6 +621,8 @@ function normalizeRow_(sheetName, sheet, rowObj) {
       case 'json-object':
         assertJson_(v, 'object'); return v || '';
       case 'json-array':
+        assertJson_(v, 'array'); return v || '';
+      case 'image-list':
         assertJson_(v, 'array'); return v || '';
       case 'id':
         if (!/^[A-Za-z0-9_]+$/.test(v)) throw new Error('id は英数字とアンダースコアのみ: ' + v);
@@ -742,6 +806,25 @@ function updateSeoSheet() {
   sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#f0f0f0');
   sheet.autoResizeColumns(1, headers.length);
   Logger.log('SEOシートを更新しました: ' + rows.length + '件');
+}
+
+/**
+ * 「コース」シートのヘッダー行を作成する（データは追加しない）
+ * GASエディタから一度だけ手動実行してください。既にシートがあれば何もしません。
+ */
+function initCourseSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('コース');
+  if (sheet) {
+    Logger.log('「コース」シートは既に存在します（何もしません）');
+    return;
+  }
+  sheet = ss.insertSheet('コース');
+  var headers = ['id', 'categoryId', 'label', 'price', 'images', 'description', 'sortOrder', 'active'];
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#f0f0f0');
+  sheet.autoResizeColumns(1, headers.length);
+  Logger.log('「コース」シートを作成しました');
 }
 
 /**

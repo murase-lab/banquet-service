@@ -483,8 +483,8 @@ function updateLayoutAvailability() {
   // 料理プランの利用可否を更新
   var allowedPlans = venueData && venueData.foodPlans ? venueData.foodPlans : null;
   var foodNeedReselect = false;
-  document.querySelectorAll('#food-plan-list label').forEach(function(label) {
-    var input = label.querySelector('input');
+  document.querySelectorAll('#food-plan-list input[name="food_plan"]').forEach(function(input) {
+    var label = input.closest('label');
     var planId = input.value;
     if (planId === 'none') return; // 「なし」は常に選択可能
     if (allowedPlans && allowedPlans.indexOf(planId) === -1) {
@@ -500,8 +500,17 @@ function updateLayoutAvailability() {
     var firstFood = document.querySelector('#food-plan-list input[name="food_plan"]:not(:disabled)');
     if (firstFood) firstFood.checked = true;
   }
+  updateFoodCourseVisibility();
 
   updateEquipmentAvailability();
+}
+
+// 選択中のカテゴリに対応するコース選択ブロックだけを表示する
+function updateFoodCourseVisibility() {
+  var selected = document.querySelector('input[name="food_plan"]:checked');
+  document.querySelectorAll('[data-courses-for]').forEach(function(box) {
+    box.classList.toggle('hidden', !selected || box.getAttribute('data-courses-for') !== selected.value);
+  });
 }
 
 // 設置できない備品を会場ごとに無効化する（VENUE_EXCLUDED_EQUIP 参照）
@@ -574,23 +583,40 @@ function init() {
   // 「なし」選択肢
   var noneLabel = document.createElement('label');
   noneLabel.className = "relative border border-slate-200 rounded-xl p-4 cursor-pointer transition-all hover:bg-slate-50 has-[:checked]:border-primary has-[:checked]:bg-blue-50/30";
-  noneLabel.innerHTML = '<input type="radio" name="food_plan" class="sr-only" value="none" onchange="calculate()">' +
+  noneLabel.innerHTML = '<input type="radio" name="food_plan" class="sr-only" value="none" onchange="updateFoodCourseVisibility(); calculate()">' +
     '<div class="flex justify-between items-center">' +
     '<div><span class="font-bold">なし（会議利用のみ）</span>' +
     '<span class="text-xs text-slate-400 block mt-1">お料理なし・会場と備品のみ</span></div>' +
     '<span class="text-slate-400 font-bold">—</span></div>';
   foodContainer.appendChild(noneLabel);
   CONFIG.food_plans.forEach(function(item) {
+    var hasCourses = item.courses && item.courses.length > 0;
     var label = document.createElement('label');
     label.className = "relative border border-slate-200 rounded-xl p-4 cursor-pointer transition-all hover:bg-slate-50 has-[:checked]:border-primary has-[:checked]:bg-blue-50/30";
     var venueTag = item.venueIncluded ? '<span class="text-[10px] text-green-700 bg-green-50 px-1.5 py-0.5 rounded font-bold ml-2">会場費込</span>' : '';
-    label.innerHTML = '<input type="radio" name="food_plan" class="sr-only" value="' + item.id + '" onchange="calculate()">' +
+    label.innerHTML = '<input type="radio" name="food_plan" class="sr-only" value="' + item.id + '" onchange="updateFoodCourseVisibility(); calculate()">' +
       '<div class="flex justify-between items-center">' +
       '<div><span class="font-bold">' + item.label + '</span>' + venueTag +
       '<span class="text-xs text-slate-400 block mt-1">' + item.note + '</span></div>' +
-      '<span class="text-primary font-bold">' + item.price.toLocaleString() + '円</span></div>';
+      '<span class="text-primary font-bold">' + item.price.toLocaleString() + (hasCourses ? '円〜' : '円') + '</span></div>';
     foodContainer.appendChild(label);
+
+    // コースが登録されているカテゴリのみ、選択時に展開するコース選択ブロックを追加
+    if (hasCourses) {
+      var courseBox = document.createElement('div');
+      courseBox.className = "ml-2 mt-1 mb-2 space-y-1 hidden";
+      courseBox.setAttribute('data-courses-for', item.id);
+      item.courses.forEach(function(course, i) {
+        var cl = document.createElement('label');
+        cl.className = "flex justify-between items-center text-sm border rounded-lg px-3 py-2 cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-blue-50/40";
+        cl.innerHTML = '<span><input type="radio" name="course_' + item.id + '" class="mr-2" value="' + course.id + '"' + (i === 0 ? ' checked' : '') + ' onchange="calculate()">' + course.label + '</span>' +
+          '<span class="text-primary font-bold">' + course.price.toLocaleString() + '円</span>';
+        courseBox.appendChild(cl);
+      });
+      foodContainer.appendChild(courseBox);
+    }
   });
+  updateFoodCourseVisibility();
 
   // フリードリンク表示
   document.getElementById('free_drink_label').textContent =
@@ -688,6 +714,16 @@ function calculate() {
   var isVenueFree = selectedPlan && selectedPlan.venueIncluded;
   var hasFoodPlan = !!selectedPlan;
 
+  // コースが登録されているカテゴリは選択中コースの価格を使う（未登録カテゴリは従来通りplan.price）
+  var selectedCourse = null;
+  if (selectedPlan && selectedPlan.courses && selectedPlan.courses.length > 0) {
+    var courseInput = document.querySelector('input[name="course_' + selectedPlan.id + '"]:checked');
+    selectedCourse = courseInput
+      ? selectedPlan.courses.find(function(c) { return c.id === courseInput.value; })
+      : selectedPlan.courses[0];
+  }
+  var effectivePrice = selectedCourse ? selectedCourse.price : (selectedPlan ? selectedPlan.price : 0);
+
   // 会場
   var venueType = document.querySelector('input[name="venue"]:checked');
   venueType = venueType ? venueType.value : null;
@@ -770,9 +806,10 @@ function calculate() {
 
   // === 料理 ===
   if (selectedPlan) {
-    var foodTotal = selectedPlan.price * guestCount;
+    var foodTotal = effectivePrice * guestCount;
     total += foodTotal;
-    breakdown.push({ label: '料理: ' + selectedPlan.label, unit: selectedPlan.price, qty: guestCount, total: foodTotal });
+    var foodLabel = '料理: ' + selectedPlan.label + (selectedCourse ? '（' + selectedCourse.label + '）' : '');
+    breakdown.push({ label: foodLabel, unit: effectivePrice, qty: guestCount, total: foodTotal });
   }
 
   // === フリードリンク（料理プラン選択時のみ利用可能）===
@@ -1075,14 +1112,20 @@ window.onload = function() {
     // CONFIGが変わった場合のみ再構築
     var fallbackKeys = Object.keys(CONFIG_FALLBACK.venue).join(',');
     var newKeys = Object.keys(newConfig.venue).join(',');
-    var fallbackPlans = CONFIG_FALLBACK.food_plans.map(function(p) { return p.id + ':' + p.price; }).join(',');
-    var newPlans = newConfig.food_plans.map(function(p) { return p.id + ':' + p.price; }).join(',');
+    var planKey = function(p) {
+      return p.id + ':' + p.price + ':' + (p.courses || []).map(function(c) { return c.id + ':' + c.price; }).join('|');
+    };
+    var fallbackPlans = CONFIG_FALLBACK.food_plans.map(planKey).join(',');
+    var newPlans = newConfig.food_plans.map(planKey).join(',');
 
     if (fallbackKeys === newKeys && fallbackPlans === newPlans) return;
 
     // ユーザーの選択状態を保存
     var savedVenue = (document.querySelector('input[name="venue"]:checked') || {}).value;
     var savedFood = (document.querySelector('input[name="food_plan"]:checked') || {}).value;
+    var savedCourseEl = document.querySelector('input[name^="course_"]:checked');
+    var savedCourseName = savedCourseEl ? savedCourseEl.name : null;
+    var savedCourse = savedCourseEl ? savedCourseEl.value : null;
     var savedGuests = document.getElementById('guest_count').value;
     var savedHours = document.getElementById('extra_hours').value;
     var savedLayout = (document.querySelector('input[name="layout"]:checked') || {}).value;
@@ -1113,6 +1156,11 @@ window.onload = function() {
       var foodRadio = document.querySelector('input[name="food_plan"][value="' + savedFood + '"]');
       if (foodRadio) foodRadio.checked = true;
     }
+    if (savedCourseName && savedCourse) {
+      var courseRadio = document.querySelector('input[name="' + savedCourseName + '"][value="' + savedCourse + '"]');
+      if (courseRadio) courseRadio.checked = true;
+    }
+    updateFoodCourseVisibility();
     if (savedLayout) {
       var layoutRadio = document.querySelector('input[name="layout"][value="' + savedLayout + '"]');
       if (layoutRadio) layoutRadio.checked = true;

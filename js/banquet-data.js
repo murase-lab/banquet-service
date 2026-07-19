@@ -24,7 +24,29 @@ var CUISINE_DATA_FALLBACK = {
       "badgeColor": "primary",
       "sortOrder": 1,
       "active": "true",
-      "venueIncluded": "true"
+      "venueIncluded": "true",
+      "courses": [
+        {
+          "id": "kaiseki_5200",
+          "categoryId": "kaiseki",
+          "label": "5,200円コース",
+          "price": 5200,
+          "images": ["https://murase-lab.github.io/banquet-service/images/会席料理.webp"],
+          "description": "前菜、椀物、造里、焼物、煮物、食事、デザート",
+          "sortOrder": 1,
+          "active": "true"
+        },
+        {
+          "id": "kaiseki_7700",
+          "categoryId": "kaiseki",
+          "label": "7,700円コース",
+          "price": 7700,
+          "images": ["https://murase-lab.github.io/banquet-service/images/会席料理.webp"],
+          "description": "前菜、椀物、造里、焼物、強肴、煮物、食事、デザート（一品グレードアップ）",
+          "sortOrder": 2,
+          "active": "true"
+        }
+      ]
     },
     {
       "id": "sitting",
@@ -235,7 +257,11 @@ var CONFIG_FALLBACK = {
       "label": "会席料理",
       "price": 5200,
       "note": "コース料理・個別提供",
-      "venueIncluded": true
+      "venueIncluded": true,
+      "courses": [
+        { "id": "kaiseki_5200", "label": "5,200円コース", "price": 5200 },
+        { "id": "kaiseki_7700", "label": "7,700円コース", "price": 7700 }
+      ]
     },
     {
       "id": "sitting",
@@ -433,6 +459,15 @@ function loadCuisineData(callback, fadeTargetId) {
         data.plans.forEach(function(p) {
           p.price = Number(p.price) || 0;
           p.sortOrder = Number(p.sortOrder) || 0;
+          if (Array.isArray(p.courses)) {
+            p.courses.forEach(function(c) {
+              c.price = Number(c.price) || 0;
+              if (c.sortOrder !== undefined) c.sortOrder = Number(c.sortOrder) || 0;
+              if (!Array.isArray(c.images)) c.images = [];
+            });
+          } else {
+            p.courses = [];
+          }
         });
         if (data.freeDrink) {
           data.freeDrink.price = Number(data.freeDrink.price) || 0;
@@ -500,6 +535,11 @@ function loadSimulatorConfig(callback) {
         data.food_plans.forEach(function(p) {
           p.price = Number(p.price) || 0;
           p.venueIncluded = p.venueIncluded === true || String(p.venueIncluded).toUpperCase() === 'TRUE';
+          if (Array.isArray(p.courses)) {
+            p.courses.forEach(function(c) { c.price = Number(c.price) || 0; });
+          } else {
+            p.courses = [];
+          }
         });
         data.free_drink.price = Number(data.free_drink.price) || 0;
         data.equipment.forEach(function(e) { e.price = Number(e.price) || 0; });

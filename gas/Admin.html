@@ -134,6 +134,10 @@
           <div class="font-bold text-primary mb-1">6. 会場のレイアウト・対応プラン</div>
           レイアウトは「名前＝人数」を追加、対応プランは料理の<b>チェックボックス</b>で選びます（文字入力は不要）。
         </div>
+        <div>
+          <div class="font-bold text-primary mb-1">7. 料理コース</div>
+          「料理コース」タブで各料理カテゴリ内に複数のコース（例: 5,200円コース）を追加できます。写真は<b>1行に1つずつURLを貼ると複数枚</b>登録できます。コースを追加すると、お料理プランの価格表示は自動的にコース内の最安値に更新されます。
+        </div>
         <div class="text-xs text-gray-500 border-t pt-3">
           ※パスワードは関係者以外に共有しないでください。困ったときは管理者にご連絡を。
         </div>
@@ -317,6 +321,13 @@ function renderTable(sc) {
       var disp;
       if (c.type === 'bool') disp = String(v).toUpperCase() === 'TRUE' ? '✓' : '–';
       else if (c.type === 'image') disp = v ? '<img class="thumb" style="max-height:32px" src="' + esc(driveToDirect(v)) + '">' : '–';
+      else if (c.type === 'image-list') {
+        var imgArr = []; try { imgArr = v ? JSON.parse(v) : []; } catch (e) {}
+        disp = imgArr.length
+          ? '<img class="thumb" style="max-height:32px" src="' + esc(driveToDirect(imgArr[0])) + '"> ' +
+            (imgArr.length > 1 ? '他' + (imgArr.length - 1) + '枚' : '')
+          : '–';
+      }
       else disp = '<div class="cell-clip">' + esc(v) + '</div>';
       html += '<td>' + disp + '</td>';
     });
@@ -393,6 +404,7 @@ function updatePreview() {
 }
 function renderPreviewHtml(sc, o) {
   if (CUR_SHEET === 'SEO') return seoPreview(o);
+  if (CUR_SHEET === 'コース') return coursePreview(o);
   if (sc.keyValue) return '<div class="text-sm"><span class="text-gray-500">' + esc(o.key) + '：</span>' + esc(o.value) + '</div>';
 
   var hasImg = sc.columns.some(function(c) { return c.type === 'image'; });
@@ -435,6 +447,23 @@ function renderPreviewHtml(sc, o) {
   h += '</div></div>';
   return h;
 }
+function coursePreview(o) {
+  var imgs = [];
+  try { imgs = o.images ? JSON.parse(o.images) : []; } catch (e) {}
+  var thumbsHtml = imgs.slice(0, 4).map(function(u) {
+    return '<img src="' + esc(driveToDirect(u)) + '" style="width:64px;height:48px;object-fit:cover;border-radius:4px;margin-right:4px">';
+  }).join('');
+  var catLabel = o.categoryId;
+  var match = FOODPLAN_OPTS.filter(function(f) { return f.id === o.categoryId; })[0];
+  if (match) catLabel = match.label;
+  return '<div>' +
+    '<div style="font-size:11px;color:#9ca3af">' + esc(catLabel || '（カテゴリ未選択）') + '</div>' +
+    '<div style="font-weight:700;color:#1A2E44">' + esc(o.label || '（コース名）') + '　' +
+      '<span style="color:#C1A36A">' + yen(o.price) + '</span></div>' +
+    '<div style="margin-top:4px">' + thumbsHtml + '</div>' +
+    '<div style="font-size:12px;color:#6b7280;margin-top:4px">' + esc(o.description || '') + '</div>' +
+    '</div>';
+}
 function seoPreview(o) {
   var page = o.page || 'index';
   var url = 'banquet-service.net' + (page === 'index' ? '/' : '/' + page + '.html');
@@ -471,8 +500,17 @@ function buildField(col, value) {
   } else if (col.type === 'select') {
     el = document.createElement('select');
     el.className = 'fld-input';
-    (col.options || []).forEach(function(o) {
-      var op = document.createElement('option'); op.value = o; op.textContent = o;
+    var opts = col.options;
+    if (!opts && col.optionsSource === 'foodplans') {
+      opts = FOODPLAN_OPTS.map(function(o) { return o.id; });
+    }
+    (opts || []).forEach(function(o) {
+      var label = o;
+      if (col.optionsSource === 'foodplans') {
+        var match = FOODPLAN_OPTS.filter(function(f) { return f.id === o; })[0];
+        label = (match ? match.label : o) + '（' + o + '）';
+      }
+      var op = document.createElement('option'); op.value = o; op.textContent = label;
       if (String(value) === o) op.selected = true; el.appendChild(op);
     });
   } else if (col.type === 'number') {
@@ -491,6 +529,8 @@ function buildField(col, value) {
     return buildJsonObjectField(col, value, wrap);
   } else if (col.type === 'json-array') {
     return buildJsonArrayField(col, value, wrap);
+  } else if (col.type === 'image-list') {
+    return buildImageListField(col, value, wrap);
   } else {
     el = document.createElement('input');
     el.type = 'text'; el.className = 'fld-input'; el.value = value || '';
@@ -548,6 +588,33 @@ function buildJsonArrayField(col, value, wrap) {
   return wrap;
 }
 
+// images: ["url1","url2",...] → 1行1URLのtextarea + サムネイルプレビュー
+function buildImageListField(col, value, wrap) {
+  var arr = [];
+  try { arr = value ? JSON.parse(value) : []; } catch (e) {}
+  var note = document.createElement('div');
+  note.className = 'text-xs text-gray-500 mb-1';
+  note.textContent = '1行に1つ、画像URL または Googleドライブ共有リンクを貼り付け（複数枚可）';
+  wrap.appendChild(note);
+  var ta = document.createElement('textarea');
+  ta.className = 'fld-input'; ta.rows = 4;
+  ta.placeholder = 'https://...\nhttps://...';
+  ta.value = arr.join('\n');
+  ta.dataset.imageList = col.name;
+  var thumbs = document.createElement('div');
+  thumbs.className = 'flex flex-wrap gap-2 mt-2';
+  var renderThumbs = function() {
+    var urls = ta.value.split('\n').map(function(s) { return s.trim(); }).filter(Boolean);
+    thumbs.innerHTML = urls.map(function(u) {
+      return '<img class="thumb" style="max-height:56px" src="' + esc(driveToDirect(u)) + '">';
+    }).join('');
+  };
+  ta.addEventListener('input', renderThumbs);
+  wrap.appendChild(ta); wrap.appendChild(thumbs);
+  setTimeout(renderThumbs, 0);
+  return wrap;
+}
+
 // ===== 収集 → 保存 =====
 function collectForm() {
   var sc = schemaOf(CUR_SHEET);
@@ -568,6 +635,11 @@ function collectForm() {
       var arr = [];
       box2.querySelectorAll('.fp-cb').forEach(function(cb) { if (cb.checked) arr.push(cb.value); });
       obj[c.name] = arr.length ? JSON.stringify(arr) : '';
+    } else if (c.type === 'image-list') {
+      var ta2 = body.querySelector('[data-image-list="' + c.name + '"]');
+      if (!ta2) { obj[c.name] = ''; return; }
+      var urls = ta2.value.split('\n').map(function(s) { return s.trim(); }).filter(Boolean);
+      obj[c.name] = urls.length ? JSON.stringify(urls) : '';
     } else {
       var el = body.querySelector('[data-field="' + c.name + '"]');
       if (!el) { obj[c.name] = ''; return; }

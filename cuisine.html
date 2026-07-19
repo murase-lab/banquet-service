@@ -5,7 +5,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script>tailwind.config={theme:{extend:{colors:{"primary":"#1A2E44","accent-gold":"#C1A36A","background-light":"#FDFCF9"},fontFamily:{"sans":["Noto Sans JP"],"serif":["Noto Serif JP"]}}}}</script>
-<style>body{font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em}</style>
+<style>
+body{font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em}
+.gallery-main{width:100%;aspect-ratio:4/3;overflow:hidden;border-radius:8px;cursor:grab;user-select:none}
+.gallery-main img{width:100%;height:100%;object-fit:cover;transition:opacity .2s ease}
+.gallery-thumbs{display:flex;gap:8px;margin-top:8px}
+.gallery-thumbs img{width:0;flex:1;aspect-ratio:4/3;object-fit:cover;border-radius:6px;cursor:pointer;opacity:.5;border:2px solid transparent;transition:opacity .2s,border-color .2s}
+.gallery-thumbs img.active{opacity:1;border-color:#C1A36A}
+</style>
 <!-- SEO:AUTO:START — generated, do not edit by hand -->
 <meta name="description" content="会席・シッティング・ビュッフェ・折詰など、ご予算とシーンに合わせて選べるお料理プラン。フリードリンクもご用意しています。">
 <link rel="canonical" href="https://banquet-service.net/cuisine.html">
@@ -72,6 +79,22 @@
 <main class="max-w-5xl mx-auto px-6 py-20 space-y-24" id="cuisine-content">
   <!-- JSで描画されます -->
 </main>
+
+<!-- コース詳細モーダル -->
+<div id="course-modal" class="hidden fixed inset-0 z-[100] items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4" style="display:none;" onclick="if(event.target===this)closeCourseModal()">
+  <div class="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl relative">
+    <button class="absolute top-4 right-4 z-10 bg-white/90 rounded-full p-2 hover:bg-white" onclick="closeCourseModal()">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+    <div class="p-6">
+      <div class="gallery-main"><img id="course-modal-main-img" src="" alt=""/></div>
+      <div class="gallery-thumbs" id="course-modal-thumbs"></div>
+      <h3 id="course-modal-title" class="text-2xl font-serif font-bold mt-5 mb-1 text-primary"></h3>
+      <p id="course-modal-price" class="text-xl font-serif text-accent-gold mb-4"></p>
+      <p id="course-modal-desc" class="text-gray-600 leading-relaxed whitespace-pre-line"></p>
+    </div>
+  </div>
+</div>
 
 <!-- CTA -->
 <section class="max-w-5xl mx-auto px-6 pb-20">
@@ -140,6 +163,7 @@ function getVenueIncluded(planId) {
 
 function renderCuisine(data) {
   var container = document.getElementById('cuisine-content');
+  window.__cuisineData = data;
   var html = '';
 
   var filteredPlans = data.plans.filter(function(p) { return p.id !== 'wedding'; });
@@ -163,6 +187,21 @@ function renderCuisine(data) {
     textBlock += '<p class="text-2xl font-serif text-accent-gold mb-4">&yen;' + Number(plan.price).toLocaleString() + '〜<span class="text-sm text-gray-400">（税込・サービス料込）</span></p>';
     textBlock += '<p class="text-gray-600 leading-relaxed mb-5">' + desc + '</p>';
     textBlock += '<a href="simulator.html" class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-accent-gold transition-colors" target="_top"><span class="material-symbols-outlined text-base">calculate</span>このプランで見積もり</a>';
+
+    // コース一覧（登録があればカード表示、クリックで詳細モーダル）
+    if (plan.courses && plan.courses.length > 0) {
+      textBlock += '<div class="grid sm:grid-cols-2 gap-3 mt-6">';
+      plan.courses.forEach(function(course) {
+        var thumb = (course.images && course.images[0]) ? course.images[0] : plan.image;
+        textBlock += '<button type="button" class="text-left border border-primary/10 rounded-xl overflow-hidden hover:shadow-md transition-shadow bg-white" ' +
+          'data-plan-id="' + escapeHtml(plan.id) + '" data-course-id="' + escapeHtml(course.id) + '">' +
+          '<img class="w-full aspect-[4/3] object-cover" src="' + escapeHtml(thumb) + '" alt="' + escapeHtml(course.label) + '"/>' +
+          '<div class="p-3"><div class="font-bold text-sm">' + escapeHtml(course.label) + '</div>' +
+          '<div class="text-accent-gold font-bold text-sm">&yen;' + Number(course.price).toLocaleString() + '〜</div></div>' +
+          '</button>';
+      });
+      textBlock += '</div>';
+    }
 
     html += '<section class="grid lg:grid-cols-2 gap-12 items-center">';
     if (isEven) {
@@ -200,6 +239,112 @@ function renderCuisine(data) {
   html += '</section>';
 
   container.innerHTML = html;
+}
+
+// コースカードのクリックをイベント委譲で処理（container自体には再描画後も残るため一度だけ登録すればよい）
+document.getElementById('cuisine-content').addEventListener('click', function(e) {
+  var btn = e.target.closest('[data-plan-id][data-course-id]');
+  if (!btn) return;
+  openCourseModal(btn.getAttribute('data-plan-id'), btn.getAttribute('data-course-id'));
+});
+
+// ===================================================
+// コース詳細モーダル
+// ===================================================
+function openCourseModal(planId, courseId) {
+  var data = window.__cuisineData;
+  if (!data) return;
+  var plan = data.plans.find(function(p) { return p.id === planId; });
+  var course = plan && plan.courses && plan.courses.find(function(c) { return c.id === courseId; });
+  if (!plan || !course) return;
+
+  document.getElementById('course-modal-title').textContent = course.label;
+  document.getElementById('course-modal-price').innerHTML = '&yen;' + Number(course.price).toLocaleString() + '（税込・サービス料込）';
+  document.getElementById('course-modal-desc').textContent = course.description || '';
+
+  var images = (course.images && course.images.length) ? course.images : [plan.image];
+  setupCourseGallery(images);
+
+  document.getElementById('course-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCourseModal() {
+  document.getElementById('course-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function setupCourseGallery(images) {
+  var mainImg = document.getElementById('course-modal-main-img');
+  var thumbsEl = document.getElementById('course-modal-thumbs');
+  var mainArea = document.querySelector('#course-modal .gallery-main');
+  thumbsEl.innerHTML = '';
+  thumbsEl.style.display = images.length > 1 ? '' : 'none';
+  var cur = 0;
+
+  function goTo(n) {
+    cur = (n + images.length) % images.length;
+    thumbsEl.querySelectorAll('img').forEach(function(im, i) { im.classList.toggle('active', i === cur); });
+    mainImg.style.opacity = '0';
+    setTimeout(function() {
+      mainImg.src = images[cur];
+      mainImg.style.opacity = '1';
+    }, 150);
+  }
+
+  images.forEach(function(url, i) {
+    var t = document.createElement('img');
+    t.src = url;
+    if (i === 0) t.className = 'active';
+    t.addEventListener('click', function() { goTo(i); });
+    thumbsEl.appendChild(t);
+  });
+
+  mainImg.src = images[0] || '';
+  mainImg.style.opacity = '1';
+
+  attachSwipe(mainArea, function(dir) { goTo(cur + dir); });
+}
+
+// スワイプ（タッチ + マウスドラッグ）で画像を切り替える（venue.htmlのギャラリーロジックを流用）
+// モーダルの中身は毎回同じDOM要素を使い回すため、リスナー自体は一度だけ登録し、
+// 呼び出されるコールバック（el.__onSwipe）だけをコース切り替えのたびに更新する
+// （そうしないと最初に開いたコースの goTo/images クロージャが残り、別コースの画像を表示してしまう）
+function attachSwipe(el, onSwipe) {
+  if (!el) return;
+  el.__onSwipe = onSwipe;
+  if (el.dataset.swipeAttached) return;
+  el.dataset.swipeAttached = '1';
+  var startX = 0, startY = 0, tracking = false;
+
+  el.addEventListener('touchstart', function(e) {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    tracking = true;
+  }, { passive: true });
+
+  el.addEventListener('touchend', function(e) {
+    if (!tracking) return;
+    tracking = false;
+    var dx = e.changedTouches[0].clientX - startX;
+    var dy = e.changedTouches[0].clientY - startY;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) el.__onSwipe(dx < 0 ? 1 : -1);
+  });
+
+  el.addEventListener('mousedown', function(e) {
+    startX = e.clientX;
+    tracking = true;
+    e.preventDefault();
+  });
+
+  el.addEventListener('mouseup', function(e) {
+    if (!tracking) return;
+    tracking = false;
+    var dx = e.clientX - startX;
+    if (Math.abs(dx) > 40) el.__onSwipe(dx < 0 ? 1 : -1);
+  });
+
+  el.addEventListener('mouseleave', function() { tracking = false; });
 }
 
 // Stage 1: フォールバックデータで即座に描画（CONFIG_FALLBACKも利用可能）
