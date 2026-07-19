@@ -38,6 +38,12 @@ jobs:
           echo "SEO API response:"
           cat /tmp/banquet-seo-response.json | head -c 500
 
+      - name: Fetch Texts Data
+        run: |
+          curl -sL "${{ secrets.BANQUET_API_URL }}?type=texts" -o /tmp/banquet-texts-response.json
+          echo "Texts API response:"
+          cat /tmp/banquet-texts-response.json | head -c 500
+
       - name: Update Fallback Data
         run: node scripts/update-fallback.js
 
@@ -45,6 +51,9 @@ jobs:
         env:
           GA4_ID: ${{ secrets.GA4_ID }}
         run: node scripts/build-seo.js
+
+      - name: Build Texts into HTML
+        run: node scripts/build-texts.js
 
       - name: Check for changes
         id: check_changes

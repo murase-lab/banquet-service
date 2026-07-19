@@ -56,12 +56,16 @@ function doGet(e) {
       case 'seo':
         result = getSeoData(ss);
         break;
+      case 'texts':
+        result = getTextsData(ss);
+        break;
       case 'all':
       default:
         result = {
           cuisine: getCuisineData(ss),
           config: getSimulatorConfig(ss),
-          seo: getSeoData(ss)
+          seo: getSeoData(ss),
+          texts: getTextsData(ss)
         };
         break;
     }
@@ -417,11 +421,15 @@ var GITHUB_REPO = 'murase-lab/banquet-service';
 
 /**
  * シート・スキーマ定義（UI描画とサーバ検証の単一の源）
- * type: id | text | textarea | number | bool | select | image | json-object | json-array
+ * type: id | text | textarea | number | bool | select | image | json-object | json-array | image-list
  * key: 一意キー列名（null は行キーなし）
  * singleRow: true なら1行のみ（追加/削除不可・編集のみ）
  * reindex: true なら sortOrder を 1..N で振り直す
  * keyValue: true なら key/value 形式（設定シート）
+ * editOnly: true なら既存行の編集のみ（追加/削除不可）。文面のようにキーが
+ *           HTML側のマーカーと1対1で対応し、行だけ足しても意味がない表に使う
+ * groupBy: 列名を指定すると管理画面にその列での絞り込みUIが出る（行数が多い表向け）
+ * 列の readOnly: true なら編集フォームで入力不可（構造側が決める値をスタッフに触らせない）
  */
 var SHEET_SCHEMA = {
   '料理プラン': {
@@ -501,6 +509,18 @@ var SHEET_SCHEMA = {
       { name: 'value', type: 'text' }
     ]
   },
+  '文面': {
+    label: 'ページ文面', key: 'key', singleRow: false, reindex: false,
+    editOnly: true, groupBy: 'page',
+    columns: [
+      { name: 'key',     type: 'id' },
+      { name: 'page',    type: 'text',     readOnly: true },
+      { name: 'section', type: 'text',     readOnly: true },
+      { name: 'label',   type: 'text',     readOnly: true },
+      { name: 'value',   type: 'textarea' },
+      { name: 'note',    type: 'text',     readOnly: true }
+    ]
+  },
   'SEO': {
     label: 'SEO', key: 'page', singleRow: false, reindex: false,
     columns: [
@@ -554,6 +574,30 @@ function getSeoData(ss) {
     };
   });
   return { pages: pages };
+}
+
+// ── 文面 読み取り（doGet ?type=texts 用） ──────────
+/**
+ * 「文面」シートを { key: value } に畳んで返す。
+ * 住所・電話などの施設情報は文面シートに行を持たせず、既存の「設定」シートから
+ * facility.* の仮想キーとして合成する（正本を1箇所に保つため）。
+ * シート未作成・データ0件でも例外にせず空マップを返す。
+ */
+function getTextsData(ss) {
+  var rows = sheetToObjects(ss, '文面');
+  var texts = {};
+  rows.forEach(function(r) {
+    if (r.key) texts[String(r.key).trim()] = String(r.value == null ? '' : r.value);
+  });
+
+  var s = getSettingsMap(ss);
+  if (s['facility_name'])    texts['facility.name']    = s['facility_name'];
+  if (s['facility_company']) texts['facility.company'] = s['facility_company'];
+  if (s['facility_address']) texts['facility.address'] = s['facility_address'];
+  if (s['facility_tel'])     texts['facility.tel']     = s['facility_tel'];
+  if (s['facility_fax'])     texts['facility.fax']     = s['facility_fax'];
+
+  return { texts: texts };
 }
 
 // ── 書き込み内部ヘルパー ──────────────────────────
@@ -655,7 +699,7 @@ function adminAddRow(pw, sheetName, rowObj) {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = getSheetOrThrow_(ss, sheetName);
     var sc = SHEET_SCHEMA[sheetName];
-    if (sc.singleRow) throw new Error('この表は行追加できません（編集のみ）');
+    if (sc.singleRow || sc.editOnly) throw new Error('この表は行追加できません（編集のみ）');
     if (sc.key) {
       if (!rowObj[sc.key]) throw new Error(sc.key + ' は必須です');
       if (findRowIndex_(sheet, sc.key, rowObj[sc.key]) !== -1) {
@@ -698,7 +742,7 @@ function adminDeleteRow(pw, sheetName, keyValue) {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = getSheetOrThrow_(ss, sheetName);
     var sc = SHEET_SCHEMA[sheetName];
-    if (sc.singleRow) throw new Error('この表は削除できません');
+    if (sc.singleRow || sc.editOnly) throw new Error('この表は削除できません（編集のみ）');
     if (sc.keyValue) throw new Error('設定は削除できません（値の編集のみ）');
     var rowIdx = findRowIndex_(sheet, sc.key, keyValue);
     if (rowIdx === -1) throw new Error('対象が見つかりません: ' + keyValue);

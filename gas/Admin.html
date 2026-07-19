@@ -77,6 +77,7 @@
         <button id="addBtn" onclick="openEditor(null)"
           class="hidden bg-primary hover:opacity-90 text-white text-sm px-4 py-2 rounded">＋ 追加</button>
       </div>
+      <div id="filterWrap" class="hidden mb-3"></div>
       <div id="tableWrap" class="bg-white rounded shadow overflow-x-auto"></div>
       <p id="hint" class="text-xs text-gray-500 mt-3"></p>
     </div>
@@ -135,7 +136,14 @@
           レイアウトは「名前＝人数」を追加、対応プランは料理の<b>チェックボックス</b>で選びます（文字入力は不要）。
         </div>
         <div>
-          <div class="font-bold text-primary mb-1">7. 料理コース</div>
+          <div class="font-bold text-primary mb-1">7. ページ文面（見出し・キャッチコピー）</div>
+          「ページ文面」タブで、各ページの見出しやキャッチコピーを直せます。上の<b>「ページで絞り込み」</b>で編集したいページを選んでください。<br>
+          入力欄は<b>普通の文章だけ</b>です（HTMLタグは書かないでください。文字としてそのまま表示されます）。<b>改行はそのまま反映</b>されます。<br>
+          「全ページ共通」の項目（フッターの受付時間など）は、1回直せば全ページに反映されます。住所・電話番号は「施設情報」タブが正本です。<br>
+          編集後は右上の<b>「サイトに今すぐ反映」</b>を押して1〜2分お待ちください。<b>欄を空にして保存しても今の文面は消えません</b>（安全のため元の文面が残ります）。
+        </div>
+        <div>
+          <div class="font-bold text-primary mb-1">8. 料理コース</div>
           「料理コース」タブで各料理カテゴリ内に複数のコース（例: 5,200円コース）を追加できます。写真は<b>1行に1つずつURLを貼ると複数枚</b>登録できます。コースを追加すると、お料理プランの価格表示は自動的にコース内の最安値に更新されます。
         </div>
         <div class="text-xs text-gray-500 border-t pt-3">
@@ -158,6 +166,7 @@ var SCHEMA = null;          // 全シートのスキーマ
 var CUR_SHEET = null;       // 選択中シート名
 var CUR_ROWS = [];          // 選択中シートの行（表示順）
 var EDIT_KEY = null;        // 編集中のキー値（null=新規追加）
+var CUR_FILTER = '';        // groupBy 指定表の絞り込み値（''=すべて）
 var FOODPLAN_OPTS = [];     // foodPlans用: 料理プランidリスト [{id,label}]
 
 // ===== 共通ヘルパー =====
@@ -259,6 +268,7 @@ function buildTabs() {
 // ===== 一覧表示 =====
 function selectTab(name) {
   CUR_SHEET = name;
+  CUR_FILTER = '';
   document.querySelectorAll('.tab-btn').forEach(function(b) {
     b.classList.toggle('active', b.dataset.sheet === name);
   });
@@ -284,14 +294,17 @@ function renderPanel(sc) {
   document.getElementById('panelTitle').textContent = sc.label || CUR_SHEET;
 
   var addBtn = document.getElementById('addBtn');
-  var canAdd = !sc.singleRow && !sc.keyValue;
+  var canAdd = !sc.singleRow && !sc.keyValue && !sc.editOnly;
   addBtn.classList.toggle('hidden', !canAdd);
 
   var hint = document.getElementById('hint');
   if (sc.singleRow) hint.textContent = '※この表は1件のみ。編集のみ可能です。';
   else if (sc.keyValue) hint.textContent = '※施設情報は値の編集のみ可能です（項目の追加・削除は不可）。';
+  else if (sc.editOnly) hint.textContent = '※この表は文面の編集のみ可能です（項目の追加・削除・キーの変更はできません）。編集後は「サイトに今すぐ反映」で1〜2分後にサイトへ反映されます。';
   else if (CUR_SHEET === 'SEO') hint.textContent = '※編集後は「サイトに今すぐ反映」で1〜2分後にサイトへ反映されます。';
   else hint.textContent = '※料理・会場・料金などの編集はリロードで即サイトに反映されます。';
+
+  renderFilter(sc);
 
   if (sc.singleRow) {
     document.getElementById('tableWrap').innerHTML =
@@ -301,6 +314,45 @@ function renderPanel(sc) {
   renderTable(sc);
 }
 
+// groupBy 指定のある表（文面など行数の多い表）に絞り込みセレクトを出す
+var PAGE_LABELS = {
+  common: '全ページ共通', index: 'トップページ', cuisine: 'お料理', venue: '会場案内',
+  pricing: '料金表', simulator: 'シミュレーター', party: '二次会', access: 'アクセス'
+};
+var SECTION_LABELS = {
+  header: 'ヘッダー', footer: 'フッター', hero: 'ヒーロー', strengths: '3つの強み',
+  scenes: '利用シーン', cuisine_intro: 'お料理紹介', sim_cta: 'シミュレーター誘導',
+  monte: 'レストラン紹介', cta: '下部CTA', steps: '入力ステップ', summary: '集計パネル'
+};
+function pageLabel(v) { return PAGE_LABELS[v] || v; }
+function sectionLabel(v) { return SECTION_LABELS[v] || v; }
+
+function renderFilter(sc) {
+  var wrap = document.getElementById('filterWrap');
+  if (!sc.groupBy || sc.singleRow) {
+    wrap.classList.add('hidden'); wrap.innerHTML = ''; return;
+  }
+  var vals = [];
+  CUR_ROWS.forEach(function(r) {
+    var v = r[sc.groupBy];
+    if (v && vals.indexOf(v) === -1) vals.push(v);
+  });
+  var opts = '<option value="">すべて（' + CUR_ROWS.length + '件）</option>';
+  vals.forEach(function(v) {
+    var n = CUR_ROWS.filter(function(r) { return r[sc.groupBy] === v; }).length;
+    opts += '<option value="' + esc(v) + '"' + (CUR_FILTER === v ? ' selected' : '') + '>' +
+      esc(pageLabel(v)) + '（' + n + '件）</option>';
+  });
+  wrap.innerHTML = '<label class="fld-label">ページで絞り込み</label>' +
+    '<select class="fld-input" style="max-width:280px" onchange="setFilter(this.value)">' + opts + '</select>';
+  wrap.classList.remove('hidden');
+}
+
+function setFilter(v) {
+  CUR_FILTER = v;
+  renderTable(schemaOf(CUR_SHEET));
+}
+
 function renderTable(sc) {
   var cols = sc.columns;
   var html = '<table class="data"><thead><tr>';
@@ -308,8 +360,27 @@ function renderTable(sc) {
   cols.forEach(function(c) { html += '<th>' + esc(c.name) + '</th>'; });
   html += '<th></th></tr></thead><tbody>';
 
-  CUR_ROWS.forEach(function(row, idx) {
+  var rows = CUR_ROWS;
+  if (sc.groupBy && CUR_FILTER) {
+    rows = rows.filter(function(r) { return r[sc.groupBy] === CUR_FILTER; });
+  }
+  var colSpan = cols.length + 1 + (sc.reindex ? 1 : 0);
+  var lastGroup = null;
+
+  rows.forEach(function(row) {
+    var idx = CUR_ROWS.indexOf(row);
     var key = sc.key ? row[sc.key] : idx;
+
+    // グループの切れ目に小見出し行を挟む（ページ／セクション単位で読みやすくする）
+    if (sc.groupBy) {
+      var g = pageLabel(row[sc.groupBy]) + (row.section ? ' ／ ' + sectionLabel(row.section) : '');
+      if (g !== lastGroup) {
+        lastGroup = g;
+        html += '<tr><td colspan="' + colSpan + '" style="background:#f1f5f9;font-weight:600;color:#475569">' +
+          esc(g) + '</td></tr>';
+      }
+    }
+
     html += '<tr>';
     if (sc.reindex) {
       html += '<td class="whitespace-nowrap">' +
@@ -333,7 +404,7 @@ function renderTable(sc) {
     });
     html += '<td class="whitespace-nowrap text-right">' +
       '<button class="btn-sm" onclick="openEditor(' + jsArg(key) + ')">編集</button> ';
-    if (!sc.keyValue) {
+    if (!sc.keyValue && !sc.editOnly) {
       html += '<button class="btn-sm" style="color:#dc2626" onclick="deleteRow(' + jsArg(key) + ')">削除</button>';
     }
     html += '</td></tr>';
@@ -405,6 +476,7 @@ function updatePreview() {
 function renderPreviewHtml(sc, o) {
   if (CUR_SHEET === 'SEO') return seoPreview(o);
   if (CUR_SHEET === 'コース') return coursePreview(o);
+  if (CUR_SHEET === '文面') return textPreview(o);
   if (sc.keyValue) return '<div class="text-sm"><span class="text-gray-500">' + esc(o.key) + '：</span>' + esc(o.value) + '</div>';
 
   var hasImg = sc.columns.some(function(c) { return c.type === 'image'; });
@@ -462,6 +534,17 @@ function coursePreview(o) {
       '<span style="color:#C1A36A">' + yen(o.price) + '</span></div>' +
     '<div style="margin-top:4px">' + thumbsHtml + '</div>' +
     '<div style="font-size:12px;color:#6b7280;margin-top:4px">' + esc(o.description || '') + '</div>' +
+    '</div>';
+}
+function textPreview(o) {
+  // 実際にサイトへ焼き込まれる形（改行→<br>）で見せる
+  var body = esc(o.value == null ? '' : String(o.value)).replace(/\r?\n/g, '<br>');
+  return '<div>' +
+    '<div style="font-size:11px;color:#9ca3af">' + esc(pageLabel(o.page)) +
+      (o.section ? ' ／ ' + esc(o.section) : '') + '</div>' +
+    '<div style="font-size:11px;color:#6b7280;margin-bottom:6px">' + esc(o.label || '') + '</div>' +
+    '<div style="font-size:15px;color:#1A2E44;line-height:1.7">' +
+      (body || '<span style="color:#dc2626">（未入力：保存しても現在の文面が残ります）</span>') + '</div>' +
     '</div>';
 }
 function seoPreview(o) {
@@ -536,6 +619,14 @@ function buildField(col, value) {
     el.type = 'text'; el.className = 'fld-input'; el.value = value || '';
     if (col.type === 'id') el.pattern = '[A-Za-z0-9_]+';
     if (col.type === 'id' && EDIT_KEY && EDIT_KEY !== '__single__') { el.readOnly = true; el.style.background = '#f1f5f9'; }
+  }
+  // 列単位の readOnly（構造側が決める値をスタッフに触らせない）
+  // ※ collectForm は DOM から直接 .value を読むので、disabled でも値は失われない
+  if (col.readOnly) {
+    if (el.tagName === 'SELECT' || el.type === 'checkbox') el.disabled = true;
+    else el.readOnly = true;
+    el.style.background = '#f1f5f9';
+    lbl.textContent = col.name + '（編集不可）';
   }
   el.dataset.field = col.name;
   wrap.appendChild(el);
