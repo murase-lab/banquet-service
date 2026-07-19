@@ -24,29 +24,7 @@ var CUISINE_DATA_FALLBACK = {
       "badgeColor": "primary",
       "sortOrder": 1,
       "active": "true",
-      "venueIncluded": "true",
-      "courses": [
-        {
-          "id": "kaiseki_5200",
-          "categoryId": "kaiseki",
-          "label": "5,200円コース",
-          "price": 5200,
-          "images": ["https://murase-lab.github.io/banquet-service/images/会席料理.webp"],
-          "description": "前菜、椀物、造里、焼物、煮物、食事、デザート",
-          "sortOrder": 1,
-          "active": "true"
-        },
-        {
-          "id": "kaiseki_7700",
-          "categoryId": "kaiseki",
-          "label": "7,700円コース",
-          "price": 7700,
-          "images": ["https://murase-lab.github.io/banquet-service/images/会席料理.webp"],
-          "description": "前菜、椀物、造里、焼物、強肴、煮物、食事、デザート（一品グレードアップ）",
-          "sortOrder": 2,
-          "active": "true"
-        }
-      ]
+      "venueIncluded": "true"
     },
     {
       "id": "sitting",
@@ -257,11 +235,7 @@ var CONFIG_FALLBACK = {
       "label": "会席料理",
       "price": 5200,
       "note": "コース料理・個別提供",
-      "venueIncluded": true,
-      "courses": [
-        { "id": "kaiseki_5200", "label": "5,200円コース", "price": 5200 },
-        { "id": "kaiseki_7700", "label": "7,700円コース", "price": 7700 }
-      ]
+      "venueIncluded": true
     },
     {
       "id": "sitting",
