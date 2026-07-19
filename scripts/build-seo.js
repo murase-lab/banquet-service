@@ -34,10 +34,20 @@ function readJson(p, fallbackPaths) {
   return null;
 }
 
+// CI ではサンプルにフォールバックしない（build-texts.js と同じ方針）。
+// APIがエラーページを返したときに、古いスナップショットのメタ情報を
+// 「正しいデータ」として公開サイトへ焼き込んでしまうのを防ぐ。
+const IS_CI = !!process.env.GITHUB_ACTIONS;
 const seoJson = readJson('/tmp/banquet-seo-response.json',
-  [path.join(__dirname, 'seo-sample', 'seo.json')]);
+  IS_CI ? [] : [path.join(__dirname, 'seo-sample', 'seo.json')]);
 const configJson = readJson('/tmp/banquet-config-response.json',
-  [path.join(__dirname, 'seo-sample', 'config.json')]);
+  IS_CI ? [] : [path.join(__dirname, 'seo-sample', 'config.json')]);
+
+if (IS_CI && (!seoJson || seoJson.error)) {
+  console.error('SEOデータを読み込めませんでした' + (seoJson && seoJson.error ? ': ' + seoJson.error : '') +
+    '。APIの応答を確認してください。');
+  process.exit(1);
+}
 
 if (!seoJson || !seoJson.pages || !seoJson.pages.length) {
   // SEOシート未シード等でデータが空のときは、焼き込み済みHTMLを空メタで

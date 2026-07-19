@@ -105,6 +105,18 @@ M.PAGES.forEach(function (page) {
         m.key + '" → ' + withoutBr.trim().slice(0, 80));
     }
 
+    // 検証2b: 往復（HTML→テキスト→HTML）で元に戻らない実体参照が入っていないか。
+    // 例えば &copy; は htmlToText がデコードしないため、textToHtml が &amp;copy; に
+    // エスケープしてしまい、サイトに「&copy;」という文字列が表示される。
+    // &nbsp; はデコードすると普通の空白になり折り返し防止の意味が失われる。
+    // どちらもマーカーの外に出すのが正解なので、ここで弾く。
+    const badEntity = withoutBr.match(/&(?!(amp|lt|gt|quot|#39);)[a-zA-Z#][a-zA-Z0-9#]*;/g);
+    if (badEntity) {
+      tagErrors.push(page + '.html:' + m.line + ' マーカー内に、そのまま表示できない文字コード表記があります: "' +
+        m.key + '" → ' + Array.from(new Set(badEntity)).join(' ') +
+        '（マーカーの外に出してください）');
+    }
+
     const value = M.htmlToText(raw);
     if (collected.has(m.key)) {
       const prev = collected.get(m.key);
@@ -157,29 +169,67 @@ console.log('出力: spreadsheet-data/07_文面.seed.json（' + rows.length + '�
 // ─── 貼り付け用のGASシード関数 ───
 const gas = [
   '/**',
-  ' * 「文面」シートの作成＋初期投入（一度きり）',
+  ' * 「文面」シートの作成＋投入（upsert）',
   ' *',
   ' * scripts/extract-texts.js が生成したファイル。GASエディタに貼り付けて',
   ' * seedTexts_() を1回だけ手動実行してください。実行後はこの関数を削除して構いません。',
-  ' * ※既存の「文面」シートがある場合は中身を作り直します（valueの手編集は失われます）',
+  ' *',
+  ' * upsert 方式なので、キーを追加した第2期以降でも安全に再実行できる:',
+  ' *   - 既にある行は value（スタッフが編集した文面）をそのまま残し、',
+  ' *     page / section / label / note だけ最新にする',
+  ' *   - 新しいキーだけ行を追加する',
+  ' *   - HTMLから消えたキーは自動削除せず、ログに報告するだけ（誤削除を避ける）',
   ' */',
   'function seedTexts_() {',
   '  var ss = SpreadsheetApp.getActiveSpreadsheet();',
   '  var sheet = ss.getSheetByName(\'文面\');',
-  '  if (!sheet) sheet = ss.insertSheet(\'文面\');',
   '  var headers = [\'key\', \'page\', \'section\', \'label\', \'value\', \'note\'];',
-  '  var rows = ' + JSON.stringify(rows.map(function (r) {
+  '  var seed = ' + JSON.stringify(rows.map(function (r) {
     return [r.key, r.page, r.section, r.label, r.value, r.note];
   }), null, 2).replace(/\n/g, '\n  ') + ';',
   '',
-  '  sheet.clear();',
-  '  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);',
-  '  if (rows.length > 0) {',
-  '    sheet.getRange(2, 1, rows.length, headers.length).setValues(rows);',
+  '  if (!sheet) {',
+  '    sheet = ss.insertSheet(\'文面\');',
+  '    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);',
   '  }',
   '  sheet.getRange(1, 1, 1, headers.length).setFontWeight(\'bold\').setBackground(\'#f0f0f0\');',
   '  sheet.setColumnWidth(5, 400);',
-  '  Logger.log(\'文面シートを作成しました: \' + rows.length + \'件\');',
+  '',
+  '  // 既存行を読み取り、キー→行番号 のマップを作る',
+  '  var last = sheet.getLastRow();',
+  '  var existing = {};',
+  '  if (last >= 2) {',
+  '    var cur = sheet.getRange(2, 1, last - 1, headers.length).getValues();',
+  '    for (var i = 0; i < cur.length; i++) {',
+  '      var k = String(cur[i][0]).trim();',
+  '      if (k) existing[k] = { row: i + 2, value: cur[i][4] };',
+  '    }',
+  '  }',
+  '',
+  '  var added = 0, updated = 0;',
+  '  var appends = [];',
+  '  seed.forEach(function(r) {',
+  '    var hit = existing[r[0]];',
+  '    if (hit) {',
+  '      // value はスタッフの編集を尊重してそのまま残す',
+  '      sheet.getRange(hit.row, 2, 1, 3).setValues([[r[1], r[2], r[3]]]);',
+  '      sheet.getRange(hit.row, 6).setValue(r[5]);',
+  '      updated++;',
+  '      delete existing[r[0]];',
+  '    } else {',
+  '      appends.push(r);',
+  '      added++;',
+  '    }',
+  '  });',
+  '  if (appends.length > 0) {',
+  '    sheet.getRange(sheet.getLastRow() + 1, 1, appends.length, headers.length).setValues(appends);',
+  '  }',
+  '',
+  '  var orphans = Object.keys(existing);',
+  '  Logger.log(\'文面シートを更新しました: 追加 \' + added + \'件 / 既存更新 \' + updated + \'件\');',
+  '  if (orphans.length) {',
+  '    Logger.log(\'※HTMLに対応するマーカーが無い行が \' + orphans.length + \'件あります（自動削除はしません）: \' + orphans.join(\', \'));',
+  '  }',
   '}',
   ''
 ].join('\n');

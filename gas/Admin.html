@@ -267,8 +267,10 @@ function buildTabs() {
 
 // ===== 一覧表示 =====
 function selectTab(name) {
+  // 別のタブに移ったときだけ絞り込みを解除する。
+  // 保存後は同じタブを読み直すので、選んでいたページの絞り込みが残る
+  if (CUR_SHEET !== name) CUR_FILTER = '';
   CUR_SHEET = name;
-  CUR_FILTER = '';
   document.querySelectorAll('.tab-btn').forEach(function(b) {
     b.classList.toggle('active', b.dataset.sheet === name);
   });
@@ -299,7 +301,7 @@ function renderPanel(sc) {
 
   var hint = document.getElementById('hint');
   if (sc.singleRow) hint.textContent = '※この表は1件のみ。編集のみ可能です。';
-  else if (sc.keyValue) hint.textContent = '※施設情報は値の編集のみ可能です（項目の追加・削除は不可）。';
+  else if (sc.keyValue) hint.textContent = '※施設情報は値の編集のみ可能です（項目の追加・削除は不可）。住所・電話番号はサイトのヘッダー／フッター表示にも使われるため、変更後は「サイトに今すぐ反映」で1〜2分後に反映されます。';
   else if (sc.editOnly) hint.textContent = '※この表は文面の編集のみ可能です（項目の追加・削除・キーの変更はできません）。編集後は「サイトに今すぐ反映」で1〜2分後にサイトへ反映されます。';
   else if (CUR_SHEET === 'SEO') hint.textContent = '※編集後は「サイトに今すぐ反映」で1〜2分後にサイトへ反映されます。';
   else hint.textContent = '※料理・会場・料金などの編集はリロードで即サイトに反映されます。';
@@ -537,11 +539,13 @@ function coursePreview(o) {
     '</div>';
 }
 function textPreview(o) {
-  // 実際にサイトへ焼き込まれる形（改行→<br>）で見せる
-  var body = esc(o.value == null ? '' : String(o.value)).replace(/\r?\n/g, '<br>');
+  // 実際にサイトへ焼き込まれる形で見せる（build-texts.js の normalizeValue と同じ正規化）
+  var v = String(o.value == null ? '' : o.value)
+    .replace(/\r\n?/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  var body = esc(v).replace(/\n/g, '<br>');
   return '<div>' +
     '<div style="font-size:11px;color:#9ca3af">' + esc(pageLabel(o.page)) +
-      (o.section ? ' ／ ' + esc(o.section) : '') + '</div>' +
+      (o.section ? ' ／ ' + esc(sectionLabel(o.section)) : '') + '</div>' +
     '<div style="font-size:11px;color:#6b7280;margin-bottom:6px">' + esc(o.label || '') + '</div>' +
     '<div style="font-size:15px;color:#1A2E44;line-height:1.7">' +
       (body || '<span style="color:#dc2626">（未入力：保存しても現在の文面が残ります）</span>') + '</div>' +

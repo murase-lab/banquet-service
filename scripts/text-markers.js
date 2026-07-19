@@ -103,6 +103,29 @@ function htmlToText(s) {
 }
 
 /**
+ * href="tel:..." を電話番号に追従させる。
+ *
+ * 電話番号は表示（facility.tel マーカー）だけを差し替えると、リンク先が旧番号のまま残り
+ * 「画面には新番号、タップすると旧番号にかかる」という食い違いが起きる。
+ * 値は設定シート由来（スタッフの自由入力ではない）なので、数字と + のみに正規化して埋める。
+ * 正規化の結果が電話番号として妥当でなければ書き換えない。
+ */
+function replaceTelHrefs(html, tel) {
+  // ハイフンは tel: URI で有効なので残す（既存HTMLの表記と一致し、差分が最小になる）
+  const normalized = String(tel == null ? '' : tel).replace(/[^\d+\-]/g, '');
+  const digits = normalized.replace(/\D/g, '');
+  if (!/^\+?[\d-]+$/.test(normalized) || digits.length < 9 || digits.length > 15) {
+    return { html: html, count: 0, skipped: true };
+  }
+  let count = 0;
+  const out = html.replace(/href="tel:[^"]*"/g, function () {
+    count++;
+    return 'href="tel:' + normalized + '"';
+  });
+  return { html: out, count: count, skipped: false };
+}
+
+/**
  * マーカーの中身を置き換えた HTML を返す。
  * @param resolve (key) => string|null  null を返すと既存の中身を保持する
  */
@@ -122,5 +145,5 @@ function replaceMarkers(html, markers, resolve) {
 
 module.exports = {
   OPEN, CLOSE, KEY_RE, BR_RE, PAGES,
-  scanMarkers, normalizeValue, textToHtml, htmlToText, replaceMarkers, lineOf
+  scanMarkers, normalizeValue, textToHtml, htmlToText, replaceMarkers, replaceTelHrefs, lineOf
 };

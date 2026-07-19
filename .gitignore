@@ -6,3 +6,11 @@ Thumbs.db
 
 # 管理画面のローカル検証用に生成する一時ファイル（scripts/_gen-admin-test.js が生成）
 _admin_test.html
+
+# Google Sheets の内容を手元で確認するためのミラー（正本は Sheets 側）。
+# scripts/extract-texts.js が出力する 07_文面.seed.json もここに入る
+spreadsheet-data/
+
+# Claude Code / 作業用の一時フォルダ
+.claude/
+tmp/

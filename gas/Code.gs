@@ -513,7 +513,9 @@ var SHEET_SCHEMA = {
     label: 'ページ文面', key: 'key', singleRow: false, reindex: false,
     editOnly: true, groupBy: 'page',
     columns: [
-      { name: 'key',     type: 'id' },
+      // key は id 型にしない。id 型の検証は英数字と _ のみを許すが、
+      // 文面のキーは page.section.element というドット区切りのため必ず弾かれる
+      { name: 'key',     type: 'text',     readOnly: true },
       { name: 'page',    type: 'text',     readOnly: true },
       { name: 'section', type: 'text',     readOnly: true },
       { name: 'label',   type: 'text',     readOnly: true },
@@ -611,6 +613,15 @@ function getSheetOrThrow_(ss, name) {
   var s = ss.getSheetByName(name);
   if (!s) throw new Error('シートがありません: ' + name);
   return s;
+}
+
+/** キー列の値で1行を読み出す（無ければ空オブジェクト） */
+function readRowByKey_(ss, sheetName, keyCol, keyValue) {
+  var rows = sheetToObjects(ss, sheetName);
+  for (var i = 0; i < rows.length; i++) {
+    if (String(rows[i][keyCol]).trim() === String(keyValue).trim()) return rows[i];
+  }
+  return {};
 }
 
 /** key列で対象行を特定（1始まり・ヘッダー含む）。無ければ -1 */
@@ -724,6 +735,19 @@ function adminUpdateRow(pw, sheetName, keyValue, rowObj) {
     if (!sc.key) throw new Error('この表はキー更新できません');
     var rowIdx = findRowIndex_(sheet, sc.key, keyValue);
     if (rowIdx === -1) throw new Error('対象が見つかりません: ' + keyValue);
+
+    // editOnly の表では readOnly 列（キーを含む）をサーバ側でも保護する。
+    // UI の readOnly はクライアント側の制御でしかないため、そこだけに頼らない。
+    // 文面のキーが書き換わるとHTMLのマーカーと突合できなくなり、その行が
+    // 警告ログを残すだけで二度と反映されない状態になる。
+    if (sc.editOnly) {
+      var current = readRowByKey_(ss, sheetName, sc.key, keyValue);
+      sc.columns.forEach(function(col) {
+        if (col.readOnly || col.name === sc.key) rowObj[col.name] = current[col.name];
+      });
+      rowObj[sc.key] = keyValue;
+    }
+
     // キー変更時は重複チェック
     if (rowObj[sc.key] && String(rowObj[sc.key]) !== String(keyValue)) {
       if (findRowIndex_(sheet, sc.key, rowObj[sc.key]) !== -1) {

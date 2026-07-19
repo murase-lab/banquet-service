@@ -22,25 +22,25 @@ jobs:
 
       - name: Fetch Cuisine Data
         run: |
-          curl -sL "${{ secrets.BANQUET_API_URL }}?type=cuisine" -o /tmp/banquet-cuisine-response.json
+          curl -fsSL "${{ secrets.BANQUET_API_URL }}?type=cuisine" -o /tmp/banquet-cuisine-response.json
           echo "Cuisine API response:"
           cat /tmp/banquet-cuisine-response.json | head -c 500
 
       - name: Fetch Config Data
         run: |
-          curl -sL "${{ secrets.BANQUET_API_URL }}?type=config" -o /tmp/banquet-config-response.json
+          curl -fsSL "${{ secrets.BANQUET_API_URL }}?type=config" -o /tmp/banquet-config-response.json
           echo "Config API response:"
           cat /tmp/banquet-config-response.json | head -c 500
 
       - name: Fetch SEO Data
         run: |
-          curl -sL "${{ secrets.BANQUET_API_URL }}?type=seo" -o /tmp/banquet-seo-response.json
+          curl -fsSL "${{ secrets.BANQUET_API_URL }}?type=seo" -o /tmp/banquet-seo-response.json
           echo "SEO API response:"
           cat /tmp/banquet-seo-response.json | head -c 500
 
       - name: Fetch Texts Data
         run: |
-          curl -sL "${{ secrets.BANQUET_API_URL }}?type=texts" -o /tmp/banquet-texts-response.json
+          curl -fsSL "${{ secrets.BANQUET_API_URL }}?type=texts" -o /tmp/banquet-texts-response.json
           echo "Texts API response:"
           cat /tmp/banquet-texts-response.json | head -c 500
 
