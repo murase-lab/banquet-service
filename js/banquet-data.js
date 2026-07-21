@@ -19,7 +19,7 @@ var CUISINE_DATA_FALLBACK = {
       "price": 5200,
       "note": "コース料理・個別提供",
       "description": "お一人おひとりにサービスする形式です。前菜〜デザートまでのコース料理です。",
-      "image": "https://murase-lab.github.io/banquet-service/images/会席料理.webp",
+      "image": "https://lh3.googleusercontent.com/d/1bRgwQvLTjS1yXnWmGC9C8kpM1Ks8qlW5",
       "badgeText": "個別提供",
       "badgeColor": "primary",
       "sortOrder": 1,
