@@ -96,7 +96,7 @@ var CUISINE_DATA_FALLBACK = {
     "price": 2800,
     "duration": "110分",
     "description": "ビール・ノンアルコールビール・日本酒・焼酎（麦・芋）・ウィスキー・梅酒・ウーロン茶・オレンジジュース",
-    "image": "https://murase-lab.github.io/banquet-service/images/フリードリンク.webp"
+    "image": "https://i.ibb.co/hFR5Cqy4/image0-1.png"
   }
 };
 
